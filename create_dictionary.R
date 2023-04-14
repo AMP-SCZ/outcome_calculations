@@ -692,7 +692,7 @@ variables_outcome <- outcome_long %>%
   mutate(distinct_values_new = case_when(
     variable == 'psychosis_onset_date'|variable == 'conversion_date' ~ 
       '1909-09-09;1903-03-03;1901-01-01',
-      TRUE ~ '-900;-300;'))%>%
+      TRUE ~ ';-900;-300'))%>%
   mutate(value_range = case_when( variable == "psychs_pos_tot"             ~ '0::90',
                                   variable == "psychs_sips_p1"             ~ '0::6',
                                   variable == "chrpsychs_scr_2d1"          ~ '0::6',
@@ -709,7 +709,7 @@ variables_outcome <- outcome_long %>%
                                   variable == "psychs_caarms_p3"           ~ '0::36',
                                   variable == "psychs_caarms_p4"           ~ '0::36',
                                   variable == "caarms_pos_tot"             ~ '0::144',
-                                  variable == "psychosis_onset_date"       ~ 'replace',
+                                  variable == "psychosis_onset_date"       ~ '1990-01-01::2030-01-01;',
                                   variable == "chrpsychs_scr_ac1"          ~ '0;1',
                                   variable == "chrpsychs_scr_ac2"          ~ '0;1',
                                   variable == "chrpsychs_scr_ac3"          ~ '0;1',
@@ -735,7 +735,7 @@ variables_outcome <- outcome_long %>%
                                   variable == "chrpsychs_scr_ac30"         ~ '0;1',
                                   variable == "chrpsychs_scr_ac31"         ~ '1::5',
                                   variable == "chrpsychs_scr_ac32"         ~ '0;1',
-                                  variable == "conversion_date"            ~ 'replace',
+                                  variable == "conversion_date"            ~ '1990-01-01::2030-01-01;',
                                   variable == "hcpsychs_fu_ac1"              ~ '0;1',
                                   variable == "hcpsychs_fu_ac1_curr"         ~ '0;1',
                                   variable == "hcpsychs_fu_ac1_prev"         ~ '0;1',
@@ -849,14 +849,14 @@ variables_outcome <- outcome_long %>%
                                   variable == "cdss_total" ~ '0::27',                              
                                   variable == "perceived_stress_scale_total" ~ '0::40'))%>%
   unite('Notes', c(Expert_Name, Experts, Calculation, Notes, Adaptation, original_calculation_adapted_np_or_comment), sep = '')%>%
-  dplyr::select(variable, value_range, distinct_values_new, min_value, max_value, data_type, description, Notes, csv_names, distinct_values, diverging_expert_variable_name)%>%
+  unite('VALUE_RANGE', c(value_range, distinct_values_new), sep = '')%>%
+  dplyr::select(variable, VALUE_RANGE, min_value, max_value, data_type, description, Notes, csv_names, distinct_values, diverging_expert_variable_name)%>%
   dplyr::rename(ELEMENT_NAME = variable ,
                 DATA_TYPE = data_type,
                 DESCRIPTION = description,
                 NOTES = Notes,
-                ALIASES = diverging_expert_variable_name,
-                VALUE_RANGE = value_range)%>%
-  dplyr::select(ELEMENT_NAME, DATA_TYPE, VALUE_RANGE,	DESCRIPTION,	NOTES,	csv_names, ALIASES)
+                ALIASES = diverging_expert_variable_name)%>%
+  dplyr::select(ELEMENT_NAME, DATA_TYPE, DESCRIPTION,	VALUE_RANGE,NOTES,	csv_names, ALIASES)
 
    
                      
