@@ -854,7 +854,9 @@ variables_outcome <- outcome_long %>%
                 DATA_TYPE = data_type,
                 DESCRIPTION = description,
                 NOTES = Notes,
-                ALIASES = diverging_expert_variable_name)
+                ALIASES = diverging_expert_variable_name)%>%
+  dplyr::select(ELEMENT_NAME, DATA_TYPE,	DESCRIPTION,	NOTES,	csv_names, ALIASES)
+
    
                      
 write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv')
