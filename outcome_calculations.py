@@ -1365,9 +1365,9 @@ concatenated_df = pd.concat(subject_list)
 
 if version == 'test':
     print("Wrote the test - subjects to the control_subjects folder.")
-    concatenated_df.to_csv("/data/predict1/home/np487/amp_scz/outcome_calculations/test_subjects/{0}_new_subjects.csv".format(network), index = False, header=True, float_format='%.3f')
+    concatenated_df.to_csv("/data/predict1/home/np487/amp_scz/test_subjects/{0}_new_subjects.csv".format(network), index = False, header=True, float_format='%.3f')
 elif version == 'create_control':
-    concatenated_df.to_csv("/data/predict1/home/np487/amp_scz/outcome_calculations/{0}_test_subjects.csv".format(network), index = False, header=True, float_format='%.3f')
+    concatenated_df.to_csv("/data/predict1/home/np487/amp_scz/{0}_test_subjects.csv".format(network), index = False, header=True, float_format='%.3f')
 elif version == 'run_outcome':
     print("Wrote the real outcome - subjects to the control_subjects folder.")
     concatenated_df.to_csv("/data/predict1/home/np487/control_subjects/{0}_all.csv".format(network), index = False, header=True, float_format='%.3f')

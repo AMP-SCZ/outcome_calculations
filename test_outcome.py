@@ -17,12 +17,12 @@ from datetime import date
 # --------------------------------------------------------------------#
 
 # Here, we load the data that was created on March, 26th and check them!
-test_subj_pronet = pd.read_csv("/data/predict1/home/np487/amp_scz/outcome_calculations/pronet_test_subjects.csv")
-test_subj_prescient = pd.read_csv("/data/predict1/home/np487/amp_scz/outcome_calculations/prescient_test_subjects.csv")
+test_subj_pronet = pd.read_csv("/data/predict1/home/np487/amp_scz/pronet_test_subjects.csv")
+test_subj_prescient = pd.read_csv("/data/predict1/home/np487/amp_scz/prescient_test_subjects.csv")
 test_subj = pd.concat([test_subj_pronet, test_subj_prescient], axis = 0)
 
-new_subj_pronet = pd.read_csv("/data/predict1/home/np487/amp_scz/outcome_calculations/test_subjects/pronet_new_subjects.csv")
-new_subj_prescient = pd.read_csv("/data/predict1/home/np487/amp_scz/outcome_calculations/test_subjects/prescient_new_subjects.csv")
+new_subj_pronet = pd.read_csv("/data/predict1/home/np487/amp_scz/test_subjects/pronet_new_subjects.csv")
+new_subj_prescient = pd.read_csv("/data/predict1/home/np487/amp_scz/test_subjects/prescient_new_subjects.csv")
 new_subj = pd.concat([new_subj_pronet, new_subj_prescient], axis = 0)
 
 test_subj['value_original']=test_subj['value']
