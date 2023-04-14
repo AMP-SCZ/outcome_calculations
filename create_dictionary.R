@@ -688,7 +688,7 @@ variables_outcome <- outcome_long %>%
                      variable == "perceived_stress_scale_total" ~ '4 of the scores have to be reversed: (4-xxx) [chrpss_pssp2_1, chrpss_pssp2_2, chrpss_pssp2_4, chrpss_pssp2_5]'))%>%
   mutate(Expert_Name = 'Expert: ',
          Calculation = ', Calculation: ',
-         Adaptation  = ', Adaptation by Nora Penzel: ')%>%
+         Adaptation  = ', Adaptation by NP: ')%>%
   mutate(distinct_values_new = case_when(
     variable == 'psychosis_onset_date'|variable == 'conversion_date' ~ 
       '1909-09-09;1903-03-03;1901-01-01',
@@ -854,8 +854,9 @@ variables_outcome <- outcome_long %>%
                 DATA_TYPE = data_type,
                 DESCRIPTION = description,
                 NOTES = Notes,
-                ALIASES = diverging_expert_variable_name)%>%
-  dplyr::select(ELEMENT_NAME, DATA_TYPE,	DESCRIPTION,	NOTES,	csv_names, ALIASES)
+                ALIASES = diverging_expert_variable_name,
+                VALUE_RANGE = value_range)%>%
+  dplyr::select(ELEMENT_NAME, DATA_TYPE, VALUE_RANGE,	DESCRIPTION,	NOTES,	csv_names, ALIASES)
 
    
                      
