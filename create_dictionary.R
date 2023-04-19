@@ -691,7 +691,7 @@ variables_outcome <- outcome_long %>%
          Adaptation  = ', Adaptation by NP: ')%>%
   mutate(distinct_values_new = case_when(
     variable == 'psychosis_onset_date'|variable == 'conversion_date' ~ 
-      '1909-09-09;1903-03-03;1901-01-01',
+      '',
       TRUE ~ ';-900;-300'))%>%
   mutate(value_range = case_when( variable == "psychs_pos_tot"             ~ '0::90',
                                   variable == "psychs_sips_p1"             ~ '0::6',
