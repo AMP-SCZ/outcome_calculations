@@ -814,8 +814,8 @@ variables_outcome <- outcome_long %>%
                                   variable == "total_score_upto_early_adolescence" ~ '0::27',      
                                   variable == "total_score_upto_late_adolescence"  ~ '0::28',
                                   variable == "total_score_upto_adulthood"         ~ '0::25.5',              
-                                  variable == "cssrs_intensity_lifetime"           ~ '0;2::25',
-                                  variable == "cssrs_intensity_pastmonth"          ~ '0;3::25',               
+                                  variable == "cssrs_intensity_lifetime"           ~ '0::25',
+                                  variable == "cssrs_intensity_pastmonth"          ~ '0::25',               
                                   variable == "chrpred_transition"                 ~ '0;1',
                                   variable == "chrpred_experience"                 ~ '1:240',                      
                                   variable == "chrpgi_2"                           ~ '1::5',
@@ -860,4 +860,4 @@ variables_outcome <- outcome_long %>%
 
    
                      
-write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv')
+write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
