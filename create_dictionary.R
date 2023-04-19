@@ -795,7 +795,7 @@ variables_outcome <- outcome_long %>%
                                   variable == "chrpps_sum11" ~ '0;5',
                                   variable == "chrpps_sum12" ~ '0;7',                            
                                   variable == "chrpps_sum13" ~ '0;5',
-                                  variable == "chrpps_sum14" ~ '0;6.5;',                            
+                                  variable == "chrpps_sum14" ~ '0;6.5',                            
                                   variable == "tobacco"       ~ '0::39',
                                   variable == "alcohol"       ~ '0::39',                                 
                                   variable == "cannabis"      ~ '0::39',
