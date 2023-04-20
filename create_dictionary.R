@@ -154,7 +154,7 @@ variables_outcome <- outcome_long %>%
              str_detect(variable, 'chrpps') ~ 'psychosis_polyrisk_score.csv',
              str_detect(variable, 'tobac|alco|cannab|cocaine|ampheta|inhalant|sedative|halluc|opiod|other') ~ 'assist.csv',
              str_detect(variable, 'chrpred') ~ 'ra_prediction.csv',
-             str_detect(variable, 'childhood_subtotal|adolescence_sub|adulthood_sub|only_childhood|upto_') ~ 'premorbid_adjustment.csv'))%>%
+             str_detect(variable, 'childhood_subtotal|adolescence_sub|adulthood_sub|only_childhood|upto_') ~ 'premorbid_adjustment_scale.csv'))%>%
   mutate(description = 
            case_when(variable == "psychs_pos_tot"                            ~ 'PSYCHS Total Score',
                      variable == "psychs_sips_p1"                            ~ 'SIPS P1 Severity Score: Unusual Thought Content/Delusional Ideas',
@@ -688,7 +688,7 @@ variables_outcome <- outcome_long %>%
                      variable == "perceived_stress_scale_total" ~ '4 of the scores have to be reversed: (4-xxx) [chrpss_pssp2_1, chrpss_pssp2_2, chrpss_pssp2_4, chrpss_pssp2_5]'))%>%
   mutate(Expert_Name = 'Expert: ',
          Calculation = ', Calculation: ',
-         Adaptation  = ', Adaptation by NP: ')%>%
+         Adaptation  = ', adapted by AMP-SCZ staff: ')%>%
   mutate(distinct_values_new = case_when(
     variable == 'psychosis_onset_date'|variable == 'conversion_date' ~ 
       '',
@@ -813,11 +813,11 @@ variables_outcome <- outcome_long %>%
                                   variable == "total_score_only_childhood"         ~ '0::24',
                                   variable == "total_score_upto_early_adolescence" ~ '0::27',      
                                   variable == "total_score_upto_late_adolescence"  ~ '0::28',
-                                  variable == "total_score_upto_adulthood"         ~ '0::25.5',              
+                                  variable == "total_score_upto_adulthood"         ~ '0::26',              
                                   variable == "cssrs_intensity_lifetime"           ~ '0::25',
                                   variable == "cssrs_intensity_pastmonth"          ~ '0::25',               
                                   variable == "chrpred_transition"                 ~ '0;1',
-                                  variable == "chrpred_experience"                 ~ '1:240',                      
+                                  variable == "chrpred_experience"                 ~ '1::240',                      
                                   variable == "chrpgi_2"                           ~ '1::5',
                                   variable == "promis_total"                       ~ '7::35',                            
                                   variable == "decline_in_global_role_functioning" ~ '0::10',
@@ -848,6 +848,7 @@ variables_outcome <- outcome_long %>%
                                   variable == "perceived_discrimination_total" ~ '0::9',
                                   variable == "cdss_total" ~ '0::27',                              
                                   variable == "perceived_stress_scale_total" ~ '0::40'))%>%
+  mutate_all(~ case_when(is.na(.) ~ "", TRUE ~ .))%>%
   unite('Notes', c(Expert_Name, Experts, Calculation, Notes, Adaptation, original_calculation_adapted_np_or_comment), sep = '')%>%
   unite('VALUE_RANGE', c(value_range, distinct_values_new), sep = '')%>%
   dplyr::select(variable, VALUE_RANGE, min_value, max_value, data_type, description, Notes, csv_names, distinct_values, diverging_expert_variable_name)%>%
