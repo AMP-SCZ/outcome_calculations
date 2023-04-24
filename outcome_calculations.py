@@ -482,19 +482,19 @@ for i, id in enumerate(id_list, 1):
 # --------------------------------------------------------------------#
 # CDSS 
 # --------------------------------------------------------------------#
-    cdss = create_total_division('cdss_total', df_all, df_all, ['chrcdss_calg1', 'chrcdss_calg2', 'chrcdss_calg3', 'chrcdss_calg4',\
+    cdss = create_total_division('chrcdss_total', df_all, df_all, ['chrcdss_calg1', 'chrcdss_calg2', 'chrcdss_calg3', 'chrcdss_calg4',\
                                                                 'chrcdss_calg5', 'chrcdss_calg6', 'chrcdss_calg7', 'chrcdss_calg8', 'chrcdss_calg9'], 1, voi_1, all_visits_list, 'int')
     cdss['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # Perceived Discrimination Scale 
 # --------------------------------------------------------------------#
-    pdt = create_total_division('perceived_discrimination_total', df_all, df_all, ['chrdim_dim_yesno_q1_1','chrdlm_dim_yesno_q1_2','chrdlm_dim_sex','chrdlm_dim_yesno_age','chrdlm_dim_yesno_q4_1',\
+    pdt = create_total_division('chrpds_perceived_discrimination_total', df_all, df_all, ['chrdim_dim_yesno_q1_1','chrdlm_dim_yesno_q1_2','chrdlm_dim_sex','chrdlm_dim_yesno_age','chrdlm_dim_yesno_q4_1',\
                                                                                    'chrdlm_dim_yesno_q5','chrdlm_dim_yesno_q3','chrdlm_dim_yesno_q6','chrdlm_dim_yesno_other'], 1, voi_2, all_visits_list, 'int')
     pdt['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # OASIS 
 # --------------------------------------------------------------------#
-    oasis = create_total_division('oasis_total', df_all, df_all, ['chroasis_oasis_1','chroasis_oasis_2', 'chroasis_oasis_3', 'chroasis_oasis_4', 'chroasis_oasis_5'], 1, voi_1, all_visits_list, 'int')
+    oasis = create_total_division('chroasis_total', df_all, df_all, ['chroasis_oasis_1','chroasis_oasis_2', 'chroasis_oasis_3', 'chroasis_oasis_4', 'chroasis_oasis_5'], 1, voi_1, all_visits_list, 'int')
     oasis['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # Perceived Stress Scale 
@@ -504,54 +504,54 @@ for i, id in enumerate(id_list, 1):
     pss_df['chrpss_pssp2_2']  = 4 - pss_df['chrpss_pssp2_2'].astype(float)
     pss_df['chrpss_pssp2_4']  = 4 - pss_df['chrpss_pssp2_4'].astype(float)
     pss_df['chrpss_pssp2_5']  = 4 - pss_df['chrpss_pssp2_5'].astype(float)
-    pss = create_total_division('perceived_stress_scale_total', pss_df, df_all, ['chrpss_pssp1_1','chrpss_pssp1_2', 'chrpss_pssp1_3','chrpss_pssp2_1', 'chrpss_pssp2_2','chrpss_pssp2_3',\
+    pss = create_total_division('chrpss_perceived_stress_scale_total', pss_df, df_all, ['chrpss_pssp1_1','chrpss_pssp1_2', 'chrpss_pssp1_3','chrpss_pssp2_1', 'chrpss_pssp2_2','chrpss_pssp2_3',\
                                                                                  'chrpss_pssp2_4','chrpss_pssp2_5', 'chrpss_pssp3_1','chrpss_pssp3_4'], 1, voi_1, all_visits_list, 'int')
     pss['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # BPRS 
 # --------------------------------------------------------------------#
     bprs0 = create_use_value('chrbprs_bprs_total', df_all, df_all, ['chrbprs_bprs_total'], voi_4, all_visits_list, 'int')
-    bprs1 = create_total_division('bprs_affect_subscale', df_all, df_all, ['chrbprs_bprs_depr', 'chrbprs_bprs_suic', 'chrbprs_bprs_guil'], 1, voi_4, all_visits_list, 'int')
-    bprs2 = create_total_division('bprs_positive_symptom_subscale', df_all, df_all, ['chrbprs_bprs_unus', 'chrbprs_bprs_hall', 'chrbprs_bprs_susp'], 1, voi_4, all_visits_list, 'int')
-    bprs3 = create_total_division('bprs_negative_symptom_subscale', df_all, df_all, ['chrbprs_bprs_blun', 'chrbprs_bprs_motr', 'chrbprs_bprs_emot'], 1, voi_4, all_visits_list, 'int')
-    bprs4 = create_total_division('bprs_activation_subscale', df_all, df_all, ['chrbprs_bprs_exci', 'chrbprs_bprs_mohy', 'chrbprs_bprs_elat'], 1, voi_4, all_visits_list, 'int')
-    bprs5 = create_total_division('bprs_disorganization_subscale', df_all, df_all, ['chrbprs_bprs_diso', 'chrbprs_bprs_conc', 'chrbprs_bprs_self'], 1, voi_4, all_visits_list, 'int')
+    bprs1 = create_total_division('chrbprs_affect_subscale', df_all, df_all, ['chrbprs_bprs_depr', 'chrbprs_bprs_suic', 'chrbprs_bprs_guil'], 1, voi_4, all_visits_list, 'int')
+    bprs2 = create_total_division('chrbprs_positive_symptom_subscale', df_all, df_all, ['chrbprs_bprs_unus', 'chrbprs_bprs_hall', 'chrbprs_bprs_susp'], 1, voi_4, all_visits_list, 'int')
+    bprs3 = create_total_division('chrbprs_negative_symptom_subscale', df_all, df_all, ['chrbprs_bprs_blun', 'chrbprs_bprs_motr', 'chrbprs_bprs_emot'], 1, voi_4, all_visits_list, 'int')
+    bprs4 = create_total_division('chrbprs_activation_subscale', df_all, df_all, ['chrbprs_bprs_exci', 'chrbprs_bprs_mohy', 'chrbprs_bprs_elat'], 1, voi_4, all_visits_list, 'int')
+    bprs5 = create_total_division('chrbprs_disorganization_subscale', df_all, df_all, ['chrbprs_bprs_diso', 'chrbprs_bprs_conc', 'chrbprs_bprs_self'], 1, voi_4, all_visits_list, 'int')
     bprs = pd.concat([bprs0,bprs1, bprs2, bprs3, bprs4, bprs5], axis = 0)
     bprs['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # GF-R
 # --------------------------------------------------------------------#
-    gfr = create_decline('decline_in_global_role_functioning', df_all, df_all, ['chrgfr_gf_role_high', 'chrgfr_gf_role_scole'], voi_2, all_visits_list, 'int')
+    gfr = create_decline('chrgfrs_decline_in_global_role_functioning', df_all, df_all, ['chrgfr_gf_role_high', 'chrgfr_gf_role_scole'], voi_2, all_visits_list, 'int')
     gfr['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # GF- S
 # --------------------------------------------------------------------#
-    gfs = create_decline('decline_in_global_social_functioning', df_all, df_all, ['chrgfs_gf_social_high', 'chrgfs_gf_social_scale'], voi_2, all_visits_list, 'int')
+    gfs = create_decline('chrgfss_decline_in_global_social_functioning', df_all, df_all, ['chrgfs_gf_social_high', 'chrgfs_gf_social_scale'], voi_2, all_visits_list, 'int')
     gfs['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # Pubertal Developmental Scale 
 # --------------------------------------------------------------------#
     if age > 18:
-        pds_female  = create_condition_value('pds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
-        pds_male    = create_condition_value('pds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        pds_female  = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        pds_male    = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif age < 19 and sex == 'female':
-        pds_female  = create_total_division('pds_total_score_female_sex',df_all,df_all,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
-        pds_male    = create_condition_value('pds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        pds_female  = create_total_division('chrpds_total_score_female_sex',df_all,df_all,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
+        pds_male    = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif age < 19 and sex == 'male':
-        pds_male  = create_total_division('pds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
-        pds_female    = create_condition_value('pds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
+        pds_female    = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif sex != 'female' and sex != 'male':
         print("sex is unknown")
-        pds_female = create_condition_value('pds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
-        pds_male = create_condition_value('pds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
+        pds_female = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
+        pds_male = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
     elif np.isnan(age) and sex == 'female':
         print("age is unknown")
-        pds_female  = create_total_division('pds_total_score_female_sex',df_all,df_all,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
-        pds_male    = create_condition_value('pds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        pds_female  = create_total_division('chrpds_total_score_female_sex',df_all,df_all,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
+        pds_male    = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif np.isnan(age) and sex == 'male':
         print("age is unknown")
-        pds_female  = create_condition_value('pds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
-        pds_male  = create_total_division('pds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
+        pds_female  = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
     # menarche
     if age > 18 or sex == 'male':
         pds_menarche = create_condition_value('chrpds_pds_f5b_p', df_all, df_all, voi_2, all_visits_list, 'int', -300)
@@ -580,14 +580,14 @@ for i, id in enumerate(id_list, 1):
 # --------------------------------------------------------------------#
 # NSI-PR 
 # --------------------------------------------------------------------#
-    nsipr_1 = create_total_division('nsipr_motivation_and_pleasure_dimension', df_all, df_all, ['chrnsipr_item1_rating', 'chrnsipr_item2_rating', 'chrnsipr_item3_rating', 'chrnsipr_item4_rating',\
+    nsipr_1 = create_total_division('chrnsipr_motivation_and_pleasure_dimension', df_all, df_all, ['chrnsipr_item1_rating', 'chrnsipr_item2_rating', 'chrnsipr_item3_rating', 'chrnsipr_item4_rating',\
                                                                                                 'chrnsipr_item5_rating',  'chrnsipr_item6_rating', 'chrnsipr_item7_rating'], 7, voi_1, all_visits_list, 'float')
-    nsipr_2 = create_total_division('nsipr_diminished_expression_dimension', df_all, df_all, ['chrnsipr_item8_rating', 'chrnsipr_item9_rating', 'chrnsipr_item10_rating',\
+    nsipr_2 = create_total_division('chrnsipr_diminished_expression_dimension', df_all, df_all, ['chrnsipr_item8_rating', 'chrnsipr_item9_rating', 'chrnsipr_item10_rating',\
                                                                                               'chrnsipr_item11_rating'], 4, voi_1, all_visits_list, 'float')
-    nsipr_3 = create_total_division('nsipr_avolition_domain', df_all, df_all, ['chrnsipr_item1_rating', 'chrnsipr_item2_rating'], 2, voi_1, all_visits_list, 'float')
-    nsipr_4 = create_total_division('nsipr_asociality_domain', df_all, df_all, ['chrnsipr_item3_rating', 'chrnsipr_item4_rating', 'chrnsipr_item5_rating'], 3, voi_1, all_visits_list, 'float')
-    nsipr_5 = create_total_division('nsipr_anhedonia_domain', df_all, df_all, ['chrnsipr_item6_rating', 'chrnsipr_item7_rating'], 2, voi_1, all_visits_list, 'float')
-    nsipr_6 = create_total_division('nsipr_blunted_affect_domain', df_all, df_all, ['chrnsipr_item8_rating', 'chrnsipr_item9_rating', 'chrnsipr_item10_rating'], 3, voi_1, all_visits_list, 'float')
+    nsipr_3 = create_total_division('chrnsipr_avolition_domain', df_all, df_all, ['chrnsipr_item1_rating', 'chrnsipr_item2_rating'], 2, voi_1, all_visits_list, 'float')
+    nsipr_4 = create_total_division('chrnsipr_asociality_domain', df_all, df_all, ['chrnsipr_item3_rating', 'chrnsipr_item4_rating', 'chrnsipr_item5_rating'], 3, voi_1, all_visits_list, 'float')
+    nsipr_5 = create_total_division('chrnsipr_anhedonia_domain', df_all, df_all, ['chrnsipr_item6_rating', 'chrnsipr_item7_rating'], 2, voi_1, all_visits_list, 'float')
+    nsipr_6 = create_total_division('chrnsipr_blunted_affect_domain', df_all, df_all, ['chrnsipr_item8_rating', 'chrnsipr_item9_rating', 'chrnsipr_item10_rating'], 3, voi_1, all_visits_list, 'float')
     nsipr_7 = create_use_value('chrnsipr_item11_rating', df_all, df_all, ['chrnsipr_item11_rating'], voi_1, all_visits_list, 'float')
     nsipr = pd.concat([nsipr_1, nsipr_2, nsipr_3, nsipr_4, nsipr_5, nsipr_6, nsipr_7], axis = 0)
     nsipr['data_type'] = 'Float'
@@ -600,7 +600,7 @@ for i, id in enumerate(id_list, 1):
     promis_df['chrpromise_sleep108'] = 6 - promis_df['chrpromise_sleep108'].astype(float)
     promis_df['chrpromis_sleep72']     = 6 - promis_df['chrpromis_sleep72'].astype(float)
     promis_df['chrpromis_sleep67']     = 6 - promis_df['chrpromis_sleep67'].astype(float)
-    promis = create_total_division('promis_total', promis_df, df_all, ['chrpromis_sleep109','chrpromis_sleep116','chrpromis_sleep20','chrpromis_sleep44','chrpromise_sleep108','chrpromis_sleep72',\
+    promis = create_total_division('chrpromis_total', promis_df, df_all, ['chrpromis_sleep109','chrpromis_sleep116','chrpromis_sleep20','chrpromis_sleep44','chrpromise_sleep108','chrpromis_sleep72',\
                                                                        'chrpromis_sleep67','chrpromis_sleep115'], 1, voi_7, all_visits_list, 'int')
     promis['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
@@ -624,33 +624,34 @@ for i, id in enumerate(id_list, 1):
         df_pps = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_2')]
     cssrs_sil_sum = df_pps[['chrcssrsb_si1l', 'chrcssrsb_si2l']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
     cssrs_sim_sum = df_pps[['chrcssrsb_css_sim1', 'chrcssrsb_css_sim2']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
+    # In the week from April, 16th - April 22nd we have decided (Sylvain and Cheryl) to give a non-applicable instead of 0 if individuals never had any suicidal ideation
     if cssrs_sil_sum == 4:
-        cssrs1 = create_condition_value('cssrs_intensity_lifetime', df_all, df_all, voi_2, all_visits_list, 'int', 0)
+        cssrs1 = create_condition_value('chrcssrs_intensity_lifetime', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     else:
-        cssrs1 = create_total_division('cssrs_intensity_lifetime' , df_all, df_all, ['chrcssrsb_sidfrql','chrcssrsb_siddurl','chrcssrsb_sidctrl','chrcssrsb_siddtrl','chrcssrsb_sidrsnl'],\
+        cssrs1 = create_total_division('chrcssrs_intensity_lifetime' , df_all, df_all, ['chrcssrsb_sidfrql','chrcssrsb_siddurl','chrcssrsb_sidctrl','chrcssrsb_siddtrl','chrcssrsb_sidrsnl'],\
                                      1, voi_2, all_visits_list, 'int')
     if cssrs_sil_sum == 4 or cssrs_sim_sum == 4:
-        cssrs2 = create_condition_value('cssrs_intensity_pastmonth', df_all, df_all, voi_2, all_visits_list, 'int', 0)
+        cssrs2 = create_condition_value('chrcssrs_intensity_pastmonth', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     else:
-        cssrs2 = create_total_division('cssrs_intensity_pastmonth', df_all, df_all, ['chrcssrsb_css_sipmfreq','chrcssrsb_css_sipmdur','chrcssrsb_css_sipmctrl','chrcssrsb_css_sipmdet','chrcssrsb_css_sipmreas'],\
+        cssrs2 = create_total_division('chrcssrs_intensity_pastmonth', df_all, df_all, ['chrcssrsb_css_sipmfreq','chrcssrsb_css_sipmdur','chrcssrsb_css_sipmctrl','chrcssrsb_css_sipmdet','chrcssrsb_css_sipmreas'],\
                                      1, voi_2, all_visits_list, 'int')
     cssrs = pd.concat([cssrs1, cssrs2], axis = 0)
     cssrs['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # Premorbid adjustment scale
 # --------------------------------------------------------------------#
-    pas_child1    = create_total_division('childhood_subtotal' , df_all, df_all, ['chrpas_pmod_child1','chrpas_pmod_child2','chrpas_pmod_child3','chrpas_pmod_child4'], 24, voi_3, all_visits_list, 'float')
-    pas_earlyadol = create_total_division('early_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_early1','chrpas_pmod_adol_early2','chrpas_pmod_adol_early3','chrpas_pmod_adol_early4',\
+    pas_child1    = create_total_division('chrpas_childhood_subtotal' , df_all, df_all, ['chrpas_pmod_child1','chrpas_pmod_child2','chrpas_pmod_child3','chrpas_pmod_child4'], 24, voi_3, all_visits_list, 'float')
+    pas_earlyadol = create_total_division('chrpas_early_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_early1','chrpas_pmod_adol_early2','chrpas_pmod_adol_early3','chrpas_pmod_adol_early4',\
                                                                                           'chrpas_pmod_adol_early5'], 30, voi_3, all_visits_list, 'float')
-    pas_lateadol  = create_total_division('late_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_late1','chrpas_pmod_adol_late2','chrpas_pmod_adol_late3','chrpas_pmod_adol_late4',\
+    pas_lateadol  = create_total_division('chrpas_late_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_late1','chrpas_pmod_adol_late2','chrpas_pmod_adol_late3','chrpas_pmod_adol_late4',\
                                                                                          'chrpas_pmod_adol_late5'], 30, voi_3, all_visits_list, 'float')
     # for pas-adult the value for N/A can be 9. This does not fit our coding of missing/applicable. Therefore we change it here.
     if (married_1 == -900 or married_1 == -9 or married_1 == -3) and (married_2 == -900 or married_2 == -9 or married_2 == -3):
-        pas_adult = create_total_division('adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
+        pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
     elif married_2 == -900 or married_2 == -9 or married_2 == -3:
-        pas_adult = create_total_division('adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
+        pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
     elif married_1 == -900 or married_1 == -9 or married_1 == -3:
-        pas_adult = create_total_division('adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v3'], 18, voi_3, all_visits_list, 'float')
+        pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v3'], 18, voi_3, all_visits_list, 'float')
     else:
         print("Something odd is going on with the married variable")
     pas_child_merge=pas_child1.copy()
@@ -665,43 +666,43 @@ for i, id in enumerate(id_list, 1):
     pas_child_early_late = pd.merge(pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name'), pas_lateadol_merge, on = 'redcap_event_name')
     pas_child_early_late_adult = pd.merge(pd.merge(pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name'), pas_lateadol_merge, on = 'redcap_event_name'),\
                                           pas_adult_merge, on = 'redcap_event_name')
-    pas_child_total=create_total_division('total_score_only_childhood',df_all,df_all,['chrpas_pmod_child1','chrpas_pmod_child2','chrpas_pmod_child3','chrpas_pmod_child4'],24, voi_3, all_visits_list, 'float')
-    pas_total_upto_early = create_total_division('total_score_upto_early_adolescence', pas_child_early, df_all, ['value_child','value_early'], 2, voi_3, all_visits_list, 'float')
-    pas_total_upto_late = create_total_division('total_score_upto_late_adolescence', pas_child_early_late, df_all, ['value_child','value_early', 'value_late'], 3, voi_3, all_visits_list, 'float')
-    pas_total_upto_adult = create_total_division('total_score_upto_adulthood', pas_child_early_late_adult, df_all, ['value_child','value_early','value_late','value_adult'],4,voi_3, all_visits_list, 'float')
+    pas_child_total=create_total_division('chrpas_total_score_only_childhood',df_all,df_all,['chrpas_pmod_child1','chrpas_pmod_child2','chrpas_pmod_child3','chrpas_pmod_child4'],24, voi_3, all_visits_list, 'float')
+    pas_total_upto_early = create_total_division('chrpas_total_score_upto_early_adolescence', pas_child_early, df_all, ['value_child','value_early'], 2, voi_3, all_visits_list, 'float')
+    pas_total_upto_late = create_total_division('chrpas_total_score_upto_late_adolescence', pas_child_early_late, df_all, ['value_child','value_early', 'value_late'], 3, voi_3, all_visits_list, 'float')
+    pas_total_upto_adult = create_total_division('chrpas_total_score_upto_adulthood', pas_child_early_late_adult, df_all, ['value_child','value_early','value_late','value_adult'],4,voi_3, all_visits_list, 'float')
     premorbid_adjustment = pd.concat([pas_child1, pas_earlyadol, pas_lateadol, pas_adult, pas_child_total, pas_total_upto_early, pas_total_upto_late, pas_total_upto_adult], axis = 0)
     premorbid_adjustment['data_type'] = 'Float'
 # --------------------------------------------------------------------#
 # ASSIST
 # --------------------------------------------------------------------#
-    tobacco = create_assist('tobacco', df_all, df_all, 'chrassist_whoassist_use1', 'chrassist_whoassist_often1',\
+    tobacco = create_assist('chrassist_tobacco', df_all, df_all, 'chrassist_whoassist_use1', 'chrassist_whoassist_often1',\
                                                                                    ['chrassist_whoassist_often1', 'chrassist_whoassist_urge1','chrassist_whoassist_prob1','chrassist_whoassist_fail1',\
                                                                                     'chrassist_whoassist_concern1','chrassist_whoassist_control1'], 1, voi_7, all_visits_list, 'int')
-    alcohol = create_assist('alcohol', df_all, df_all, 'chrassist_whoassist_use2', 'chrassist_whoassist_often2',\
+    alcohol = create_assist('chrassist_alcohol', df_all, df_all, 'chrassist_whoassist_use2', 'chrassist_whoassist_often2',\
                                                                                    ['chrassist_whoassist_often2', 'chrassist_whoassist_urge2','chrassist_whoassist_prob2','chrassist_whoassist_fail2',\
                                                                                     'chrassist_whoassist_concern2','chrassist_whoassist_control2'], 1, voi_7, all_visits_list, 'int')
-    cannabis=create_assist('cannabis', df_all, df_all, 'chrassist_whoassist_use3', 'chrassist_whoassist_often3',\
+    cannabis=create_assist('chrassist_cannabis', df_all, df_all, 'chrassist_whoassist_use3', 'chrassist_whoassist_often3',\
                                                                                    ['chrassist_whoassist_often3', 'chrassist_whoassist_urge3','chrassist_whoassist_prob3','chrassist_whoassist_fail3',\
                                                                                     'chrassist_whoassist_concern3','chrassist_whoassist_control3'], 1, voi_7, all_visits_list, 'int')
-    cocaine = create_assist('cocaine', df_all, df_all, 'chrassist_whoassist_use4', 'chrassist_whoassist_often4',\
+    cocaine = create_assist('chrassist_cocaine', df_all, df_all, 'chrassist_whoassist_use4', 'chrassist_whoassist_often4',\
                                                                                    ['chrassist_whoassist_often4', 'chrassist_whoassist_urge4','chrassist_whoassist_prob4','chrassist_whoassist_fail4',\
                                                                                     'chrassist_whoassist_concern4','chrassist_whoassist_control4'], 1, voi_7, all_visits_list, 'int')
-    amphetamines=create_assist('amphetamines',df_all, df_all, 'chrassist_whoassist_use5', 'chrassist_whoassist_often5',\
+    amphetamines=create_assist('chrassist_amphetamines',df_all, df_all, 'chrassist_whoassist_use5', 'chrassist_whoassist_often5',\
                                                                                    ['chrassist_whoassist_often5', 'chrassist_whoassist_urge5','chrassist_whoassist_prob5','chrassist_whoassist_fail5',\
                                                                                     'chrassist_whoassist_concern5','chrassist_whoassist_control5'], 1, voi_7, all_visits_list, 'int')
-    inhalants = create_assist('inhalants', df_all, df_all, 'chrassist_whoassist_use6',  'chrassist_whoassist_often6',\
+    inhalants = create_assist('chrassist_inhalants', df_all, df_all, 'chrassist_whoassist_use6',  'chrassist_whoassist_often6',\
                                                                                    ['chrassist_whoassist_often6', 'chrassist_whoassist_urge6','chrassist_whoassist_prob6','chrassist_whoassist_fail6',\
                                                                                     'chrassist_whoassist_concern6','chrassist_whoassist_control6'], 1, voi_7, all_visits_list, 'int')
-    sedatives = create_assist('sedatives', df_all, df_all, 'chrassist_whoassist_use7',  'chrassist_whoassist_often7',\
+    sedatives = create_assist('chrassist_sedatives', df_all, df_all, 'chrassist_whoassist_use7',  'chrassist_whoassist_often7',\
                                                                                    ['chrassist_whoassist_often7', 'chrassist_whoassist_urge7','chrassist_whoassist_prob7','chrassist_whoassist_fail7',\
                                                                                     'chrassist_whoassist_concern7','chrassist_whoassist_control7'], 1, voi_7, all_visits_list, 'int')
-    hallucinogens=create_assist('hallucinogens',df_all,df_all, 'chrassist_whoassist_use8',  'chrassist_whoassist_often8',\
+    hallucinogens=create_assist('chrassist_hallucinogens',df_all,df_all, 'chrassist_whoassist_use8',  'chrassist_whoassist_often8',\
                                                                                    ['chrassist_whoassist_often8', 'chrassist_whoassist_urge8','chrassist_whoassist_prob8','chrassist_whoassist_fail8',\
                                                                                     'chrassist_whoassist_concern8','chrassist_whoassist_control8'], 1, voi_7, all_visits_list, 'int')
-    opiods = create_assist('opiods', df_all, df_all, 'chrassist_whoassist_use9',  'chrassist_whoassist_often9',\
+    opiods = create_assist('chrassist_opiods', df_all, df_all, 'chrassist_whoassist_use9',  'chrassist_whoassist_often9',\
                                                                                    ['chrassist_whoassist_often9', 'chrassist_whoassist_urge9','chrassist_whoassist_prob9','chrassist_whoassist_fail9',\
                                                                                     'chrassist_whoassist_concern9','chrassist_whoassist_control9'], 1, voi_7, all_visits_list, 'int')
-    other = create_assist('other', df_all, df_all, 'chrassist_whoassist_use10', 'chrassist_whoassist_often10',\
+    other = create_assist('chrassist_other', df_all, df_all, 'chrassist_whoassist_use10', 'chrassist_whoassist_often10',\
                                                                                    ['chrassist_whoassist_often10', 'chrassist_whoassist_urge10','chrassist_whoassist_prob10','chrassist_whoassist_fail10',\
                                                                                     'chrassist_whoassist_concern10','chrassist_whoassist_control10'], 1, voi_7, all_visits_list, 'int')
     assist = pd.concat([tobacco, alcohol, cannabis, cocaine, amphetamines, inhalants, sedatives, hallucinogens, opiods, other], axis = 0)
