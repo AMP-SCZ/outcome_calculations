@@ -850,6 +850,7 @@ variables_outcome <- outcome_long %>%
                                   variable == "chrcdss_total" ~ '0::27',                              
                                   variable == "chrpss_perceived_stress_scale_total" ~ '0::40'))%>%
   mutate_all(~ case_when(is.na(.) ~ "", TRUE ~ .))%>%
+  mutate(Notes_for_Calc = Notes)%>%
   unite('Notes', c(Expert_Name, Experts, Calculation, Notes, Adaptation, original_calculation_adapted_np_or_comment), sep = '')%>%
   #unite('Notes', c(Calculation, Notes), sep = '')%>%
   unite('VALUE_RANGE', c(value_range, distinct_values_new), sep = '')%>%
@@ -859,8 +860,27 @@ variables_outcome <- outcome_long %>%
                 DESCRIPTION = description,
                 NOTES = Notes,
                 ALIASES = diverging_expert_variable_name)%>%
-  dplyr::select(ELEMENT_NAME, DATA_TYPE, DESCRIPTION,	VALUE_RANGE,NOTES,	csv_names, ALIASES)
+  dplyr::select(ELEMENT_NAME, DATA_TYPE, DESCRIPTION,	VALUE_RANGE,NOTES,	csv_names, ALIASES, Notes_for_Calc)%>%
+  mutate(case_when(variable == ''))
+mutate(original_calculation_adapted_np_or_comment = 
+                   variable == "chrpps_sum10" ~ 'event number 15 is None of the above. Therefore, if subject fulfills only event number 15 still -2',                            
+                   variable == "chrpps_sum14" ~ 'here, the code has to be the other way around. If the score is below 36 (<36) there is a higher risk (=6.5) and if the score is higher than 35 (>35) there is a lower risk (=0) ',                            
+                   variable == "chrassist_tobacco" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
+                   variable == "chrassist_alcohol" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                                 
+                   variable == "chrassist_cannabis" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
+                   variable == "chrassist_cocaine" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                                 
+                   variable == "chrassist_amphetamines" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
+                   variable == "chrassist_inhalants" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                               
+                   variable == "chrassist_sedatives" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
+                   variable == "chrassist_hallucinogens" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
+                   variable == "chrassist_opiods" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
+                   variable == "chrassist_other" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                                   
+                   variable == "chrcssrs_intensity_lifetime" ~ 'Before the sum score calculation: if someone never had suicidal thoughts in a lifetime (chrcssrsb_si1l and chrcssrsb_si2l == 0), cssrs intensity for lifetime and past month should be zero.',
+                   variable == "chrcssrs_intensity_pastmonth" ~ 'Before the sum score calculation: if someone never had suicidal thoughts in a lifetime (chrcssrsb_si1l and chrcssrsb_si2l == 0) or in the past month (chrcssrsb_css_sim1 and chrcssrsb_css_sim1 == 0), cssrs intensity for lifetime and past month should be zero.',               
+                   variable == "chrpds_total_score_sex" ~ 'Other than in the outcome calculation we have only one score instead of female/male. Depending on which sex the individual was assigned at birth. We then calculate the score based on the originally provided calculations.',                     
+                   variable == "chrpss_perceived_stress_scale_total" ~ '4 of the scores have to be reversed: (4-xxx) [chrpss_pssp2_1, chrpss_pssp2_2, chrpss_pssp2_4, chrpss_pssp2_5]'))%>%
+  
 
    
                      
-write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
+# write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
