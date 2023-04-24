@@ -854,33 +854,29 @@ variables_outcome <- outcome_long %>%
   unite('Notes', c(Expert_Name, Experts, Calculation, Notes, Adaptation, original_calculation_adapted_np_or_comment), sep = '')%>%
   #unite('Notes', c(Calculation, Notes), sep = '')%>%
   unite('VALUE_RANGE', c(value_range, distinct_values_new), sep = '')%>%
-  dplyr::select(variable, VALUE_RANGE, min_value, max_value, data_type, description, Notes, csv_names, distinct_values, diverging_expert_variable_name)%>%
+  dplyr::select(variable, VALUE_RANGE, min_value, max_value, data_type, description, Notes, csv_names, distinct_values, diverging_expert_variable_name, Notes_for_Calc)%>%
   dplyr::rename(ELEMENT_NAME = variable ,
                 DATA_TYPE = data_type,
                 DESCRIPTION = description,
                 NOTES = Notes,
                 ALIASES = diverging_expert_variable_name)%>%
-  dplyr::select(ELEMENT_NAME, DATA_TYPE, DESCRIPTION,	VALUE_RANGE,NOTES,	csv_names, ALIASES, Notes_for_Calc)%>%
-  mutate(case_when(variable == ''))
-mutate(original_calculation_adapted_np_or_comment = 
-                   variable == "chrpps_sum10" ~ 'event number 15 is None of the above. Therefore, if subject fulfills only event number 15 still -2',                            
-                   variable == "chrpps_sum14" ~ 'here, the code has to be the other way around. If the score is below 36 (<36) there is a higher risk (=6.5) and if the score is higher than 35 (>35) there is a lower risk (=0) ',                            
-                   variable == "chrassist_tobacco" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
-                   variable == "chrassist_alcohol" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                                 
-                   variable == "chrassist_cannabis" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
-                   variable == "chrassist_cocaine" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                                 
-                   variable == "chrassist_amphetamines" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
-                   variable == "chrassist_inhalants" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                               
-                   variable == "chrassist_sedatives" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
-                   variable == "chrassist_hallucinogens" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
-                   variable == "chrassist_opiods" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',
-                   variable == "chrassist_other" ~ 'Additionally, to the sum we consider whether individual ever consumed the substance. If not this score is 0',                                   
-                   variable == "chrcssrs_intensity_lifetime" ~ 'Before the sum score calculation: if someone never had suicidal thoughts in a lifetime (chrcssrsb_si1l and chrcssrsb_si2l == 0), cssrs intensity for lifetime and past month should be zero.',
-                   variable == "chrcssrs_intensity_pastmonth" ~ 'Before the sum score calculation: if someone never had suicidal thoughts in a lifetime (chrcssrsb_si1l and chrcssrsb_si2l == 0) or in the past month (chrcssrsb_css_sim1 and chrcssrsb_css_sim1 == 0), cssrs intensity for lifetime and past month should be zero.',               
-                   variable == "chrpds_total_score_sex" ~ 'Other than in the outcome calculation we have only one score instead of female/male. Depending on which sex the individual was assigned at birth. We then calculate the score based on the originally provided calculations.',                     
-                   variable == "chrpss_perceived_stress_scale_total" ~ '4 of the scores have to be reversed: (4-xxx) [chrpss_pssp2_1, chrpss_pssp2_2, chrpss_pssp2_4, chrpss_pssp2_5]'))%>%
-  
+  dplyr::select(ELEMENT_NAME, DATA_TYPE, DESCRIPTION,	VALUE_RANGE, NOTES,	csv_names, ALIASES, Notes_for_Calc)%>%
+  mutate(real_calculation = case_when(ELEMENT_NAME == 'chrpps_sum10' ~                        'chrpps_sum10=5.5 if (chrpps_sixmo___1 == 1 or chrpps_sixmo___2 == 1 or chrpps_sixmo___3 == 1 or chrpps_sixmo___4 == 1 or chrpps_sixmo___5 == 1 or chrpps_sixmo___6 == 1 or chrpps_sixmo___7 == 1 or chrpps_sixmo___8 == 1 or chrpps_sixmo___9 == 1 or chrpps_sixmo___10 == 1 or chrpps_sixmo___11 == 1 or chrpps_sixmo___12 == 1 or chrpps_sixmo___13 == 1 or chrpps_sixmo___14 == 1) elif chrpps_sum10 = -2 (chrpps_sixmo___1 == 0 and chrpps_sixmo___2 == 0 and chrpps_sixmo___3 == 0 and chrpps_sixmo___4 == 0 and chrpps_sixmo___5 == 0 and chrpps_sixmo___6 == 0 and chrpps_sixmo___7 == 0 and chrpps_sixmo___8 == 0 and chrpps_sixmo___9 == 0 and chrpps_sixmo___10 == 0 and chrpps_sixmo___11 == 0 and chrpps_sixmo___12 == 0 and chrpps_sixmo___13 == 0 and chrpps_sixmo___14 == 0 and chrpps_sixmo___15 ==1)',
+                                      ELEMENT_NAME == "chrpps_sum14" ~                        'chrpps_sum14=0 if sum(chrpps_excite, chrpps_taste,(7-chrpps_restaur),chrpps_roller, chrpps_holiday, chrpps_tasty, chrpps_pleasure, chrpps_lookfwd, chrpps_menu, chrpps_actor, chrpps_crackle, chrpps_rain, chrpps_grass, chrpps_air, chrpps_coffee, chrpps_hair, chrpps_yawn, chrpps_snow) >35 else chrpps_sum14=6.5',                            
+                                      ELEMENT_NAME == "chrassist_tobacco" ~                   'chrassist_tobacco       = 0 if chrassist_whoassist_use1 == 0, else chrassist_whoassist_often1 + chrassist_whoassist_urge1 + chrassist_whoassist_prob1 + chrassist_whoassist_fail1 +  chrassist_whoassist_concern1 + chrassist_whoassist_control1',
+                                      ELEMENT_NAME == "chrassist_alcohol" ~                   'chrassist_alcohol       = 0 if chrassist_whoassist_use2 == 0, else chrassist_whoassist_often2 + chrassist_whoassist_urge2 + chrassist_whoassist_prob2 + chrassist_whoassist_fail2 +  chrassist_whoassist_concern2 + chrassist_whoassist_control2',                                 
+                                      ELEMENT_NAME == "chrassist_cannabis" ~                  'chrassist_cannabis      = 0 if chrassist_whoassist_use3 == 0, else chrassist_whoassist_often3 + chrassist_whoassist_urge3 + chrassist_whoassist_prob3 + chrassist_whoassist_fail3 +  chrassist_whoassist_concern3 + chrassist_whoassist_control3',
+                                      ELEMENT_NAME == "chrassist_cocaine" ~                   'chrassist_cocaine       = 0 if chrassist_whoassist_use4 == 0, else chrassist_whoassist_often4 + chrassist_whoassist_urge4 + chrassist_whoassist_prob4 + chrassist_whoassist_fail4 +  chrassist_whoassist_concern4 + chrassist_whoassist_control4',                                 
+                                      ELEMENT_NAME == "chrassist_amphetamines" ~              'chrassist_amphetamines  = 0 if chrassist_whoassist_use5 == 0, else chrassist_whoassist_often5 + chrassist_whoassist_urge5 + chrassist_whoassist_prob5 + chrassist_whoassist_fail5 +  chrassist_whoassist_concern5 + chrassist_whoassist_control5',
+                                      ELEMENT_NAME == "chrassist_inhalants" ~                 'chrassist_inhalants     = 0 if chrassist_whoassist_use6 == 0, else chrassist_whoassist_often6 + chrassist_whoassist_urge6 + chrassist_whoassist_prob6 + chrassist_whoassist_fail6 +  chrassist_whoassist_concern6 + chrassist_whoassist_control6',                               
+                                      ELEMENT_NAME == "chrassist_sedatives" ~                 'chrassist_sedatives     = 0 if chrassist_whoassist_use7 == 0, else chrassist_whoassist_often7 + chrassist_whoassist_urge7 + chrassist_whoassist_prob7 + chrassist_whoassist_fail7 +  chrassist_whoassist_concern7 + chrassist_whoassist_control7',
+                                      ELEMENT_NAME == "chrassist_hallucinogens" ~             'chrassist_hallucinogens = 0 if chrassist_whoassist_use8 == 0, else chrassist_whoassist_often8 + chrassist_whoassist_urge8 + chrassist_whoassist_prob8 + chrassist_whoassist_fail8 +  chrassist_whoassist_concern8 + chrassist_whoassist_control8',
+                                      ELEMENT_NAME == "chrassist_opiods" ~                    'chrassist_opiods        = 0 if chrassist_whoassist_use9 == 0, else chrassist_whoassist_often9 + chrassist_whoassist_urge9 + chrassist_whoassist_prob9 + chrassist_whoassist_fail9 +  chrassist_whoassist_concern9 + chrassist_whoassist_control9',
+                                      ELEMENT_NAME == "chrassist_other" ~                     'chrassist_other         = 0 if chrassist_whoassist_use10 == 0, else chrassist_whoassist_often10 + chrassist_whoassist_urge10 + chrassist_whoassist_prob10 + chrassist_whoassist_fail10 +  chrassist_whoassist_concern10 + chrassist_whoassist_control10',                                   
+                                      ELEMENT_NAME == "chrcssrs_intensity_lifetime" ~         'chrcssrs_intensity_lifetime = -300 if (chrcssrsb_si1l and chrcssrsb_si2l == 0) else chrcssrsb_sidfrql + chrcssrsb_siddurl + chrcssrsb_sidctrl + chrcssrs_siddtrl + chrcssrsb_sidrsnl',
+                                      ELEMENT_NAME == "chrcssrs_intensity_pastmonth" ~        'chrcssrs_intensity_pastmonth = -300 if (chrcssrsb_si1l and chrcssrsb_si2l) or (chrcssrsb_css_sim1 and chrcssrsb_css_sim1 == 0) else chrcssrsb_css_sipmfreq + chrcssrsb_css_sipmdur + chrcssrsb_css_sipmctrl + chrcssrsb_css_sipmdet + chrcssrsb_css_sipmreas',               
+                                      ELEMENT_NAME == "chrpss_perceived_stress_scale_total" ~ 'chrpss_pssp1_1+chrpss_pssp1_2+chrpss_pssp1_3+(4-chrpss_pssp2_1)+(4-chrpss_pssp2_2)+chrpss_pssp2_3+(4-chrpss_pssp2_4)+(4-chrpss_pssp2_5)+chrpss_pssp3_1+chrpss_pssp3_4',
+                                      TRUE ~ Notes_for_Calc))
 
-   
-                     
+        
 # write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
