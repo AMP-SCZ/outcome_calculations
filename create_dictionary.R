@@ -134,7 +134,7 @@ outcome_long <- pronet_all %>%
 variables_outcome <- outcome_long %>% 
   mutate(csv_names = 
            case_when(
-             str_detect(variable, 'pds') ~ 'pubertal_developmental_scale.csv',
+             str_detect(variable, 'pds_total_score|chrpds_pds_f5b_p') ~ 'pubertal_developmental_scale.csv',
              str_detect(variable, 'global_role') ~ 'global_functioning_role_scale.csv',
              str_detect(variable, 'global_social') ~ 'global_functioning_social_scale.csv',
              str_detect(variable, 'bprs') ~ 'bprs.csv',
@@ -876,7 +876,10 @@ variables_outcome <- outcome_long %>%
                                       ELEMENT_NAME == "chrcssrs_intensity_lifetime" ~         'chrcssrs_intensity_lifetime = -300 if (chrcssrsb_si1l and chrcssrsb_si2l == 0) else chrcssrsb_sidfrql + chrcssrsb_siddurl + chrcssrsb_sidctrl + chrcssrs_siddtrl + chrcssrsb_sidrsnl',
                                       ELEMENT_NAME == "chrcssrs_intensity_pastmonth" ~        'chrcssrs_intensity_pastmonth = -300 if (chrcssrsb_si1l and chrcssrsb_si2l) or (chrcssrsb_css_sim1 and chrcssrsb_css_sim1 == 0) else chrcssrsb_css_sipmfreq + chrcssrsb_css_sipmdur + chrcssrsb_css_sipmctrl + chrcssrsb_css_sipmdet + chrcssrsb_css_sipmreas',               
                                       ELEMENT_NAME == "chrpss_perceived_stress_scale_total" ~ 'chrpss_pssp1_1+chrpss_pssp1_2+chrpss_pssp1_3+(4-chrpss_pssp2_1)+(4-chrpss_pssp2_2)+chrpss_pssp2_3+(4-chrpss_pssp2_4)+(4-chrpss_pssp2_5)+chrpss_pssp3_1+chrpss_pssp3_4',
-                                      TRUE ~ Notes_for_Calc))
+                                      TRUE ~ Notes_for_Calc))%>%
+  dplyr::select(-NOTES)%>%
+  rename(NOTES = real_calculation)%>%
+  dplyr::select(ELEMENT_NAME, DATA_TYPE, DESCRIPTION,	VALUE_RANGE, NOTES,	csv_names, ALIASES)
 
         
-# write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
+write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
