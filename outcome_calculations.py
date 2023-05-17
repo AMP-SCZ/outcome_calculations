@@ -742,6 +742,8 @@ for i, id in enumerate(id_list, 1):
     else:
         chrpps_sum2 = create_condition_value('chrpps_sum2', df_all, df_all, voi_2, all_visits_list, 'float', 0)
     # pps 7 paternal age
+    #paternal_age_date = df_pps['chrpps_fdobpii'].astype(str).str.contains('1903-03-03')
+    #print(list(df_all.filter(like='fdob').columns))
     paternal_age = df_pps['chrpps_fage'].fillna(-900).to_numpy(dtype=float)
     paternal_age_calc = paternal_age - age
     if paternal_age == -900 or paternal_age == -9 or age == -900:
@@ -911,11 +913,11 @@ for i, id in enumerate(id_list, 1):
     # sips
     psychs_sips_p1_scr = create_max('psychs_sips_p1', df_all, df_all, ['chrpsychs_scr_1d1','chrpsychs_scr_3d1','chrpsychs_scr_4d1',\
                                                                        'chrpsychs_scr_5d1','chrpsychs_scr_6d1'], voi_6, all_visits_list, 'int')
-    psychs_sips_p2_scr = create_use_value('chrpsychs_scr_2d1', df_all, df_all, ['chrpsychs_scr_2d1'], voi_6, all_visits_list, 'int')
+    psychs_sips_p2_scr = create_use_value('psychs_sips_p2', df_all, df_all, ['chrpsychs_scr_2d1'], voi_6, all_visits_list, 'int')
     psychs_sips_p3_scr = create_max('psychs_sips_p3', df_all, df_all, ['chrpsychs_scr_7d1', 'chrpsychs_scr_8d1'], voi_6, all_visits_list, 'int')
     psychs_sips_p4_scr = create_max('psychs_sips_p4', df_all, df_all, ['chrpsychs_scr_9d1', 'chrpsychs_scr_10d1', 'chrpsychs_scr_11d1', 'chrpsychs_scr_12d1', 'chrpsychs_scr_13d1', 'chrpsychs_scr_14d1'],\
                                      voi_6, all_visits_list, 'int')
-    psychs_sips_p5_scr = create_use_value('chrpsychs_scr_15d1', df_all, df_all, ['chrpsychs_scr_15d1'], voi_6, all_visits_list, 'int')
+    psychs_sips_p5_scr = create_use_value('psychs_sips_p5', df_all, df_all, ['chrpsychs_scr_15d1'], voi_6, all_visits_list, 'int')
     sips_p1 = psychs_sips_p1_scr.copy()
     sips_p1['sips_p1'] = sips_p1['value']
     sips_p2 = psychs_sips_p2_scr.copy()
@@ -1034,22 +1036,22 @@ for i, id in enumerate(id_list, 1):
         # sips
         psychs_sips_p1_fu = create_max('psychs_sips_p1', df_all, df_all, ['hcpsychs_fu_1d1','hcpsychs_fu_3d1','hcpsychs_fu_4d1',\
                                                                            'hcpsychs_fu_5d1','hcpsychs_fu_6d1'], voi_8, all_visits_list, 'int')
-        psychs_sips_p2_fu_hc = create_use_value('hcpsychs_fu_2d1', df_all, df_all, ['hcpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
-        psychs_sips_p2_fu_chr = create_use_value('chrpsychs_fu_2d1', df_all, df_all, ['chrpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
+        psychs_sips_p2_fu = create_use_value('psychs_sips_p2', df_all, df_all, ['hcpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
+#        psychs_sips_p2_fu_chr = create_use_value('chrpsychs_fu_2d1', df_all, df_all, ['chrpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p3_fu = create_max('psychs_sips_p3', df_all, df_all, ['hcpsychs_fu_7d1', 'hcpsychs_fu_8d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p4_fu = create_max('psychs_sips_p4', df_all, df_all, ['hcpsychs_fu_9d1', 'hcpsychs_fu_10d1', 'hcpsychs_fu_11d1', 'hcpsychs_fu_12d1', 'hcpsychs_fu_13d1', 'hcpsychs_fu_14d1'],\
                                          voi_8, all_visits_list, 'int')
-        psychs_sips_p5_fu_hc = create_use_value('hcpsychs_fu_15d1', df_all, df_all, ['hcpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
-        psychs_sips_p5_fu_chr = create_use_value('chrpsychs_fu_15d1', df_all, df_all, ['chrpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
+        psychs_sips_p5_fu = create_use_value('psychs_sips_p5', df_all, df_all, ['hcpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
+#        psychs_sips_p5_fu_chr = create_use_value('chrpsychs_fu_15d1', df_all, df_all, ['chrpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
         sips_p1 = psychs_sips_p1_fu.copy()
         sips_p1['sips_p1'] = sips_p1['value']
-        sips_p2 = psychs_sips_p2_fu_hc.copy()
+        sips_p2 = psychs_sips_p2_fu.copy()
         sips_p2['sips_p2'] = sips_p2['value']
         sips_p3 = psychs_sips_p3_fu.copy()
         sips_p3['sips_p3'] = sips_p3['value']
         sips_p4 = psychs_sips_p4_fu.copy()
         sips_p4['sips_p4'] = sips_p4['value']
-        sips_p5 = psychs_sips_p5_fu_hc.copy()
+        sips_p5 = psychs_sips_p5_fu.copy()
         sips_p5['sips_p5'] = sips_p5['value']
         sips_fu = pd.merge(pd.merge(pd.merge(pd.merge(sips_p1, sips_p2, on = 'redcap_event_name'), sips_p3, on = 'redcap_event_name'), sips_p4, on = 'redcap_event_name'), sips_p5, on = 'redcap_event_name')
         sips_pos_tot_fu = create_total_division('sips_pos_tot', sips_fu, df_all, ['sips_p1', 'sips_p2', 'sips_p3', 'sips_p4', 'sips_p5'], 1, voi_8, all_visits_list, 'int')
@@ -1160,7 +1162,7 @@ for i, id in enumerate(id_list, 1):
         sips_chr_full_remission_fu_chr             = create_use_value('chrpsychs_fu_ac30', df_all, df_all,     ['chrpsychs_fu_ac30'], voi_8, all_visits_list, 'int')
         sips_current_status_fu_chr                 = create_use_value('chrpsychs_fu_ac31', df_all, df_all,     ['chrpsychs_fu_ac31'], voi_8, all_visits_list, 'int')
         dsm5_attenuated_psychosis_fu_chr           = create_use_value('chrpsychs_fu_ac32', df_all, df_all,     ['chrpsychs_fu_ac32'], voi_8, all_visits_list, 'int')
-        psychs_fu = pd.concat([psychs_pos_tot_fu,psychs_sips_p1_fu,psychs_sips_p2_fu_hc,psychs_sips_p2_fu_chr,psychs_sips_p3_fu,psychs_sips_p4_fu,psychs_sips_p5_fu_hc,psychs_sips_p5_fu_chr,\
+        psychs_fu = pd.concat([psychs_pos_tot_fu,psychs_sips_p1_fu,psychs_sips_p2_fu,psychs_sips_p3_fu,psychs_sips_p4_fu,psychs_sips_p5_fu,\
                                sips_pos_tot_fu, psychs_caarms_p1_fu,\
                                psychs_caarms_p2_fu, psychs_caarms_p3_fu, psychs_caarms_p4_fu, caarms_pos_tot_fu, conversion_date_fu, psychosis_fu_chr, psychosis_fu_hc,\
                                psychosis_curr_fu_hc, psychosis_prev_fu_hc, psychosis_first_fu_hc, psychosis_conv_fu_hc,\
@@ -1184,22 +1186,22 @@ for i, id in enumerate(id_list, 1):
         # sips
         psychs_sips_p1_fu = create_max('psychs_sips_p1', df_all, df_all, ['chrpsychs_fu_1d1','chrpsychs_fu_3d1','chrpsychs_fu_4d1',\
                                                                            'chrpsychs_fu_5d1','chrpsychs_fu_6d1'], voi_8, all_visits_list, 'int')
-        psychs_sips_p2_fu_hc = create_use_value('hcpsychs_fu_2d1', df_all, df_all, ['hcpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
-        psychs_sips_p2_fu_chr = create_use_value('chrpsychs_fu_2d1', df_all, df_all, ['chrpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
+        psychs_sips_p2_fu = create_use_value('psychs_sips_p2', df_all, df_all, ['hcpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
+#        psychs_sips_p2_fu_chr = create_use_value('chrpsychs_fu_2d1', df_all, df_all, ['chrpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p3_fu = create_max('psychs_sips_p3', df_all, df_all, ['chrpsychs_fu_7d1', 'chrpsychs_fu_8d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p4_fu = create_max('psychs_sips_p4', df_all, df_all, ['chrpsychs_fu_9d1', 'chrpsychs_fu_10d1', 'chrpsychs_fu_11d1', 'chrpsychs_fu_12d1', 'chrpsychs_fu_13d1', 'chrpsychs_fu_14d1'],\
                                          voi_8, all_visits_list, 'int')
-        psychs_sips_p5_fu_hc = create_use_value('hcpsychs_fu_15d1', df_all, df_all, ['hcpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
-        psychs_sips_p5_fu_chr = create_use_value('chrpsychs_fu_15d1', df_all, df_all, ['chrpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
+        psychs_sips_p5_fu = create_use_value('psychs_sips_p5', df_all, df_all, ['hcpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
+#        psychs_sips_p5_fu_chr = create_use_value('chrpsychs_fu_15d1', df_all, df_all, ['chrpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
         sips_p1 = psychs_sips_p1_fu.copy()
         sips_p1['sips_p1'] = sips_p1['value']
-        sips_p2 = psychs_sips_p2_fu_chr.copy()
+        sips_p2 = psychs_sips_p2_fu.copy()
         sips_p2['sips_p2'] = sips_p2['value']
         sips_p3 = psychs_sips_p3_fu.copy()
         sips_p3['sips_p3'] = sips_p3['value']
         sips_p4 = psychs_sips_p4_fu.copy()
         sips_p4['sips_p4'] = sips_p4['value']
-        sips_p5 = psychs_sips_p5_fu_chr.copy()
+        sips_p5 = psychs_sips_p5_fu.copy()
         sips_p5['sips_p5'] = sips_p5['value']
         sips_fu = pd.merge(pd.merge(pd.merge(pd.merge(sips_p1, sips_p2, on = 'redcap_event_name'), sips_p3, on = 'redcap_event_name'), sips_p4, on = 'redcap_event_name'), sips_p5, on = 'redcap_event_name')
         sips_pos_tot_fu = create_total_division('sips_pos_tot', sips_fu, df_all, ['sips_p1', 'sips_p2', 'sips_p3', 'sips_p4', 'sips_p5'], 1, voi_8, all_visits_list, 'int')
@@ -1310,8 +1312,8 @@ for i, id in enumerate(id_list, 1):
         sips_chr_full_remission_fu_chr             = create_use_value('chrpsychs_fu_ac30', df_all, df_all, ['chrpsychs_fu_ac30'], voi_8, all_visits_list, 'int')
         sips_current_status_fu_chr                 = create_use_value('chrpsychs_fu_ac31', df_all, df_all, ['chrpsychs_fu_ac31'], voi_8, all_visits_list, 'int')
         dsm5_attenuated_psychosis_fu_chr           = create_use_value('chrpsychs_fu_ac32', df_all, df_all, ['chrpsychs_fu_ac32'], voi_8, all_visits_list, 'int')
-        psychs_fu = pd.concat([psychs_pos_tot_fu, psychs_sips_p1_fu, psychs_sips_p2_fu_hc, psychs_sips_p2_fu_chr, psychs_sips_p3_fu, psychs_sips_p4_fu,\
-                               psychs_sips_p5_fu_hc, psychs_sips_p5_fu_chr, sips_pos_tot_fu, psychs_caarms_p1_fu,\
+        psychs_fu = pd.concat([psychs_pos_tot_fu, psychs_sips_p1_fu, psychs_sips_p2_fu, psychs_sips_p3_fu, psychs_sips_p4_fu,\
+                               psychs_sips_p5_fu, sips_pos_tot_fu, psychs_caarms_p1_fu,\
                                psychs_caarms_p2_fu, psychs_caarms_p3_fu, psychs_caarms_p4_fu, caarms_pos_tot_fu, conversion_date_fu, psychosis_fu_chr, psychosis_fu_hc,\
                                psychosis_curr_fu_hc, psychosis_prev_fu_hc, psychosis_first_fu_hc, psychosis_conv_fu_hc,\
                                sips_bips_progression_fu_hc, sips_bips_persistence_fu_hc, sips_bips_partial_remission_fu_hc, sips_bips_full_remission_fu_hc, 
