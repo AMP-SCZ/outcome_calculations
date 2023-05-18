@@ -1037,12 +1037,10 @@ for i, id in enumerate(id_list, 1):
         psychs_sips_p1_fu = create_max('psychs_sips_p1', df_all, df_all, ['hcpsychs_fu_1d1','hcpsychs_fu_3d1','hcpsychs_fu_4d1',\
                                                                            'hcpsychs_fu_5d1','hcpsychs_fu_6d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p2_fu = create_use_value('psychs_sips_p2', df_all, df_all, ['hcpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
-#        psychs_sips_p2_fu_chr = create_use_value('chrpsychs_fu_2d1', df_all, df_all, ['chrpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p3_fu = create_max('psychs_sips_p3', df_all, df_all, ['hcpsychs_fu_7d1', 'hcpsychs_fu_8d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p4_fu = create_max('psychs_sips_p4', df_all, df_all, ['hcpsychs_fu_9d1', 'hcpsychs_fu_10d1', 'hcpsychs_fu_11d1', 'hcpsychs_fu_12d1', 'hcpsychs_fu_13d1', 'hcpsychs_fu_14d1'],\
                                          voi_8, all_visits_list, 'int')
         psychs_sips_p5_fu = create_use_value('psychs_sips_p5', df_all, df_all, ['hcpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
-#        psychs_sips_p5_fu_chr = create_use_value('chrpsychs_fu_15d1', df_all, df_all, ['chrpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
         sips_p1 = psychs_sips_p1_fu.copy()
         sips_p1['sips_p1'] = sips_p1['value']
         sips_p2 = psychs_sips_p2_fu.copy()
@@ -1186,13 +1184,11 @@ for i, id in enumerate(id_list, 1):
         # sips
         psychs_sips_p1_fu = create_max('psychs_sips_p1', df_all, df_all, ['chrpsychs_fu_1d1','chrpsychs_fu_3d1','chrpsychs_fu_4d1',\
                                                                            'chrpsychs_fu_5d1','chrpsychs_fu_6d1'], voi_8, all_visits_list, 'int')
-        psychs_sips_p2_fu = create_use_value('psychs_sips_p2', df_all, df_all, ['hcpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
-#        psychs_sips_p2_fu_chr = create_use_value('chrpsychs_fu_2d1', df_all, df_all, ['chrpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
+        psychs_sips_p2_fu = create_use_value('psychs_sips_p2', df_all, df_all, ['chrpsychs_fu_2d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p3_fu = create_max('psychs_sips_p3', df_all, df_all, ['chrpsychs_fu_7d1', 'chrpsychs_fu_8d1'], voi_8, all_visits_list, 'int')
         psychs_sips_p4_fu = create_max('psychs_sips_p4', df_all, df_all, ['chrpsychs_fu_9d1', 'chrpsychs_fu_10d1', 'chrpsychs_fu_11d1', 'chrpsychs_fu_12d1', 'chrpsychs_fu_13d1', 'chrpsychs_fu_14d1'],\
                                          voi_8, all_visits_list, 'int')
-        psychs_sips_p5_fu = create_use_value('psychs_sips_p5', df_all, df_all, ['hcpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
-#        psychs_sips_p5_fu_chr = create_use_value('chrpsychs_fu_15d1', df_all, df_all, ['chrpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
+        psychs_sips_p5_fu = create_use_value('psychs_sips_p5', df_all, df_all, ['chrpsychs_fu_15d1'], voi_8, all_visits_list, 'int')
         sips_p1 = psychs_sips_p1_fu.copy()
         sips_p1['sips_p1'] = sips_p1['value']
         sips_p2 = psychs_sips_p2_fu.copy()
