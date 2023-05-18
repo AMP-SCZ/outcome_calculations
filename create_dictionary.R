@@ -882,4 +882,5 @@ variables_outcome <- outcome_long %>%
   dplyr::select(ELEMENT_NAME, DATA_TYPE, DESCRIPTION,	VALUE_RANGE, NOTES,	csv_names, ALIASES)
 
         
-write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
+write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes_new.csv', row.names = FALSE)
+#write.csv(variables_outcome, 'C:/Users/Nora/Documents/Harvard/U24/outcome_calculations/dictionary_outcomes.csv', row.names = FALSE)
