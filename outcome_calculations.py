@@ -351,6 +351,63 @@ def create_assist(outcome, df_1, df_2, assist_var1, assist_var2, var_list, divis
     final_assist = df_assist_created[['variable', 'redcap_event_name', 'value']]
     return final_assist
 
+def create_sips_groups(df, sips_vars_interest_scr, onsetdate_sips_group, visit_of_interest, all_visits, conversion_df, sips_vars_interest_fu, conv_str, new_sips_group, \
+                       sips_group_lifetime, visit_of_interest_2):
+    # create the different sips group assignments at follow-up
+    # df: dataframe (df_all) including all variables
+    # sips_vars_interest_scr: all screening variables needed to define baseline diagnosis
+    # onsetdate_sips_group: onset date of the sips-group for all symptoms
+    # visit_of_interest: the visits (here probably voi_8) that are of interest for the questionnaire (psychs)
+    # all_visits: list with all visits (all_visits_list)
+    # conversion_df: dataframe with the psychosis conversion date (conversion_date_fu)
+    # sips_vars_interest_fu: vars of interest for the follow-up visits (e.g. bips symptoms)
+    # conv_str = variable indicating psychosis conversion or not *psychs_fu_ac1_conv
+    # new_sips_group = string iwth the name for the new sips-group
+    # sips_group_lifetime = string with the name for the sips-group lifetime
+    # visit_of interest_2 = same as in visit of interest (psychs visits) but including also screenign here. 
+    sips_scr = df.copy()
+    sips_vars_scr = ['redcap_event_name'] + sips_vars_interest_scr
+    sips_scr = sips_scr[sips_vars_scr]
+    sips_scr['iv_scr']=np.where((sips_scr[sips_vars_interest_scr]=='1').any(axis=1), '1',\
+                       np.where((sips_scr[sips_vars_interest_scr]=='0').all(axis=1), '0','-900'))
+    conversion_sips_group_date_fu = create_min_date('conversion_sips_group_date', df, df, onsetdate_sips_group, visit_of_interest, all_visits, 'str')
+    conversion_sips_group_date_fu['conversion_sips_group_date'] = pd.to_datetime(conversion_sips_group_date_fu['value'])
+    conversion_sips_group_date_fu = conversion_sips_group_date_fu[['redcap_event_name', 'conversion_sips_group_date']]
+    conversion_date_fu_match = conversion_df.copy()
+    conversion_date_fu_match['conversion_date']=conversion_date_fu_match['value']
+    conversion_date_fu_match = conversion_date_fu_match[['redcap_event_name', 'conversion_date']]
+    df_all_copy=df.copy()
+    combined_vars = ['redcap_event_name', conv_str] + sips_vars_interest_fu
+    df_all_copy=df_all_copy[combined_vars]
+    sips_conv_vars = [conv_str] + sips_vars_interest_fu
+    df_all_copy[sips_conv_vars] = df_all_copy[sips_conv_vars].astype(str)
+    sips_merged = pd.merge(pd.merge(conversion_date_fu_match, conversion_sips_group_date_fu, on = 'redcap_event_name', how = 'left'),df_all_copy, on = 'redcap_event_name', how = 'left')
+    sips_merged['sips_iv'] = np.where((sips_merged[sips_vars_interest_fu]=='1').any(axis=1), '1',\
+                             np.where((sips_merged[sips_vars_interest_fu]=='0').all(axis=1), '0','-900'))
+    sips_merged['psychs_fu_ac8_new']=np.where((sips_merged['sips_iv']=='1') & ((sips_merged[conv_str]==0)|\
+                                              (not any (date in ('1909-09-09', '1903-03-03') for date in sips_merged[['conversion_date', 'conversion_sips_group_date']])) &\
+                                              (sips_merged['conversion_sips_group_date']<sips_merged['conversion_date'])), '1',\
+                                     np.where((sips_merged['sips_iv']=='0')|\
+                                             ((sips_merged[conv_str]=='1')&\
+                                              (not any (date in ('1909-09-09', '1903-03-03') for date in sips_merged[['conversion_date', 'conversion_sips_group_date']])) &\
+                                              (sips_merged['conversion_sips_group_date']>sips_merged['conversion_date'])), '0','-900'))
+    sips_new_final = create_use_value(new_sips_group, sips_merged, df_all, ['psychs_fu_ac8_new'], visit_of_interest, all_visits, 'int')
+    # create the overall lifetime bips variable
+    sips_ac = pd.merge(sips_new_final, sips_scr, on = 'redcap_event_name', how = 'left')
+    sips_ac['value'] = sips_ac['value'].astype(str)
+    sips_ac['sips_iv_yesno'] = np.where((sips_ac['value'] == '1'), 1, 0)
+    sips_ac['cumulative_sum'] = sips_ac['sips_iv_yesno'].shift(1).fillna(0).cumsum()
+    sips_ac['sips_scr_yesno'] = np.where((sips_ac['iv_scr']=='1'), 1, 0)
+    sips_ac['cumulative_sum_scr'] =sips_ac['sips_scr_yesno'].shift(1).fillna(0).cumsum()
+    sips_ac['psychs_fu_ac8'] = np.where((sips_ac['cumulative_sum_scr'] > 0)|(sips_ac['cumulative_sum'] > 0)|(sips_ac['value']=='1')|(sips_ac['iv_scr']=='1'), '1', '0')
+    sips_ac[['value', 'iv_scr', 'redcap_event_name', 'psychs_fu_ac8']] = sips_ac[['value', 'iv_scr', 'redcap_event_name', 'psychs_fu_ac8']].astype(str).apply(lambda x: x.str.strip())
+    sips_ac['psychs_fu_ac8_final']=np.where((((sips_ac['value']=='-900')&(sips_ac['value'] != '1'))&(sips_ac['redcap_event_name']!='screening_arm_1')&(sips_ac['redcap_event_name'] !='screening_arm_2'))|\
+                                             ((sips_ac['iv_scr']=='-900') & \
+                                             ((sips_ac['redcap_event_name'] == 'screening_arm_1')|(sips_ac['redcap_event_name'] =='screening_arm_2'))),\
+                                   '-900', sips_ac['psychs_fu_ac8'])
+    sips_ac_final = create_use_value(sips_group_lifetime, sips_ac, df, ['psychs_fu_ac8_final'], visit_of_interest_2, all_visits, 'int')
+    return sips_new_final, sips_ac_final
+
 # --------------------------------------------------------------------#
 # Here we load the data
 # --------------------------------------------------------------------#
@@ -370,8 +427,8 @@ ids = pd.read_csv('/data/pnl/home/gj936/U24/Clinical_qc/flowqc/REAL_DATA/{0}_sub
 # Load the data. Depending on which network you load the data from you have to apply some different wrangling.
 if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
-        id_list = ['SI00132']
-        #id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
+        #id_list = ['SI00132']
+        id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
@@ -1018,7 +1075,7 @@ for i, id in enumerate(id_list, 1):
     sips_chr_full_remission_scr              = create_use_value('chrpsychs_scr_ac30', df_all, df_all, ['chrpsychs_scr_ac30'], voi_6, all_visits_list, 'int')
     sips_current_status_scr                  = create_use_value('chrpsychs_scr_ac31', df_all, df_all, ['chrpsychs_scr_ac31'], voi_6, all_visits_list, 'int')
     dsm5_attenuated_psychosis_scr            = create_use_value('chrpsychs_scr_ac32', df_all, df_all, ['chrpsychs_scr_ac32'], voi_6, all_visits_list, 'int')
-    # create the sips/bips/grd diagnosis at follow-up
+    # create the sips/bips/grd diagnosis from baseline for follow-up
     sips_bips_scr = df_all.copy()
     sips_bips_scr = sips_bips_scr[['redcap_event_name', 'chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11', 'chrpsychs_scr_ac12']] 
     sips_bips_scr['bips_iv_scr'] = np.where((sips_bips_scr[['chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11','chrpsychs_scr_ac12']]=='1').any(axis=1), '1',\
@@ -1167,50 +1224,35 @@ for i, id in enumerate(id_list, 1):
         sips_chr_full_remission_fu_chr             = create_use_value('chrpsychs_fu_ac30', df_all, df_all,     ['chrpsychs_fu_ac30'], voi_8, all_visits_list, 'int')
         sips_current_status_fu_chr                 = create_use_value('chrpsychs_fu_ac31', df_all, df_all,     ['chrpsychs_fu_ac31'], voi_8, all_visits_list, 'int')
         dsm5_attenuated_psychosis_fu_chr           = create_use_value('chrpsychs_fu_ac32', df_all, df_all,     ['chrpsychs_fu_ac32'], voi_8, all_visits_list, 'int')
-        # create the sips/bips/grd diagnosis at follow-up
-        conversion_bips_date_fu = create_min_date('conversion_bips_date', df_all, df_all, ['hcpsychs_fu_1c10_on','hcpsychs_fu_2c10_on','hcpsychs_fu_3c10_on','hcpsychs_fu_4c10_on',\
-                                                                                           'hcpsychs_fu_5c10_on','hcpsychs_fu_6c10_on','hcpsychs_fu_7c10_on','hcpsychs_fu_8c10_on',\
-                                                                                           'hcpsychs_fu_9c10_on','hcpsychs_fu_10c10_on','hcpsychs_fu_11c10_on','hcpsychs_fu_12c10_on',\
-                                                                                           'hcpsychs_fu_13c10_on','hcpsychs_fu_14c10_on','hcpsychs_fu_15c10_on'], voi_8, all_visits_list, 'str')
-        conversion_bips_date_fu['conversion_bips_date'] = pd.to_datetime(conversion_bips_date_fu['value'])
-        conversion_bips_date_fu = conversion_bips_date_fu[['redcap_event_name', 'conversion_bips_date']]
-        conversion_date_fu_match=conversion_date_fu.copy()
-        conversion_date_fu_match['conversion_date'] = conversion_date_fu_match['value']
-        conversion_date_fu_match = conversion_date_fu_match[['redcap_event_name', 'conversion_date']]
-        df_all_copy=df_all.copy()
-        bips_vars = ['hcpsychs_fu_1c10','hcpsychs_fu_2c10','hcpsychs_fu_3c10','hcpsychs_fu_4c10','hcpsychs_fu_5c10',\
-                     'hcpsychs_fu_6c10','hcpsychs_fu_7c10','hcpsychs_fu_8c10','hcpsychs_fu_9c10','hcpsychs_fu_10c10',\
-                     'hcpsychs_fu_11c10','hcpsychs_fu_12c10','hcpsychs_fu_13c10','hcpsychs_fu_14c10','hcpsychs_fu_15c10']
-        combined_vars = ['redcap_event_name', 'hcpsychs_fu_ac1_conv'] + bips_vars
-        df_all_copy=df_all_copy[combined_vars]
-        bips_conv_vars = ['hcpsychs_fu_ac1_conv'] + bips_vars
-        df_all_copy[bips_conv_vars] = df_all_copy[bips_conv_vars].astype(str)
-        bips_merged = pd.merge(pd.merge(conversion_date_fu_match, conversion_bips_date_fu, on = 'redcap_event_name', how = 'left'),df_all_copy, on = 'redcap_event_name', how = 'left')
-        bips_merged['bips_iv'] = np.where((bips_merged[bips_vars]=='1').any(axis=1), '1',\
-                                 np.where((bips_merged[bips_vars]=='0').all(axis=1), '0','-900'))
-        bips_merged['hcpsychs_fu_ac8_new']=np.where((bips_merged['bips_iv']=='1') & ((bips_merged['hcpsychs_fu_ac1_conv']==0)|\
-                                                     (not any (date in ('1909-09-09', '1903-03-03') for date in bips_merged[['conversion_date', 'conversion_bips_date']])) &\
-                                                     (bips_merged['conversion_bips_date']<bips_merged['conversion_date'])), '1',\
-                                            np.where((bips_merged['bips_iv']=='0')|\
-                                                     ((bips_merged['hcpsychs_fu_ac1_conv']=='1')&\
-                                                     (not any (date in ('1909-09-09', '1903-03-03') for date in bips_merged[['conversion_date', 'conversion_bips_date']])) &\
-                                                     (bips_merged['conversion_bips_date']>bips_merged['conversion_date'])), '0','-900'))
-        bips_new_final = create_use_value('bips_new', bips_merged, df_all, ['hcpsychs_fu_ac8_new'], voi_8, all_visits_list, 'int')
-        # calculate hcpsychs_fu_ac8 instead of the new
-        bips_ac = pd.merge(bips_new_final, sips_bips_scr, on = 'redcap_event_name', how = 'left')
-        bips_ac['value']=bips_ac['value'].astype(str)
-        bips_ac['bips_iv_yesno']=np.where((bips_ac['value']=='1'), 1, 0)
-        bips_ac['cumulative_sum'] = bips_ac['bips_iv_yesno'].shift(1).fillna(0).cumsum()
-        bips_ac['bips_scr_yesno']=np.where((bips_ac['bips_iv_scr']=='1'), 1, 0)
-        bips_ac['cumulative_sum_scr'] = bips_ac['bips_scr_yesno'].shift(1).fillna(0).cumsum()
-        bips_ac['hcpsychs_fu_ac8']=np.where((bips_ac['cumulative_sum_scr']>0)|(bips_ac['cumulative_sum']>0)|(bips_ac['value']=='1')|(bips_ac['bips_iv_scr']=='1'),'1','0')
-        bips_ac[['value', 'bips_iv_scr', 'redcap_event_name', 'hcpsychs_fu_ac8']] = bips_ac[['value', 'bips_iv_scr', 'redcap_event_name', 'hcpsychs_fu_ac8']].astype(str).apply(lambda x: x.str.strip())
-        bips_ac['hcpsychs_fu_ac8_final']=np.where((((bips_ac['value']=='-900')&(bips_ac['value'] != '1'))&(bips_ac['redcap_event_name']!='screening_arm_1')&(bips_ac['redcap_event_name'] !='screening_arm_2'))|\
-                                                  ((bips_ac['bips_iv_scr']=='-900') & \
-                                                  ((bips_ac['redcap_event_name'] == 'screening_arm_1')|(bips_ac['redcap_event_name'] =='screening_arm_2'))),\
-                                          '-900', bips_ac['hcpsychs_fu_ac8'])
-        bips_ac_final = create_use_value('bips', bips_ac, df_all, ['hcpsychs_fu_ac8_final'], voi_10, all_visits_list, 'int')
-        
+        # create the SIPS BIPS diagnosis
+        scr_bips_vars = ['hcpsychs_scr_ac9', 'hcpsychs_scr_ac10','hcpsychs_scr_ac11', 'hcpsychs_scr_ac12']
+        bips_onsetdate_groups =['hcpsychs_fu_1c10_on','hcpsychs_fu_2c10_on','hcpsychs_fu_3c10_on','hcpsychs_fu_4c10_on',\
+                                'hcpsychs_fu_5c10_on','hcpsychs_fu_6c10_on','hcpsychs_fu_7c10_on','hcpsychs_fu_8c10_on',\
+                                'hcpsychs_fu_9c10_on','hcpsychs_fu_10c10_on','hcpsychs_fu_11c10_on','hcpsychs_fu_12c10_on',\
+                                'hcpsychs_fu_13c10_on','hcpsychs_fu_14c10_on','hcpsychs_fu_15c10_on']
+        vars_interest_bips_fu = ['hcpsychs_fu_1c10','hcpsychs_fu_2c10','hcpsychs_fu_3c10','hcpsychs_fu_4c10','hcpsychs_fu_5c10',\
+                                 'hcpsychs_fu_6c10','hcpsychs_fu_7c10','hcpsychs_fu_8c10','hcpsychs_fu_9c10','hcpsychs_fu_10c10',\
+                                 'hcpsychs_fu_11c10','hcpsychs_fu_12c10','hcpsychs_fu_13c10','hcpsychs_fu_14c10','hcpsychs_fu_15c10']
+        bips_new_final, bips_ac_final= create_sips_groups(df_all, scr_bips_vars, bips_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'hcpsychs_fu_ac1_conv',\
+                                                    'sips_bips_new', 'sips_bips_lifetime', voi_10)
+        # create the SIPS APS diagnosis
+        scr_aps_vars = ['hcpsychs_scr_ac15', 'hcpsychs_scr_ac16','hcpsychs_scr_ac17', 'hcpsychs_scr_ac18']
+        aps_onsetdate_groups =['hcpsychs_fu_1c14_on','hcpsychs_fu_2c14_on','hcpsychs_fu_3c14_on','hcpsychs_fu_4c14_on',\
+                               'hcpsychs_fu_5c14_on','hcpsychs_fu_6c14_on','hcpsychs_fu_7c14_on','hcpsychs_fu_8c14_on',\
+                               'hcpsychs_fu_9c14_on','hcpsychs_fu_10c14_on','hcpsychs_fu_11c14_on','hcpsychs_fu_12c14_on',\
+                               'hcpsychs_fu_13c14_on','hcpsychs_fu_14c14_on','hcpsychs_fu_15c14_on']
+        vars_interest_aps_fu = ['hcpsychs_fu_1c14','hcpsychs_fu_2c14','hcpsychs_fu_3c14','hcpsychs_fu_4c14','hcpsychs_fu_5c14',\
+                                 'hcpsychs_fu_6c14','hcpsychs_fu_7c14','hcpsychs_fu_8c14','hcpsychs_fu_9c14','hcpsychs_fu_10c14',\
+                                 'hcpsychs_fu_11c14','hcpsychs_fu_12c14','hcpsychs_fu_13c14','hcpsychs_fu_14c14','hcpsychs_fu_15c14']
+        aps_new_final, aps_ac_final= create_sips_groups(df_all, scr_aps_vars, aps_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'hcpsychs_fu_ac1_conv',\
+                                                       'sips_aps_new', 'sips_aps_lifetime', voi_10)
+        # create the SIPS GRD diagnosis the calculation is a little bit different!
+        scr_grd_vars = ['hcpsychs_scr_ac21', 'hcpsychs_scr_ac22','hcpsychs_scr_ac23', 'hcpsychs_scr_ac24']
+        grd_onsetdate_groups =['hcpsychs_fu_e4_date']
+        vars_interest_grd_fu = ['hcpsychs_fu_e4_new']
+        grd_new_final, grd_ac_final= create_sips_groups(df_all, scr_grd_vars, grd_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'hcpsychs_fu_ac1_conv',\
+                                                    'sips_grd_new', 'sips_grd_lifetime', voi_10)
+        # Combine the psychs fu dataframes
         psychs_fu = pd.concat([psychs_pos_tot_fu,psychs_sips_p1_fu,psychs_sips_p2_fu,psychs_sips_p3_fu,psychs_sips_p4_fu,psychs_sips_p5_fu,\
                                sips_pos_tot_fu, psychs_caarms_p1_fu,\
                                psychs_caarms_p2_fu, psychs_caarms_p3_fu, psychs_caarms_p4_fu, caarms_pos_tot_fu, conversion_date_fu, psychosis_fu_chr, psychosis_fu_hc,\
@@ -1225,7 +1267,7 @@ for i, id in enumerate(id_list, 1):
                                sips_apss_progression_fu_chr, sips_apss_persistence_fu_chr,\
                                sips_apss_partial_remission_fu_chr, sips_apss_full_remission_fu_chr, sips_grd_progression_fu_chr, sips_grd_persistence_fu_chr, sips_grd_partial_remission_fu_chr, \
                                sips_grd_full_remission_fu_chr, sips_chr_progression_fu_chr, sips_chr_persistence_fu_chr, sips_chr_partial_remission_fu_chr, sips_chr_full_remission_fu_chr, \
-                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final], axis = 0) 
+                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final, aps_new_final, aps_ac_final, grd_new_final, grd_ac_final], axis = 0) 
     else:
         # psychs
         psychs_pos_tot_fu = create_total_division('psychs_pos_tot', df_all, df_all, ['chrpsychs_fu_1d1','chrpsychs_fu_2d1','chrpsychs_fu_3d1','chrpsychs_fu_4d1',\
@@ -1359,49 +1401,35 @@ for i, id in enumerate(id_list, 1):
         sips_chr_full_remission_fu_chr             = create_use_value('chrpsychs_fu_ac30', df_all, df_all, ['chrpsychs_fu_ac30'], voi_8, all_visits_list, 'int')
         sips_current_status_fu_chr                 = create_use_value('chrpsychs_fu_ac31', df_all, df_all, ['chrpsychs_fu_ac31'], voi_8, all_visits_list, 'int')
         dsm5_attenuated_psychosis_fu_chr           = create_use_value('chrpsychs_fu_ac32', df_all, df_all, ['chrpsychs_fu_ac32'], voi_8, all_visits_list, 'int')
-        # create the sips/bips/grd diagnosis at follow-up
-        conversion_bips_date_fu = create_min_date('conversion_bips_date', df_all, df_all, ['chrpsychs_fu_1c10_on','chrpsychs_fu_2c10_on','chrpsychs_fu_3c10_on','chrpsychs_fu_4c10_on',\
-                                                                                           'chrpsychs_fu_5c10_on','chrpsychs_fu_6c10_on','chrpsychs_fu_7c10_on','chrpsychs_fu_8c10_on',\
-                                                                                           'chrpsychs_fu_9c10_on','chrpsychs_fu_10c10_on','chrpsychs_fu_11c10_on','chrpsychs_fu_12c10_on',\
-                                                                                           'chrpsychs_fu_13c10_on','chrpsychs_fu_14c10_on','chrpsychs_fu_15c10_on'], voi_8, all_visits_list, 'str')
-        conversion_bips_date_fu['conversion_bips_date'] = pd.to_datetime(conversion_bips_date_fu['value'])
-        conversion_bips_date_fu = conversion_bips_date_fu[['redcap_event_name', 'conversion_bips_date']]
-        conversion_date_fu_match=conversion_date_fu.copy()
-        conversion_date_fu_match['conversion_date'] = conversion_date_fu_match['value']
-        conversion_date_fu_match = conversion_date_fu_match[['redcap_event_name', 'conversion_date']]
-        df_all_copy=df_all.copy()
-        bips_vars = ['chrpsychs_fu_1c10','chrpsychs_fu_2c10','chrpsychs_fu_3c10','chrpsychs_fu_4c10','chrpsychs_fu_5c10',\
-                     'chrpsychs_fu_6c10','chrpsychs_fu_7c10','chrpsychs_fu_8c10','chrpsychs_fu_9c10','chrpsychs_fu_10c10',\
-                     'chrpsychs_fu_11c10','chrpsychs_fu_12c10','chrpsychs_fu_13c10','chrpsychs_fu_14c10','chrpsychs_fu_15c10']
-        combined_vars = ['redcap_event_name', 'chrpsychs_fu_ac1_conv'] + bips_vars
-        df_all_copy=df_all_copy[combined_vars]
-        bips_conv_vars = ['chrpsychs_fu_ac1_conv'] + bips_vars
-        df_all_copy[bips_conv_vars] = df_all_copy[bips_conv_vars].astype(str)
-        bips_merged = pd.merge(pd.merge(conversion_date_fu_match, conversion_bips_date_fu, on = 'redcap_event_name', how = 'left'),df_all_copy, on = 'redcap_event_name', how = 'left')
-        bips_merged['bips_iv'] = np.where((bips_merged[bips_vars]=='1').any(axis=1), '1',\
-                                 np.where((bips_merged[bips_vars]=='0').all(axis=1), '0','-900'))
-        bips_merged['chrpsychs_fu_ac8_new']=np.where((bips_merged['bips_iv']=='1') & ((bips_merged['chrpsychs_fu_ac1_conv']==0)|\
-                                                     (not any (date in ('1909-09-09', '1903-03-03') for date in bips_merged[['conversion_date', 'conversion_bips_date']])) &\
-                                                     (bips_merged['conversion_bips_date']<bips_merged['conversion_date'])), '1',\
-                                            np.where((bips_merged['bips_iv']=='0')|\
-                                                     ((bips_merged['chrpsychs_fu_ac1_conv']=='1')&\
-                                                     (not any (date in ('1909-09-09', '1903-03-03') for date in bips_merged[['conversion_date', 'conversion_bips_date']])) &\
-                                                     (bips_merged['conversion_bips_date']>bips_merged['conversion_date'])), '0','-900'))
-        bips_new_final = create_use_value('bips_new', bips_merged, df_all, ['chrpsychs_fu_ac8_new'], voi_8, all_visits_list, 'int')
-        # calculate chrpsychs_fu_ac8 instead of the new
-        bips_ac = pd.merge(bips_new_final, sips_bips_scr, on = 'redcap_event_name', how = 'left')
-        bips_ac['value']=bips_ac['value'].astype(str)
-        bips_ac['bips_iv_yesno']=np.where((bips_ac['value']=='1'), 1, 0)
-        bips_ac['cumulative_sum'] = bips_ac['bips_iv_yesno'].shift(1).fillna(0).cumsum()
-        bips_ac['bips_scr_yesno']=np.where((bips_ac['bips_iv_scr']=='1'), 1, 0)
-        bips_ac['cumulative_sum_scr'] = bips_ac['bips_scr_yesno'].shift(1).fillna(0).cumsum()
-        bips_ac['chrpsychs_fu_ac8']=np.where((bips_ac['cumulative_sum_scr']>0)|(bips_ac['cumulative_sum']>0)|(bips_ac['value']=='1')|(bips_ac['bips_iv_scr']=='1'),'1','0')
-        bips_ac[['value', 'bips_iv_scr', 'redcap_event_name', 'chrpsychs_fu_ac8']] = bips_ac[['value', 'bips_iv_scr', 'redcap_event_name', 'chrpsychs_fu_ac8']].astype(str).apply(lambda x: x.str.strip())
-        bips_ac['chrpsychs_fu_ac8_final']=np.where((((bips_ac['value']=='-900')&(bips_ac['value'] != '1'))&(bips_ac['redcap_event_name']!='screening_arm_1')&(bips_ac['redcap_event_name'] !='screening_arm_2'))|\
-                                                  ((bips_ac['bips_iv_scr']=='-900') & \
-                                                  ((bips_ac['redcap_event_name'] == 'screening_arm_1')|(bips_ac['redcap_event_name'] =='screening_arm_2'))),\
-                                          '-900', bips_ac['chrpsychs_fu_ac8'])
-        bips_ac_final = create_use_value('bips', bips_ac, df_all, ['chrpsychs_fu_ac8_final'], voi_10, all_visits_list, 'int')
+        # create the SIPS BIPS diagnosis
+        scr_bips_vars = ['chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11', 'chrpsychs_scr_ac12']
+        bips_onsetdate_groups =['chrpsychs_fu_1c10_on','chrpsychs_fu_2c10_on','chrpsychs_fu_3c10_on','chrpsychs_fu_4c10_on',\
+                                'chrpsychs_fu_5c10_on','chrpsychs_fu_6c10_on','chrpsychs_fu_7c10_on','chrpsychs_fu_8c10_on',\
+                                'chrpsychs_fu_9c10_on','chrpsychs_fu_10c10_on','chrpsychs_fu_11c10_on','chrpsychs_fu_12c10_on',\
+                                'chrpsychs_fu_13c10_on','chrpsychs_fu_14c10_on','chrpsychs_fu_15c10_on']
+        vars_interest_bips_fu = ['chrpsychs_fu_1c10','chrpsychs_fu_2c10','chrpsychs_fu_3c10','chrpsychs_fu_4c10','chrpsychs_fu_5c10',\
+                                 'chrpsychs_fu_6c10','chrpsychs_fu_7c10','chrpsychs_fu_8c10','chrpsychs_fu_9c10','chrpsychs_fu_10c10',\
+                                 'chrpsychs_fu_11c10','chrpsychs_fu_12c10','chrpsychs_fu_13c10','chrpsychs_fu_14c10','chrpsychs_fu_15c10']
+        bips_new_final, bips_ac_final= create_sips_groups(df_all, scr_bips_vars, bips_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'chrpsychs_fu_ac1_conv',\
+                                                    'sips_bips_new', 'sips_bips_lifetime', voi_10)
+        # create the SIPS APS diagnosis
+        scr_aps_vars = ['chrpsychs_scr_ac15', 'chrpsychs_scr_ac16','chrpsychs_scr_ac17', 'chrpsychs_scr_ac18']
+        aps_onsetdate_groups =['chrpsychs_fu_1c14_on','chrpsychs_fu_2c14_on','chrpsychs_fu_3c14_on','chrpsychs_fu_4c14_on',\
+                               'chrpsychs_fu_5c14_on','chrpsychs_fu_6c14_on','chrpsychs_fu_7c14_on','chrpsychs_fu_8c14_on',\
+                               'chrpsychs_fu_9c14_on','chrpsychs_fu_10c14_on','chrpsychs_fu_11c14_on','chrpsychs_fu_12c14_on',\
+                               'chrpsychs_fu_13c14_on','chrpsychs_fu_14c14_on','chrpsychs_fu_15c14_on']
+        vars_interest_aps_fu = ['chrpsychs_fu_1c14','chrpsychs_fu_2c14','chrpsychs_fu_3c14','chrpsychs_fu_4c14','chrpsychs_fu_5c14',\
+                                 'chrpsychs_fu_6c14','chrpsychs_fu_7c14','chrpsychs_fu_8c14','chrpsychs_fu_9c14','chrpsychs_fu_10c14',\
+                                 'chrpsychs_fu_11c14','chrpsychs_fu_12c14','chrpsychs_fu_13c14','chrpsychs_fu_14c14','chrpsychs_fu_15c14']
+        aps_new_final, aps_ac_final= create_sips_groups(df_all, scr_aps_vars, aps_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'chrpsychs_fu_ac1_conv',\
+                                                       'sips_aps_new', 'sips_aps_lifetime', voi_10)
+        # create the SIPS GRD diagnosis the calculation is a little bit different!
+        scr_grd_vars = ['chrpsychs_scr_ac21', 'chrpsychs_scr_ac22','chrpsychs_scr_ac23', 'chrpsychs_scr_ac24']
+        grd_onsetdate_groups =['chrpsychs_fu_e4_date']
+        vars_interest_grd_fu = ['chrpsychs_fu_e4_new']
+        grd_new_final, grd_ac_final= create_sips_groups(df_all, scr_grd_vars, grd_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'chrpsychs_fu_ac1_conv',\
+                                                    'sips_grd_new', 'sips_grd_lifetime', voi_10)
+        # combine the psychs_fu dataframes
         psychs_fu = pd.concat([psychs_pos_tot_fu, psychs_sips_p1_fu, psychs_sips_p2_fu, psychs_sips_p3_fu, psychs_sips_p4_fu,\
                                psychs_sips_p5_fu, sips_pos_tot_fu, psychs_caarms_p1_fu,\
                                psychs_caarms_p2_fu, psychs_caarms_p3_fu, psychs_caarms_p4_fu, caarms_pos_tot_fu, conversion_date_fu, psychosis_fu_chr, psychosis_fu_hc,\
@@ -1416,7 +1444,7 @@ for i, id in enumerate(id_list, 1):
                                sips_apss_progression_fu_chr, sips_apss_persistence_fu_chr,\
                                sips_apss_partial_remission_fu_chr, sips_apss_full_remission_fu_chr, sips_grd_progression_fu_chr, sips_grd_persistence_fu_chr, sips_grd_partial_remission_fu_chr, \
                                sips_grd_full_remission_fu_chr, sips_chr_progression_fu_chr, sips_chr_persistence_fu_chr, sips_chr_partial_remission_fu_chr, sips_chr_full_remission_fu_chr, \
-                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final], axis = 0) 
+                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final, aps_new_final, aps_ac_final, grd_new_final, grd_ac_final], axis = 0) 
     psychs_fu['value_fu'] = psychs_fu['value']
     psychs_scr['value_scr'] = psychs_scr['value']
     # we have to combine the psychs and the psychs_fu
