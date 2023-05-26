@@ -12,7 +12,7 @@ setwd('C:/Users/Nora/Documents/Harvard/U24/Outcomes/testOutcomesNew/')
 # -----------------------------------------------------------------------------#
 # create a distribution plot for each variable
 
-pronet_all <- read.csv('pronet_all.csv')
+pronet_all <- read.csv('pronet_outcome_new.csv')
 prescient_all <- read.csv('prescient_all.csv')
 
 # divide the data based on their data-types
@@ -62,7 +62,7 @@ outcomes_float <- pronet_all_float %>%
 
 # combine the data from the two dataframes
 outcomes_integer_long <- pronet_all_integer %>%
-  rbind(., prescient_all_integer)%>%
+#  rbind(., prescient_all_integer)%>%
   group_by(variable) %>%
   arrange(value)%>%
   summarize(distinct_values = paste(unique(value), collapse = "; "))%>%
@@ -76,7 +76,7 @@ outcomes_integer_long <- pronet_all_integer %>%
   mutate_all(as.character)
 
 outcomes_date_long <- pronet_all_date %>%
-  rbind(., prescient_all_date)%>%
+#  rbind(., prescient_all_date)%>%
   group_by(variable) %>%
   arrange(value)%>%
   summarize(distinct_values = paste(unique(value), collapse = "; "))%>%
@@ -93,7 +93,7 @@ outcomes_date_long <- pronet_all_date %>%
   mutate_all(as.character)
 
 outcomes_float_long <- pronet_all_float %>%
-  rbind(., prescient_all_float)%>%
+#  rbind(., prescient_all_float)%>%
   group_by(variable) %>%
   arrange(value)%>%
   summarize(distinct_values = paste(unique(value), collapse = "; "))%>%
@@ -158,14 +158,10 @@ variables_outcome <- outcome_long %>%
   mutate(description = 
            case_when(variable == "psychs_pos_tot"                            ~ 'PSYCHS Total Score',
                      variable == "psychs_sips_p1"                            ~ 'SIPS P1 Severity Score: Unusual Thought Content/Delusional Ideas',
-                     variable == "chrpsychs_scr_2d1"                         ~ 'SIPS P2 Severity Score: Suspiciousness/Persecutory Ideas',
-                     variable == "hcpsychs_fu_2d1"                           ~ 'SIPS P2 Severity Score: Suspiciousness/Persecutory Ideas',
-                     variable == "chrpsychs_fu_2d1"                          ~ 'SIPS P2 Severity Score: Suspiciousness/Persecutory Ideas',
+                     variable == "psychs_sips_p2"                            ~ 'SIPS P2 Severity Score: Suspiciousness/Persecutory Ideas',
                      variable == "psychs_sips_p3"                            ~ 'SIPS P3 Severity Score: Grandiose Ideas',
                      variable == "psychs_sips_p4"                            ~ 'SIPS P4 Severity Score: Perceptual Abnormalities/Hallucinations',
-                     variable == "hcpsychs_fu_15d1"                          ~ 'SIPS P5 Severity Score: Disorganized Communication',
-                     variable == "chrpsychs_fu_15d1"                         ~ 'SIPS P5 Severity Score: Disorganized Communication',
-                     variable == "chrpsychs_scr_15d1"                        ~ 'SIPS P5 Severity Score: Disorganized Communication',
+                     variable == "psychs_sips_p5"                            ~ 'SIPS P5 Severity Score: Disorganized Communication',
                      variable == "sips_pos_tot"                              ~ 'SIPS Positive Severity Score',
                      variable == "psychs_caarms_p1"                          ~ 'product of frequency by intensity of positive scale P1',
                      variable == "psychs_caarms_p2"                          ~ 'product of frequency by intensity of positive scale P2',
@@ -173,6 +169,7 @@ variables_outcome <- outcome_long %>%
                      variable == "psychs_caarms_p4"                          ~ 'product of frequency by intensity of positive scale P4',
                      variable == "caarms_pos_tot"                            ~ 'sum of Caarms P1-4',
                      variable == "psychosis_onset_date"                      ~ 'earliest date (minimum) of all psychosis onset dates measured',
+                     variable == "sips_"                      ~ 'earliest date (minimum) of all psychosis onset dates measured',
                      variable == "chrpsychs_scr_ac1"                         ~ 'Psychosis',
                      variable == "chrpsychs_scr_ac2"                         ~ 'CAARMS BLIPS',
                      variable == "chrpsychs_scr_ac3"                         ~ 'CAARMS APS subthreshold frequency',
@@ -314,16 +311,16 @@ variables_outcome <- outcome_long %>%
   mutate(diverging_expert_variable_name = 
            case_when(variable == "psychs_pos_tot"        ~ 'PSYCHS Total Score',
                      variable == "psychs_sips_p1"        ~ 'SIPS P1 Severity Score: Unusual Thought Content/Delusional Ideas',
-                     variable == "chrpsychs_scr_2d1"     ~ 'SIPS P2 Severity Score: Suspiciousness/Persecutory Ideas',
+                     variable == "psychs_sips_p2"        ~ 'SIPS P2 Severity Score: Suspiciousness/Persecutory Ideas',
                      variable == "psychs_sips_p3"        ~ 'SIPS P3 Severity Score: Grandiose Ideas',
                      variable == "psychs_sips_p4"        ~ 'SIPS P4 Severity Score: Perceptual Abnormalities/Hallucinations',
-                     variable == "chrpsychs_scr_15d1"    ~ 'SIPS P5 Severity Score: Disorganized Communication',
+                     variable == "psychs_sips_p5"        ~ 'SIPS P5 Severity Score: Disorganized Communication',
                      variable == "sips_pos_tot"          ~ 'SIPS Positive Severity Score',
                      variable == "psychs_caarms_p1"      ~ 'product of frequency by intensity of positive scale P1',
                      variable == "psychs_caarms_p2"      ~ 'product of frequency by intensity of positive scale P2',
                      variable == "psychs_caarms_p3"      ~ 'product of frequency by intensity of positive scale P3',
                      variable == "psychs_caarms_p4"      ~ 'product of frequency by intensity of positive scale P4',
-                     variable == "caarms_pos_tot" ~ 'sum of Caarms P1-4',
+                     variable == "caarms_pos_tot"        ~ 'sum of Caarms P1-4',
                      variable == "psychosis_onset_date"  ~ 'earliest date (minimum) of all psychosis onset dates measured',
                      variable == "chrpsychs_scr_ac1"   ~ 'Psychosis - yes/no',
                      variable == "chrpsychs_scr_ac2"   ~ 'CAARMS BLIPS',
@@ -566,10 +563,10 @@ variables_outcome <- outcome_long %>%
   mutate(original_calculation_adapted_np_or_comment = 
            case_when(variable == "psychs_pos_tot"        ~ '',
                      variable == "psychs_sips_p1"        ~ '',
-                     variable == "chrpsychs_scr_2d1"     ~ '',
+                     variable == "psychs_sips_p2"        ~ '',
                      variable == "psychs_sips_p3"        ~ '',
                      variable == "psychs_sips_p4"        ~ '',
-                     variable == "chrpsychs_scr_15d1"    ~ '',
+                     variable == "psychs_sips_p5"        ~ '',
                      variable == "sips_pos_tot"          ~ '',
                      variable == "psychs_caarms_p1"      ~ '',
                      variable == "psychs_caarms_p2"      ~ '',
@@ -696,14 +693,10 @@ variables_outcome <- outcome_long %>%
       TRUE ~ ';-900;-300'))%>%
   mutate(value_range = case_when( variable == "psychs_pos_tot"             ~ '0::90',
                                   variable == "psychs_sips_p1"             ~ '0::6',
-                                  variable == "chrpsychs_scr_2d1"          ~ '0::6',
-                                  variable == "hcpsychs_fu_2d1"            ~ '0::6',
-                                  variable == "chrpsychs_fu_2d1"           ~ '0::6',
+                                  variable == "psychs_sips_p2"             ~ '0::6',
                                   variable == "psychs_sips_p3"             ~ '0::6',
                                   variable == "psychs_sips_p4"             ~ '0::6',
-                                  variable == "hcpsychs_fu_15d1"           ~ '0::6',
-                                  variable == "chrpsychs_fu_15d1"          ~ '0::6',
-                                  variable == "chrpsychs_scr_15d1"         ~ '0::6',
+                                  variable == "psychs_sips_p5"             ~ '0::6',
                                   variable == "sips_pos_tot"               ~ '0::30',
                                   variable == "psychs_caarms_p1"           ~ '0::36',
                                   variable == "psychs_caarms_p2"           ~ '0::36',
