@@ -352,8 +352,45 @@ def create_assist(outcome, df_1, df_2, assist_var1, assist_var2, var_list, divis
     final_assist = df_assist_created[['variable', 'redcap_event_name', 'value']]
     return final_assist
 
-def create_sips_groups(df, sips_vars_interest_scr, onsetdate_sips_group, visit_of_interest, all_visits, conversion_df, sips_vars_interest_fu, conv_str, new_sips_group, \
-                       sips_group_lifetime, visit_of_interest_2):
+def create_sips_groups_scr(new_sips_group, df, onsetdate_sips_group, visit_of_interest, all_visits, psychosis_onset_df, sips_vars_interest_screening,\
+                           psychosis_str):
+    # create the different sips group assignments at screening
+    # df: dataframe (df_all) including all variables
+    # onsetdate_sips_group: onset date of the sips-group for all symptoms
+    # visit_of_interest: the visits (here probably voi_8) that are of interest for the questionnaire (psychs)
+    # all_visits: list with all visits (all_visits_list)
+    # psychosis_onset_df: dataframe with the psychosis conversion date (conversion_date_fu)
+    # sips_vars_interest_fu: vars of interest for the follow-up visits (e.g. bips symptoms)
+    # psychosis_str = variable indicating psychosis conversion or not *psychs_fu_ac1_conv
+    # new_sips_group = string iwth the name for the new sips-group
+    # visit_of interest_2 = same as in visit of interest (psychs visits) but including also screenign here. 
+    conversion_sips_group_date_scr = create_min_date('conversion_sips_group_date', df, df, onsetdate_sips_group, visit_of_interest, all_visits, 'str')
+    conversion_sips_group_date_scr['conversion_sips_group_date'] = pd.to_datetime(conversion_sips_group_date_scr['value'])
+    conversion_sips_group_date_scr = conversion_sips_group_date_scr[['redcap_event_name', 'conversion_sips_group_date']]
+    conversion_date_scr_match = psychosis_onset_df.copy()
+    conversion_date_scr_match['conversion_date']=conversion_date_scr_match['value']
+    conversion_date_scr_match = conversion_date_scr_match[['redcap_event_name', 'conversion_date']]
+    df_all_copy=df.copy()
+    combined_vars = ['redcap_event_name', psychosis_str] + sips_vars_interest_screening
+    df_all_copy=df_all_copy[combined_vars]
+    sips_conv_vars = [psychosis_str] + sips_vars_interest_screening
+    df_all_copy[sips_conv_vars] = df_all_copy[sips_conv_vars].astype(str)
+    sips_merged = pd.merge(pd.merge(conversion_date_scr_match, conversion_sips_group_date_scr, on = 'redcap_event_name', how = 'left'),df_all_copy, on = 'redcap_event_name', how = 'left')
+    sips_merged['sips_iv'] = np.where((sips_merged[sips_vars_interest_screening]=='1').any(axis=1), '1',\
+                             np.where((sips_merged[sips_vars_interest_screening]=='0').all(axis=1), '0','-900'))
+    sips_merged['psychs_fu_ac8_new']=np.where((sips_merged['sips_iv']=='1') & ((sips_merged[psychosis_str]=='0')|\
+                                              (not any (date in ('1909-09-09', '1903-03-03') for date in sips_merged[['conversion_date', 'conversion_sips_group_date']])) &\
+                                              (sips_merged['conversion_sips_group_date']<sips_merged['conversion_date'])), '1',\
+                                     np.where((sips_merged['sips_iv']=='0')|\
+                                             ((sips_merged[psychosis_str]=='1')&\
+                                              (not any (date in ('1909-09-09', '1903-03-03') for date in sips_merged[['conversion_date', 'conversion_sips_group_date']])) &\
+                                              (sips_merged['conversion_sips_group_date']>sips_merged['conversion_date'])), '0','-900'))
+    sips_new_final = create_use_value(new_sips_group, sips_merged, df_all, ['psychs_fu_ac8_new'], visit_of_interest, all_visits, 'int')
+    # create the overall lifetime bips variable
+    return sips_new_final
+
+def create_sips_groups(new_sips_group,sips_group_lifetime, df, df_sips_group_scr, onsetdate_sips_group, visit_of_interest, all_visits, conversion_df, sips_vars_interest_fu,\
+                       conv_str, visit_of_interest_2):
     # create the different sips group assignments at follow-up
     # df: dataframe (df_all) including all variables
     # sips_vars_interest_scr: all screening variables needed to define baseline diagnosis
@@ -366,11 +403,13 @@ def create_sips_groups(df, sips_vars_interest_scr, onsetdate_sips_group, visit_o
     # new_sips_group = string iwth the name for the new sips-group
     # sips_group_lifetime = string with the name for the sips-group lifetime
     # visit_of interest_2 = same as in visit of interest (psychs visits) but including also screenign here. 
-    sips_scr = df.copy()
-    sips_vars_scr = ['redcap_event_name'] + sips_vars_interest_scr
+    sips_scr = df_sips_group_scr.copy()
+    sips_vars_scr = ['redcap_event_name', 'value']
     sips_scr = sips_scr[sips_vars_scr]
-    sips_scr['iv_scr']=np.where((sips_scr[sips_vars_interest_scr]=='1').any(axis=1), '1',\
-                       np.where((sips_scr[sips_vars_interest_scr]=='0').all(axis=1), '0','-900'))
+    sips_scr['iv_scr']=np.where((sips_scr['value']==1), '1',\
+                       np.where((sips_scr['value']==0), '0','-900'))
+    sips_scr['value_1']=sips_scr['value']
+    sips_scr=sips_scr[['redcap_event_name', 'iv_scr', 'value_1']]
     conversion_sips_group_date_fu = create_min_date('conversion_sips_group_date', df, df, onsetdate_sips_group, visit_of_interest, all_visits, 'str')
     conversion_sips_group_date_fu['conversion_sips_group_date'] = pd.to_datetime(conversion_sips_group_date_fu['value'])
     conversion_sips_group_date_fu = conversion_sips_group_date_fu[['redcap_event_name', 'conversion_sips_group_date']]
@@ -1077,6 +1116,31 @@ for i, id in enumerate(id_list, 1):
     sips_chr_full_remission_scr              = create_use_value('chrpsychs_scr_ac30', df_all, df_all, ['chrpsychs_scr_ac30'], voi_6, all_visits_list, 'int')
     sips_current_status_scr                  = create_use_value('chrpsychs_scr_ac31', df_all, df_all, ['chrpsychs_scr_ac31'], voi_6, all_visits_list, 'int')
     dsm5_attenuated_psychosis_scr            = create_use_value('chrpsychs_scr_ac32', df_all, df_all, ['chrpsychs_scr_ac32'], voi_6, all_visits_list, 'int')
+    # create the SIPS BIPS diagnosis at SCREENING
+    bips_onsetdate_groups_scr =['chrpsychs_scr_1a10_on', 'chrpsychs_scr_2a10_on', 'chrpsychs_scr_3a10_on', 'chrpsychs_scr_4a10_on',\
+                                'chrpsychs_scr_5a10_on', 'chrpsychs_scr_6a10_on', 'chrpsychs_scr_7a10_on', 'chrpsychs_scr_8a10_on',\
+                                'chrpsychs_scr_9a10_on', 'chrpsychs_scr_10a10_on','chrpsychs_scr_11a10_on','chrpsychs_scr_12a10_on',\
+                                'chrpsychs_scr_13a10_on','chrpsychs_scr_14a10_on','chrpsychs_scr_15a10_on']
+    vars_interest_bips_scr = ['chrpsychs_scr_1a10', 'chrpsychs_scr_2a10', 'chrpsychs_scr_3a10', 'chrpsychs_scr_4a10', 'chrpsychs_scr_5a10',\
+                              'chrpsychs_scr_6a10', 'chrpsychs_scr_7a10', 'chrpsychs_scr_8a10', 'chrpsychs_scr_9a10', 'chrpsychs_scr_10a10',\
+                              'chrpsychs_scr_11a10','chrpsychs_scr_12a10','chrpsychs_scr_13a10','chrpsychs_scr_14a10','chrpsychs_scr_15a10']
+    bips_new_final_scr = create_sips_groups_scr('sips_bips_scr_lifetime', df_all, bips_onsetdate_groups_scr, voi_6,\
+                                                all_visits_list, psychosis_onset_date_scr, vars_interest_bips_scr, 'chrpsychs_scr_ac1')
+    # create the SIPS APS diagnosis at SCREENING
+    aps_onsetdate_groups_scr =['chrpsychs_scr_1a14_on', 'chrpsychs_scr_2a14_on', 'chrpsychs_scr_3a14_on', 'chrpsychs_scr_4a14_on',\
+                                'chrpsychs_scr_5a14_on', 'chrpsychs_scr_6a14_on', 'chrpsychs_scr_7a14_on', 'chrpsychs_scr_8a14_on',\
+                                'chrpsychs_scr_9a14_on', 'chrpsychs_scr_10a14_on','chrpsychs_scr_11a14_on','chrpsychs_scr_12a14_on',\
+                                'chrpsychs_scr_13a14_on','chrpsychs_scr_14a14_on','chrpsychs_scr_15a14_on']
+    vars_interest_aps_scr = ['chrpsychs_scr_1a14', 'chrpsychs_scr_2a14', 'chrpsychs_scr_3a14', 'chrpsychs_scr_4a14', 'chrpsychs_scr_5a14',\
+                              'chrpsychs_scr_6a14', 'chrpsychs_scr_7a14', 'chrpsychs_scr_8a14', 'chrpsychs_scr_9a14', 'chrpsychs_scr_10a14',\
+                              'chrpsychs_scr_11a14','chrpsychs_scr_12a14','chrpsychs_scr_13a14','chrpsychs_scr_14a14','chrpsychs_scr_15a14']
+    aps_new_final_scr = create_sips_groups_scr('sips_aps_scr_lifetime', df_all, aps_onsetdate_groups_scr, voi_6,\
+                                                all_visits_list, psychosis_onset_date_scr, vars_interest_aps_scr, 'chrpsychs_scr_ac1')
+    # create the SIPS GRD diagnosis at SCREENING
+    grd_onsetdate_groups_scr =['chrpsychs_scr_e4_date']
+    vars_interest_grd_scr = ['chrpsychs_scr_e4']
+    grd_new_final_scr = create_sips_groups_scr('sips_grd_scr_lifetime', df_all, grd_onsetdate_groups_scr, voi_6,\
+                                                all_visits_list, psychosis_onset_date_scr, vars_interest_grd_scr, 'chrpsychs_scr_ac1')
     # create the sips/bips/grd diagnosis from baseline for follow-up
     sips_bips_scr = df_all.copy()
     sips_bips_scr = sips_bips_scr[['redcap_event_name', 'chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11', 'chrpsychs_scr_ac12']] 
@@ -1088,7 +1152,7 @@ for i, id in enumerate(id_list, 1):
                             sips_bips_progression_scr, sips_bips_persistence_scr, sips_bips_partial_remission_scr, sips_bips_full_remission_scr, sips_apss_progression_scr, sips_apss_persistence_scr,\
                             sips_apss_partial_remission_scr, sips_apss_full_remission_scr, sips_grd_progression_scr, sips_grd_persistence_scr, sips_grd_partial_remission_scr, \
                             sips_grd_full_remission_scr, sips_chr_progression_scr, sips_chr_persistence_scr, sips_chr_partial_remission_scr, sips_chr_full_remission_scr, \
-                            sips_current_status_scr, dsm5_attenuated_psychosis_scr], axis = 0) 
+                            sips_current_status_scr, dsm5_attenuated_psychosis_scr, bips_new_final_scr, aps_new_final_scr, grd_new_final_scr], axis = 0) 
 # --------------------------------------------------------------------#
 # PSYCHS-follow-up
 # --------------------------------------------------------------------#
@@ -1235,8 +1299,8 @@ for i, id in enumerate(id_list, 1):
         vars_interest_bips_fu = ['hcpsychs_fu_1c10','hcpsychs_fu_2c10','hcpsychs_fu_3c10','hcpsychs_fu_4c10','hcpsychs_fu_5c10',\
                                  'hcpsychs_fu_6c10','hcpsychs_fu_7c10','hcpsychs_fu_8c10','hcpsychs_fu_9c10','hcpsychs_fu_10c10',\
                                  'hcpsychs_fu_11c10','hcpsychs_fu_12c10','hcpsychs_fu_13c10','hcpsychs_fu_14c10','hcpsychs_fu_15c10']
-        bips_new_final, bips_ac_final= create_sips_groups(df_all, scr_bips_vars, bips_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'hcpsychs_fu_ac1_conv',\
-                                                    'sips_bips_fu_new', 'sips_bips_lifetime', voi_10)
+        bips_new_final, bips_ac_final= create_sips_groups('sips_bips_fu_new', 'sips_bips_lifetime', df_all, bips_new_final_scr, bips_onsetdate_groups, voi_8,\
+                                                          all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'hcpsychs_fu_ac1_conv', voi_10)
         # create the SIPS APS diagnosis
         scr_aps_vars = ['chrpsychs_scr_ac15', 'chrpsychs_scr_ac16','chrpsychs_scr_ac17', 'chrpsychs_scr_ac18']
         aps_onsetdate_groups =['hcpsychs_fu_1c14_on','hcpsychs_fu_2c14_on','hcpsychs_fu_3c14_on','hcpsychs_fu_4c14_on',\
@@ -1246,14 +1310,14 @@ for i, id in enumerate(id_list, 1):
         vars_interest_aps_fu = ['hcpsychs_fu_1c14','hcpsychs_fu_2c14','hcpsychs_fu_3c14','hcpsychs_fu_4c14','hcpsychs_fu_5c14',\
                                  'hcpsychs_fu_6c14','hcpsychs_fu_7c14','hcpsychs_fu_8c14','hcpsychs_fu_9c14','hcpsychs_fu_10c14',\
                                  'hcpsychs_fu_11c14','hcpsychs_fu_12c14','hcpsychs_fu_13c14','hcpsychs_fu_14c14','hcpsychs_fu_15c14']
-        aps_new_final, aps_ac_final= create_sips_groups(df_all, scr_aps_vars, aps_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'hcpsychs_fu_ac1_conv',\
-                                                       'sips_aps_fu_new', 'sips_aps_lifetime', voi_10)
+        aps_new_final, aps_ac_final= create_sips_groups('sips_aps_fu_new', 'sips_aps_lifetime', df_all, aps_new_final_scr, aps_onsetdate_groups, voi_8,\
+                                                        all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'hcpsychs_fu_ac1_conv', voi_10)
         # create the SIPS GRD diagnosis the calculation is a little bit different!
         scr_grd_vars = ['chrpsychs_scr_ac21', 'chrpsychs_scr_ac22','chrpsychs_scr_ac23', 'chrpsychs_scr_ac24']
         grd_onsetdate_groups =['hcpsychs_fu_e4_date']
         vars_interest_grd_fu = ['hcpsychs_fu_e4_new']
-        grd_new_final, grd_ac_final= create_sips_groups(df_all, scr_grd_vars, grd_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'hcpsychs_fu_ac1_conv',\
-                                                    'sips_grd_fu_new', 'sips_grd_lifetime', voi_10)
+        grd_new_final, grd_ac_final= create_sips_groups('sips_grd_fu_new', 'sips_grd_lifetime', df_all, grd_new_final_scr, grd_onsetdate_groups, voi_8,\
+                                                        all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'hcpsychs_fu_ac1_conv', voi_10)
         # Combine the psychs fu dataframes
         psychs_fu = pd.concat([psychs_pos_tot_fu,psychs_sips_p1_fu,psychs_sips_p2_fu,psychs_sips_p3_fu,psychs_sips_p4_fu,psychs_sips_p5_fu,\
                                sips_pos_tot_fu, psychs_caarms_p1_fu,\
@@ -1404,7 +1468,6 @@ for i, id in enumerate(id_list, 1):
         sips_current_status_fu_chr                 = create_use_value('chrpsychs_fu_ac31', df_all, df_all, ['chrpsychs_fu_ac31'], voi_8, all_visits_list, 'int')
         dsm5_attenuated_psychosis_fu_chr           = create_use_value('chrpsychs_fu_ac32', df_all, df_all, ['chrpsychs_fu_ac32'], voi_8, all_visits_list, 'int')
         # create the SIPS BIPS diagnosis
-        scr_bips_vars = ['chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11', 'chrpsychs_scr_ac12']
         bips_onsetdate_groups =['chrpsychs_fu_1c10_on','chrpsychs_fu_2c10_on','chrpsychs_fu_3c10_on','chrpsychs_fu_4c10_on',\
                                 'chrpsychs_fu_5c10_on','chrpsychs_fu_6c10_on','chrpsychs_fu_7c10_on','chrpsychs_fu_8c10_on',\
                                 'chrpsychs_fu_9c10_on','chrpsychs_fu_10c10_on','chrpsychs_fu_11c10_on','chrpsychs_fu_12c10_on',\
@@ -1412,10 +1475,9 @@ for i, id in enumerate(id_list, 1):
         vars_interest_bips_fu = ['chrpsychs_fu_1c10','chrpsychs_fu_2c10','chrpsychs_fu_3c10','chrpsychs_fu_4c10','chrpsychs_fu_5c10',\
                                  'chrpsychs_fu_6c10','chrpsychs_fu_7c10','chrpsychs_fu_8c10','chrpsychs_fu_9c10','chrpsychs_fu_10c10',\
                                  'chrpsychs_fu_11c10','chrpsychs_fu_12c10','chrpsychs_fu_13c10','chrpsychs_fu_14c10','chrpsychs_fu_15c10']
-        bips_new_final, bips_ac_final= create_sips_groups(df_all, scr_bips_vars, bips_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'chrpsychs_fu_ac1_conv',\
-                                                    'sips_bips_fu_new', 'sips_bips_lifetime', voi_10)
+        bips_new_final, bips_ac_final= create_sips_groups('sips_bips_fu_new', 'sips_bips_lifetime', df_all, bips_new_final_scr, bips_onsetdate_groups, voi_8,\
+                                                          all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'chrpsychs_fu_ac1_conv', voi_10)
         # create the SIPS APS diagnosis
-        scr_aps_vars = ['chrpsychs_scr_ac15', 'chrpsychs_scr_ac16','chrpsychs_scr_ac17', 'chrpsychs_scr_ac18']
         aps_onsetdate_groups =['chrpsychs_fu_1c14_on','chrpsychs_fu_2c14_on','chrpsychs_fu_3c14_on','chrpsychs_fu_4c14_on',\
                                'chrpsychs_fu_5c14_on','chrpsychs_fu_6c14_on','chrpsychs_fu_7c14_on','chrpsychs_fu_8c14_on',\
                                'chrpsychs_fu_9c14_on','chrpsychs_fu_10c14_on','chrpsychs_fu_11c14_on','chrpsychs_fu_12c14_on',\
@@ -1423,14 +1485,13 @@ for i, id in enumerate(id_list, 1):
         vars_interest_aps_fu = ['chrpsychs_fu_1c14','chrpsychs_fu_2c14','chrpsychs_fu_3c14','chrpsychs_fu_4c14','chrpsychs_fu_5c14',\
                                  'chrpsychs_fu_6c14','chrpsychs_fu_7c14','chrpsychs_fu_8c14','chrpsychs_fu_9c14','chrpsychs_fu_10c14',\
                                  'chrpsychs_fu_11c14','chrpsychs_fu_12c14','chrpsychs_fu_13c14','chrpsychs_fu_14c14','chrpsychs_fu_15c14']
-        aps_new_final, aps_ac_final= create_sips_groups(df_all, scr_aps_vars, aps_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'chrpsychs_fu_ac1_conv',\
-                                                       'sips_aps_fu_new', 'sips_aps_lifetime', voi_10)
+        aps_new_final, aps_ac_final= create_sips_groups('sips_aps_fu_new', 'sips_aps_lifetime', df_all, aps_new_final_scr, aps_onsetdate_groups, voi_8,\
+                                                        all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'chrpsychs_fu_ac1_conv', voi_10)
         # create the SIPS GRD diagnosis the calculation is a little bit different!
-        scr_grd_vars = ['chrpsychs_scr_ac21', 'chrpsychs_scr_ac22','chrpsychs_scr_ac23', 'chrpsychs_scr_ac24']
         grd_onsetdate_groups =['chrpsychs_fu_e4_date']
         vars_interest_grd_fu = ['chrpsychs_fu_e4_new']
-        grd_new_final, grd_ac_final= create_sips_groups(df_all, scr_grd_vars, grd_onsetdate_groups, voi_8, all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'chrpsychs_fu_ac1_conv',\
-                                                    'sips_grd_fu_new', 'sips_grd_lifetime', voi_10)
+        grd_new_final, grd_ac_final= create_sips_groups('sips_grd_fu_new', 'sips_grd_lifetime', df_all, grd_new_final_scr, grd_onsetdate_groups, voi_8,\
+                                                        all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'chrpsychs_fu_ac1_conv', voi_10)
         # combine the psychs_fu dataframes
         psychs_fu = pd.concat([psychs_pos_tot_fu, psychs_sips_p1_fu, psychs_sips_p2_fu, psychs_sips_p3_fu, psychs_sips_p4_fu,\
                                psychs_sips_p5_fu, sips_pos_tot_fu, psychs_caarms_p1_fu,\
