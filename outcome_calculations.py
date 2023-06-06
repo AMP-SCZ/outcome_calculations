@@ -468,7 +468,6 @@ ids = pd.read_csv('/data/pnl/home/gj936/U24/Clinical_qc/flowqc/REAL_DATA/{0}_sub
 # Load the data. Depending on which network you load the data from you have to apply some different wrangling.
 if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
-        #id_list = ['SI00132']
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
@@ -528,6 +527,8 @@ for i, id in enumerate(id_list, 1):
         print("subject is unknown sex")
         sex = 'unknown'
     baseln_df = df_all[df_all['redcap_event_name'].str.contains('basel')]
+#    if id == 'ME61146':
+#        baseln_df = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_1')]
     if group == 'chr':
         age_1 = baseln_df['chrdemo_age_yrs_chr'].fillna(-900).to_numpy(dtype=float)
         age_2 = baseln_df['chrdemo_age_mos_chr'].fillna(-900).to_numpy(dtype=float)/12
@@ -1141,18 +1142,27 @@ for i, id in enumerate(id_list, 1):
     vars_interest_grd_scr = ['chrpsychs_scr_e4']
     grd_new_final_scr = create_sips_groups_scr('sips_grd_scr_lifetime', df_all, grd_onsetdate_groups_scr, voi_6,\
                                                 all_visits_list, psychosis_onset_date_scr, vars_interest_grd_scr, 'chrpsychs_scr_ac1')
+    # create the CHR diagnosis at Screening
+    sips_scr_chr = pd.merge(pd.merge(bips_new_final_scr, aps_new_final_scr, on = 'redcap_event_name'), grd_new_final_scr, on = 'redcap_event_name')
+    sips_scr_chr['value'] = np.where((sips_scr_chr[['value', 'value_x', 'value_y']]==1).any(axis=1), 1, \
+                            np.where((sips_scr_chr[['value', 'value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    sips_scr_chr['variable'] = 'sips_chr_scr_lifetime'
+    sips_scr_chr = sips_scr_chr[['variable', 'redcap_event_name', 'value']]
+    sips_scr_chr['value'] = np.where(~sips_scr_chr['redcap_event_name'].str.contains('screening'), '-300', sips_scr_chr['value'])
+    df_visit_sips = df_all.copy()
+    df_visit_sips = df_visit_sips[['redcap_event_name']]
+    if df_visit_sips['redcap_event_name'].str.contains('arm_1').any():
+        sips_scr_chr['value'] = np.where(sips_scr_chr['redcap_event_name'].str.contains('arm_2'), -300, sips_scr_chr['value'])
+    elif df_visit_sips['redcap_event_name'].str.contains('arm_2').any():
+        sips_scr_chr['value'] = np.where(sips_scr_chr['redcap_event_name'].str.contains('arm_1'), -300, sips_scr_chr['value'])
     # create the sips/bips/grd diagnosis from baseline for follow-up
-    sips_bips_scr = df_all.copy()
-    sips_bips_scr = sips_bips_scr[['redcap_event_name', 'chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11', 'chrpsychs_scr_ac12']] 
-    sips_bips_scr['bips_iv_scr'] = np.where((sips_bips_scr[['chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11','chrpsychs_scr_ac12']]=='1').any(axis=1), '1',\
-                                   np.where((sips_bips_scr[['chrpsychs_scr_ac9', 'chrpsychs_scr_ac10','chrpsychs_scr_ac11','chrpsychs_scr_ac12']]=='0').all(axis=1), '0','-900'))
     psychs_scr = pd.concat([psychs_pos_tot_scr, psychs_sips_p1_scr, psychs_sips_p2_scr, psychs_sips_p3_scr, psychs_sips_p4_scr, psychs_sips_p5_scr, sips_pos_tot_scr, psychs_caarms_p1_scr,\
                             psychs_caarms_p2_scr, psychs_caarms_p3_scr, psychs_caarms_p4_scr, caarms_pos_tot_scr, psychosis_onset_date_scr, psychosis_scr,\
                             caarms_blips_scr, caarms_aps_subthreshold_frequency_scr, caarms_aps_subthreshold_intensity_scr, caarms_aps_scr, caarms_vulnerability_scr, caarms_uhr_scr, \
                             sips_bips_progression_scr, sips_bips_persistence_scr, sips_bips_partial_remission_scr, sips_bips_full_remission_scr, sips_apss_progression_scr, sips_apss_persistence_scr,\
                             sips_apss_partial_remission_scr, sips_apss_full_remission_scr, sips_grd_progression_scr, sips_grd_persistence_scr, sips_grd_partial_remission_scr, \
                             sips_grd_full_remission_scr, sips_chr_progression_scr, sips_chr_persistence_scr, sips_chr_partial_remission_scr, sips_chr_full_remission_scr, \
-                            sips_current_status_scr, dsm5_attenuated_psychosis_scr, bips_new_final_scr, aps_new_final_scr, grd_new_final_scr], axis = 0) 
+                            sips_current_status_scr, dsm5_attenuated_psychosis_scr, bips_new_final_scr, aps_new_final_scr, grd_new_final_scr, sips_scr_chr], axis = 0) 
 # --------------------------------------------------------------------#
 # PSYCHS-follow-up
 # --------------------------------------------------------------------#
@@ -1318,6 +1328,19 @@ for i, id in enumerate(id_list, 1):
         vars_interest_grd_fu = ['hcpsychs_fu_e4_new']
         grd_new_final, grd_ac_final= create_sips_groups('sips_grd_fu_new', 'sips_grd_lifetime', df_all, grd_new_final_scr, grd_onsetdate_groups, voi_8,\
                                                         all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'hcpsychs_fu_ac1_conv', voi_10)
+        # create the CHR diagnosis at follow-up 
+        sips_fu_chr = pd.merge(pd.merge(bips_ac_final, aps_ac_final, on = 'redcap_event_name'), grd_ac_final, on = 'redcap_event_name')
+        sips_fu_chr['value'] = np.where((sips_fu_chr[['value', 'value_x', 'value_y']]==1).any(axis=1), 1, \
+                                np.where((sips_fu_chr[['value', 'value_x', 'value_y']]==0).all(axis=1), 0, -900))
+        sips_fu_chr['variable'] = 'sips_chr_lifetime'
+        sips_fu_chr = sips_fu_chr[['variable', 'redcap_event_name', 'value']]
+        sips_fu_chr['value'] = np.where(~sips_fu_chr['redcap_event_name'].str.contains(voi_10), '-300', sips_fu_chr['value'])
+        df_visit_sips = df_all.copy()
+        df_visit_sips = df_visit_sips[['redcap_event_name']]
+        if df_visit_sips['redcap_event_name'].str.contains('arm_1').any():
+            sips_fu_chr['value'] = np.where(sips_fu_chr['redcap_event_name'].str.contains('arm_2'), -300, sips_fu_chr['value'])
+        elif df_visit_sips['redcap_event_name'].str.contains('arm_2').any():
+            sips_fu_chr['value'] = np.where(sips_fu_chr['redcap_event_name'].str.contains('arm_1'), -300, sips_fu_chr['value'])
         # Combine the psychs fu dataframes
         psychs_fu = pd.concat([psychs_pos_tot_fu,psychs_sips_p1_fu,psychs_sips_p2_fu,psychs_sips_p3_fu,psychs_sips_p4_fu,psychs_sips_p5_fu,\
                                sips_pos_tot_fu, psychs_caarms_p1_fu,\
@@ -1333,7 +1356,8 @@ for i, id in enumerate(id_list, 1):
                                sips_apss_progression_fu_chr, sips_apss_persistence_fu_chr,\
                                sips_apss_partial_remission_fu_chr, sips_apss_full_remission_fu_chr, sips_grd_progression_fu_chr, sips_grd_persistence_fu_chr, sips_grd_partial_remission_fu_chr, \
                                sips_grd_full_remission_fu_chr, sips_chr_progression_fu_chr, sips_chr_persistence_fu_chr, sips_chr_partial_remission_fu_chr, sips_chr_full_remission_fu_chr, \
-                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final, aps_new_final, aps_ac_final, grd_new_final, grd_ac_final], axis = 0) 
+                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final, aps_new_final, aps_ac_final, grd_new_final, grd_ac_final,\
+                               sips_fu_chr], axis = 0) 
     else:
         # psychs
         psychs_pos_tot_fu = create_total_division('psychs_pos_tot', df_all, df_all, ['chrpsychs_fu_1d1','chrpsychs_fu_2d1','chrpsychs_fu_3d1','chrpsychs_fu_4d1',\
@@ -1492,6 +1516,19 @@ for i, id in enumerate(id_list, 1):
         vars_interest_grd_fu = ['chrpsychs_fu_e4_new']
         grd_new_final, grd_ac_final= create_sips_groups('sips_grd_fu_new', 'sips_grd_lifetime', df_all, grd_new_final_scr, grd_onsetdate_groups, voi_8,\
                                                         all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'chrpsychs_fu_ac1_conv', voi_10)
+        # create the CHR diagnosis at follow-up 
+        sips_fu_chr = pd.merge(pd.merge(bips_ac_final, aps_ac_final, on = 'redcap_event_name'), grd_ac_final, on = 'redcap_event_name')
+        sips_fu_chr['value'] = np.where((sips_fu_chr[['value', 'value_x', 'value_y']]==1).any(axis=1), 1, \
+                                np.where((sips_fu_chr[['value', 'value_x', 'value_y']]==0).all(axis=1), 0, -900))
+        sips_fu_chr['variable'] = 'sips_chr_lifetime'
+        sips_fu_chr = sips_fu_chr[['variable', 'redcap_event_name', 'value']]
+        sips_fu_chr['value'] = np.where(~sips_fu_chr['redcap_event_name'].str.contains(voi_10), '-300', sips_fu_chr['value'])
+        df_visit_sips = df_all.copy()
+        df_visit_sips = df_visit_sips[['redcap_event_name']]
+        if df_visit_sips['redcap_event_name'].str.contains('arm_1').any():
+            sips_fu_chr['value'] = np.where(sips_fu_chr['redcap_event_name'].str.contains('arm_2'), -300, sips_fu_chr['value'])
+        elif df_visit_sips['redcap_event_name'].str.contains('arm_2').any():
+            sips_fu_chr['value'] = np.where(sips_fu_chr['redcap_event_name'].str.contains('arm_1'), -300, sips_fu_chr['value'])
         # combine the psychs_fu dataframes
         psychs_fu = pd.concat([psychs_pos_tot_fu, psychs_sips_p1_fu, psychs_sips_p2_fu, psychs_sips_p3_fu, psychs_sips_p4_fu,\
                                psychs_sips_p5_fu, sips_pos_tot_fu, psychs_caarms_p1_fu,\
@@ -1507,7 +1544,8 @@ for i, id in enumerate(id_list, 1):
                                sips_apss_progression_fu_chr, sips_apss_persistence_fu_chr,\
                                sips_apss_partial_remission_fu_chr, sips_apss_full_remission_fu_chr, sips_grd_progression_fu_chr, sips_grd_persistence_fu_chr, sips_grd_partial_remission_fu_chr, \
                                sips_grd_full_remission_fu_chr, sips_chr_progression_fu_chr, sips_chr_persistence_fu_chr, sips_chr_partial_remission_fu_chr, sips_chr_full_remission_fu_chr, \
-                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final, aps_new_final, aps_ac_final, grd_new_final, grd_ac_final], axis = 0) 
+                               sips_current_status_fu_chr, dsm5_attenuated_psychosis_fu_chr, bips_new_final, bips_ac_final, aps_new_final, aps_ac_final, grd_new_final, grd_ac_final,\
+                               sips_fu_chr], axis = 0) 
     psychs_fu['value_fu'] = psychs_fu['value']
     psychs_scr['value_scr'] = psychs_scr['value']
     # we have to combine the psychs and the psychs_fu
