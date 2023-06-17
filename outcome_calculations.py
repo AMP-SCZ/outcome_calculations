@@ -487,7 +487,7 @@ for i, id in enumerate(id_list, 1):
     print(f"Elapsed time: {elapsed_time:.2f} second")
     # load the json data
     site=id[0:2]
-    sub_data = '/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/{2}.{0}.json'.format(Network, site, id)
+    sub_data = '/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/{2}.{0}.json'.format(Network, site, id)
     if os.path.isfile(sub_data):
         print(f"File {sub_data} is present")
         df_all = pull_data(Network, id)
