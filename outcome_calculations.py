@@ -845,6 +845,8 @@ for i, id in enumerate(id_list, 1):
     # pps 7 paternal age
     #paternal_age_date = df_pps['chrpps_fdobpii'].astype(str).str.contains('1903-03-03')
     #print(list(df_all.filter(like='fdob').columns))
+    # I have changed the paternal age calculation slightly because of newly introduced missing codes in date format
+    df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900,df_pps['chrpps_fage'])
     paternal_age = df_pps['chrpps_fage'].fillna(-900).to_numpy(dtype=float)
     paternal_age_calc = paternal_age - age
     if paternal_age == -900 or paternal_age == -9 or age == -900:
@@ -858,6 +860,7 @@ for i, id in enumerate(id_list, 1):
     else:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
     # pps 8 SES
+    df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1909-09-09', -900, df_pps['chrpps_focc'])
     focc = df_pps['chrpps_focc'].fillna(-900).to_numpy(dtype=float)
     if focc == -900 or focc == -9:
         chrpps_sum8 = create_condition_value('chrpps_sum8', df_all, df_all, voi_2, all_visits_list, 'float', -900)
@@ -1556,25 +1559,25 @@ for i, id in enumerate(id_list, 1):
     psychs = psychs_merged[['variable', 'redcap_event_name', 'value']]
     psychs['data_type'] = np.where((psychs['variable'] == 'psychosis_onset_date') | (psychs['variable'] == 'conversion_date'), 'Date', 'Integer')
     if version == 'run_outcome':
-        psychs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/psychs.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        cdss.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/cdss.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        pdt.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/perceived_discrimination_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        oasis.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/oasis.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        pss.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/perceived_stress_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        bprs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/bprs.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        gfr.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/global_functioning_role_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        gfs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/global_functioning_social_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        pds_final.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/pubertal_developmental_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        sofas_screening.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/sofas_screening.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        sofas_fu.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/sofas_followup.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        nsipr.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/nsipr.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        promis.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/item_promis_for_sleep.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        pgi_s.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/pgis.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        ra.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/ra_prediction.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        cssrs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/cssrs_baseline.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        premorbid_adjustment.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/premorbid_adjustment_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        assist.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/assist.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-        polyrisk.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/psychosis_polyrisk_score.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        psychs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/psychs.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        cdss.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/cdss.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        pdt.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/perceived_discrimination_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        oasis.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/oasis.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        pss.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/perceived_stress_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        bprs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/bprs.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        gfr.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/global_functioning_role_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        gfs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/global_functioning_social_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        pds_final.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/pubertal_developmental_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        sofas_screening.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/sofas_screening.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        sofas_fu.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/sofas_followup.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        nsipr.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/nsipr.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        promis.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/item_promis_for_sleep.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        pgi_s.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/pgis.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        ra.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/ra_prediction.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        cssrs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/cssrs_baseline.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        premorbid_adjustment.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/premorbid_adjustment_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        assist.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/assist.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        polyrisk.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/psychosis_polyrisk_score.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
     else:
         print("as this is just the version to create the test file do not save the output to csv.")
 
