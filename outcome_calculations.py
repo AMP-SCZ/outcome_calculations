@@ -259,7 +259,7 @@ def create_min_date(outcome, df_1, df_2, var_list, visit_of_interest, all_visits
     df_1['value'] = np.where(df_1['value'] == '2033-03-03', '1903-03-03', df_1['value'])
     df_1[var_list] = df_1[var_list].astype(fill_type) 
     final_df = finalize_df_date(df_fake, df_1, df_2, var_list, visit_of_interest, fill_type)
-    final_df['value'] = pd.to_datetime(final_df['value'], format='%Y-%m-%d').strftime('%m/%d/%Y')
+    final_df['value'] = pd.to_datetime(final_df['value'], format='%Y-%m-%d').dt.date
     return final_df 
 
 def create_mul(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type):
@@ -1101,7 +1101,10 @@ for i, id in enumerate(id_list, 1):
     psychosis_onset_date_scr = pd.merge(psychosis_onset_date_scr1, psychosis_onset_relevant, on = 'redcap_event_name', how = 'left')
     psychosis_onset_date_scr['value'] = np.where(psychosis_onset_date_scr['psychosis_onset_yes'] == True, psychosis_onset_date_scr['value'],'1903-03-03')
     psychosis_onset_date_scr = psychosis_onset_date_scr[['variable', 'redcap_event_name', 'value']]
-    psychosis_onset_date_scr['value'] = pd.to_datetime(psychosis_onset_date_scr['value'])
+    psychosis_onset_date_use_calc = psychosis_onset_date_scr.copy()
+    # we need to different date formats for the subsequent calculations (psychosis_onset_date_use_calc for calculating and psychosis_onset_date_scr to write out results in NDA format)
+    psychosis_onset_date_use_calc['value'] = pd.to_datetime(psychosis_onset_date_use_calc['value'], format='%Y-%m-%d').dt.date
+    psychosis_onset_date_scr['value'] = pd.to_datetime(psychosis_onset_date_scr['value'], format='%Y-%m-%d').dt.strftime('%m/%d/%Y')
     psychosis_scr                            = create_use_value('chrpsychs_scr_ac1', df_all, df_all, ['chrpsychs_scr_ac1'], voi_6, all_visits_list, 'int')
     caarms_blips_scr                         = create_use_value('chrpsychs_scr_ac2', df_all, df_all, ['chrpsychs_scr_ac2'], voi_6, all_visits_list, 'int')
     caarms_aps_subthreshold_frequency_scr    = create_use_value('chrpsychs_scr_ac3', df_all, df_all, ['chrpsychs_scr_ac3'], voi_6, all_visits_list, 'int')
@@ -1136,7 +1139,7 @@ for i, id in enumerate(id_list, 1):
                               'chrpsychs_scr_6a10', 'chrpsychs_scr_7a10', 'chrpsychs_scr_8a10', 'chrpsychs_scr_9a10', 'chrpsychs_scr_10a10',\
                               'chrpsychs_scr_11a10','chrpsychs_scr_12a10','chrpsychs_scr_13a10','chrpsychs_scr_14a10','chrpsychs_scr_15a10']
     bips_new_final_scr = create_sips_groups_scr('sips_bips_scr_lifetime', df_all, bips_onsetdate_groups_scr, voi_6,\
-                                                all_visits_list, psychosis_onset_date_scr, vars_interest_bips_scr, 'chrpsychs_scr_ac1')
+                                                all_visits_list, psychosis_onset_date_use_calc, vars_interest_bips_scr, 'chrpsychs_scr_ac1')
     # create the SIPS APS diagnosis at SCREENING
     aps_onsetdate_groups_scr =['chrpsychs_scr_1a14_on', 'chrpsychs_scr_2a14_on', 'chrpsychs_scr_3a14_on', 'chrpsychs_scr_4a14_on',\
                                 'chrpsychs_scr_5a14_on', 'chrpsychs_scr_6a14_on', 'chrpsychs_scr_7a14_on', 'chrpsychs_scr_8a14_on',\
@@ -1146,12 +1149,12 @@ for i, id in enumerate(id_list, 1):
                               'chrpsychs_scr_6a14', 'chrpsychs_scr_7a14', 'chrpsychs_scr_8a14', 'chrpsychs_scr_9a14', 'chrpsychs_scr_10a14',\
                               'chrpsychs_scr_11a14','chrpsychs_scr_12a14','chrpsychs_scr_13a14','chrpsychs_scr_14a14','chrpsychs_scr_15a14']
     aps_new_final_scr = create_sips_groups_scr('sips_aps_scr_lifetime', df_all, aps_onsetdate_groups_scr, voi_6,\
-                                                all_visits_list, psychosis_onset_date_scr, vars_interest_aps_scr, 'chrpsychs_scr_ac1')
+                                                all_visits_list, psychosis_onset_date_use_calc, vars_interest_aps_scr, 'chrpsychs_scr_ac1')
     # create the SIPS GRD diagnosis at SCREENING
     grd_onsetdate_groups_scr =['chrpsychs_scr_e4_date']
     vars_interest_grd_scr = ['chrpsychs_scr_e4']
     grd_new_final_scr = create_sips_groups_scr('sips_grd_scr_lifetime', df_all, grd_onsetdate_groups_scr, voi_6,\
-                                                all_visits_list, psychosis_onset_date_scr, vars_interest_grd_scr, 'chrpsychs_scr_ac1')
+                                                all_visits_list, psychosis_onset_date_use_calc, vars_interest_grd_scr, 'chrpsychs_scr_ac1')
     # create the CHR diagnosis at Screening
     sips_scr_chr = pd.merge(pd.merge(bips_new_final_scr, aps_new_final_scr, on = 'redcap_event_name'), grd_new_final_scr, on = 'redcap_event_name')
     sips_scr_chr['value'] = np.where((sips_scr_chr[['value', 'value_x', 'value_y']]==1).any(axis=1), 1, \
@@ -1263,7 +1266,10 @@ for i, id in enumerate(id_list, 1):
         conversion_date_fu = pd.merge(conversion_date_fu1, conversion_date_fu_relevant, on='redcap_event_name', how = 'left')
         conversion_date_fu['value'] = np.where(conversion_date_fu['psychosis_conversion_yes'] == True, conversion_date_fu['value'], '1903-03-03')
         conversion_date_fu = conversion_date_fu[['variable', 'redcap_event_name', 'value']]
-        conversion_date_fu['value'] = pd.to_datetime(conversion_date_fu['value'])
+        conversion_date_use_calc = conversion_date_fu.copy()
+        # we need to different date formats for the subsequent calculations (conversion_onset_date_use_calc for calculating and conversion_onset_date_fu to write out results in NDA format)
+        conversion_date_use_calc['value'] = pd.to_datetime(conversion_date_use_calc['value'], format='%Y-%m-%d').dt.date
+        conversion_date_fu['value'] = pd.to_datetime(conversion_date_fu['value'], format='%Y-%m-%d').dt.strftime('%m/%d/%Y')
         psychosis_curr_fu_hc                       = create_use_value('hcpsychs_fu_ac1_curr', df_all, df_all, ['hcpsychs_fu_ac1_curr'], voi_8, all_visits_list, 'int')
         psychosis_prev_fu_hc                       = create_use_value('hcpsychs_fu_ac1_prev', df_all, df_all, ['hcpsychs_fu_ac1_prev'], voi_8, all_visits_list, 'int')
         psychosis_first_fu_hc                      = create_use_value('hcpsychs_fu_ac1_first', df_all, df_all, ['hcpsychs_fu_ac1_first'], voi_8, all_visits_list, 'int')
@@ -1320,7 +1326,7 @@ for i, id in enumerate(id_list, 1):
                                  'hcpsychs_fu_6c10','hcpsychs_fu_7c10','hcpsychs_fu_8c10','hcpsychs_fu_9c10','hcpsychs_fu_10c10',\
                                  'hcpsychs_fu_11c10','hcpsychs_fu_12c10','hcpsychs_fu_13c10','hcpsychs_fu_14c10','hcpsychs_fu_15c10']
         bips_new_final, bips_ac_final= create_sips_groups('sips_bips_fu_new', 'sips_bips_lifetime', df_all, bips_new_final_scr, bips_onsetdate_groups, voi_8,\
-                                                          all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'hcpsychs_fu_ac1_conv', voi_10)
+                                                          all_visits_list, conversion_date_use_calc, vars_interest_bips_fu, 'hcpsychs_fu_ac1_conv', voi_10)
         # create the SIPS APS diagnosis
         scr_aps_vars = ['chrpsychs_scr_ac15', 'chrpsychs_scr_ac16','chrpsychs_scr_ac17', 'chrpsychs_scr_ac18']
         aps_onsetdate_groups =['hcpsychs_fu_1c14_on','hcpsychs_fu_2c14_on','hcpsychs_fu_3c14_on','hcpsychs_fu_4c14_on',\
@@ -1331,13 +1337,13 @@ for i, id in enumerate(id_list, 1):
                                  'hcpsychs_fu_6c14','hcpsychs_fu_7c14','hcpsychs_fu_8c14','hcpsychs_fu_9c14','hcpsychs_fu_10c14',\
                                  'hcpsychs_fu_11c14','hcpsychs_fu_12c14','hcpsychs_fu_13c14','hcpsychs_fu_14c14','hcpsychs_fu_15c14']
         aps_new_final, aps_ac_final= create_sips_groups('sips_aps_fu_new', 'sips_aps_lifetime', df_all, aps_new_final_scr, aps_onsetdate_groups, voi_8,\
-                                                        all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'hcpsychs_fu_ac1_conv', voi_10)
+                                                        all_visits_list, conversion_date_use_calc, vars_interest_aps_fu, 'hcpsychs_fu_ac1_conv', voi_10)
         # create the SIPS GRD diagnosis the calculation is a little bit different!
         scr_grd_vars = ['chrpsychs_scr_ac21', 'chrpsychs_scr_ac22','chrpsychs_scr_ac23', 'chrpsychs_scr_ac24']
         grd_onsetdate_groups =['hcpsychs_fu_e4_date']
         vars_interest_grd_fu = ['hcpsychs_fu_e4_new']
         grd_new_final, grd_ac_final= create_sips_groups('sips_grd_fu_new', 'sips_grd_lifetime', df_all, grd_new_final_scr, grd_onsetdate_groups, voi_8,\
-                                                        all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'hcpsychs_fu_ac1_conv', voi_10)
+                                                        all_visits_list, conversion_date_use_calc, vars_interest_grd_fu, 'hcpsychs_fu_ac1_conv', voi_10)
         # create the CHR diagnosis at follow-up 
         sips_fu_chr = pd.merge(pd.merge(bips_ac_final, aps_ac_final, on = 'redcap_event_name'), grd_ac_final, on = 'redcap_event_name')
         sips_fu_chr['value'] = np.where((sips_fu_chr[['value', 'value_x', 'value_y']]==1).any(axis=1), 1, \
@@ -1454,7 +1460,10 @@ for i, id in enumerate(id_list, 1):
         conversion_date_fu = pd.merge(conversion_date_fu1, conversion_date_fu_relevant, on='redcap_event_name', how='left')
         conversion_date_fu['value'] = np.where(conversion_date_fu['psychosis_conversion_yes'] == True, conversion_date_fu['value'], '1903-03-03')
         conversion_date_fu = conversion_date_fu[['variable', 'redcap_event_name', 'value']]
-        conversion_date_fu['value'] = pd.to_datetime(conversion_date_fu['value'])
+        conversion_date_use_calc = conversion_date_fu.copy()
+        # we need to different date formats for the subsequent calculations (conversion_onset_date_use_calc for calculating and conversion_onset_date_fu to write out results in NDA format)
+        conversion_date_use_calc['value'] = pd.to_datetime(conversion_date_use_calc['value'], format='%Y-%m-%d').dt.date
+        conversion_date_fu['value'] = pd.to_datetime(conversion_date_fu['value'], format='%Y-%m-%d').dt.strftime('%m/%d/%Y')
         psychosis_curr_fu_hc                       = create_use_value('hcpsychs_fu_ac1_curr', df_all, df_all, ['hcpsychs_fu_ac1_curr'], voi_8, all_visits_list, 'int')
         psychosis_prev_fu_hc                       = create_use_value('hcpsychs_fu_ac1_prev', df_all, df_all, ['hcpsychs_fu_ac1_prev'], voi_8, all_visits_list, 'int')
         psychosis_first_fu_hc                      = create_use_value('hcpsychs_fu_ac1_first', df_all, df_all, ['hcpsychs_fu_ac1_first'], voi_8, all_visits_list, 'int')
@@ -1510,7 +1519,7 @@ for i, id in enumerate(id_list, 1):
                                  'chrpsychs_fu_6c10','chrpsychs_fu_7c10','chrpsychs_fu_8c10','chrpsychs_fu_9c10','chrpsychs_fu_10c10',\
                                  'chrpsychs_fu_11c10','chrpsychs_fu_12c10','chrpsychs_fu_13c10','chrpsychs_fu_14c10','chrpsychs_fu_15c10']
         bips_new_final, bips_ac_final= create_sips_groups('sips_bips_fu_new', 'sips_bips_lifetime', df_all, bips_new_final_scr, bips_onsetdate_groups, voi_8,\
-                                                          all_visits_list, conversion_date_fu, vars_interest_bips_fu, 'chrpsychs_fu_ac1_conv', voi_10)
+                                                          all_visits_list, conversion_date_use_calc, vars_interest_bips_fu, 'chrpsychs_fu_ac1_conv', voi_10)
         # create the SIPS APS diagnosis
         aps_onsetdate_groups =['chrpsychs_fu_1c14_on','chrpsychs_fu_2c14_on','chrpsychs_fu_3c14_on','chrpsychs_fu_4c14_on',\
                                'chrpsychs_fu_5c14_on','chrpsychs_fu_6c14_on','chrpsychs_fu_7c14_on','chrpsychs_fu_8c14_on',\
@@ -1520,12 +1529,12 @@ for i, id in enumerate(id_list, 1):
                                  'chrpsychs_fu_6c14','chrpsychs_fu_7c14','chrpsychs_fu_8c14','chrpsychs_fu_9c14','chrpsychs_fu_10c14',\
                                  'chrpsychs_fu_11c14','chrpsychs_fu_12c14','chrpsychs_fu_13c14','chrpsychs_fu_14c14','chrpsychs_fu_15c14']
         aps_new_final, aps_ac_final= create_sips_groups('sips_aps_fu_new', 'sips_aps_lifetime', df_all, aps_new_final_scr, aps_onsetdate_groups, voi_8,\
-                                                        all_visits_list, conversion_date_fu, vars_interest_aps_fu, 'chrpsychs_fu_ac1_conv', voi_10)
+                                                        all_visits_list, conversion_date_use_calc, vars_interest_aps_fu, 'chrpsychs_fu_ac1_conv', voi_10)
         # create the SIPS GRD diagnosis the calculation is a little bit different!
         grd_onsetdate_groups =['chrpsychs_fu_e4_date']
         vars_interest_grd_fu = ['chrpsychs_fu_e4_new']
         grd_new_final, grd_ac_final= create_sips_groups('sips_grd_fu_new', 'sips_grd_lifetime', df_all, grd_new_final_scr, grd_onsetdate_groups, voi_8,\
-                                                        all_visits_list, conversion_date_fu, vars_interest_grd_fu, 'chrpsychs_fu_ac1_conv', voi_10)
+                                                        all_visits_list, conversion_date_use_calc, vars_interest_grd_fu, 'chrpsychs_fu_ac1_conv', voi_10)
         # create the CHR diagnosis at follow-up 
         sips_fu_chr = pd.merge(pd.merge(bips_ac_final, aps_ac_final, on = 'redcap_event_name'), grd_ac_final, on = 'redcap_event_name')
         sips_fu_chr['value'] = np.where((sips_fu_chr[['value', 'value_x', 'value_y']]==1).any(axis=1), 1, \
