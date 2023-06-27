@@ -21,7 +21,7 @@ def pull_data(network, id):
     # we pull the data from the json file. Therefore, we provide the network, i.e. pronet/prescient.
     # network = pronet/prescient defined outside the script argv[0], id = subject id, taken from the updated file that Grace creates daily.
     site=id[0:2]
-    sub_data = '/data/predict1/data_from_nda/{0}/PHOENIX/PROTECTED/{0}{1}/raw/{2}/surveys/{2}.{0}.json'.format(network, site, id)
+    sub_data = '/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/{2}.{0}.json'.format(network, site, id)
     with open(sub_data, 'r') as f:
             json_data = json.load(f)
     sub_data_all = pd.DataFrame.from_dict(json_data, orient="columns")
