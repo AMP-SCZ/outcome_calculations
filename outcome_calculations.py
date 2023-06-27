@@ -259,7 +259,7 @@ def create_min_date(outcome, df_1, df_2, var_list, visit_of_interest, all_visits
     df_1['value'] = np.where(df_1['value'] == '2033-03-03', '1903-03-03', df_1['value'])
     df_1[var_list] = df_1[var_list].astype(fill_type) 
     final_df = finalize_df_date(df_fake, df_1, df_2, var_list, visit_of_interest, fill_type)
-    final_df['value'] = pd.to_datetime(final_df['value'], format='%Y-%m-%d').dt.date
+    final_df['value'] = pd.to_datetime(final_df['value'], format='%Y-%m-%d').strftime('%m/%d/%Y')
     return final_df 
 
 def create_mul(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type):
