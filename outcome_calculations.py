@@ -36,7 +36,10 @@ def create_fake_df(var_list, all_visits, voi):
     # voi = visits that are applicable for this outcome.
     df_fake = {'variable': [var_list]*len(all_visits), 'redcap_event_name': all_visits}
     df_fake = pd.DataFrame(df_fake)  
+    # by default we give all the values a -300 if not changed afterwards
     df_fake['value_fake'] = '-300'
+    # vois = visits of interest. We change the values from -300 (not applicable) to -900 (missing) for all the visits 
+    # for which we actually expect data.
     df_fake['value_fake'] = np.where(df_fake['redcap_event_name'].str.contains(voi), '-900', df_fake['value_fake'])
     return df_fake 
 
@@ -61,6 +64,8 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
     # fill_type = defines the final output variable. Either float or int
     string_series = pd.Series(var_list)
     df_visit_pas = df_2[['redcap_event_name']]
+    # Here, we account for missingness (-900) and not applicableness (-300) and change values 
+    # to the appropriate missingcodes (e.g., 999 -> -900)
     if string_series.str.contains('nsipr').any() == True or string_series.str.contains('chrpas').any() == True:
         df_1['nine'] = df_1[var_list].isin([9]).any(axis=1)
         df_1['nine_str'] = df_1[var_list].isin(['9']).any(axis=1)
@@ -149,6 +154,8 @@ def finalize_df_date(df_created, df_1, df_2, var_list, voi, fill_type):
     # fill_type = defines the final output variable. Either float or int
     string_series = pd.Series(var_list)
     df_visit_pas = df_2[['redcap_event_name']]
+    # Here, we account for missingness (-900) and not applicableness (-300) and change values 
+    # to the appropriate missingcodes (e.g., 999 -> -900)
     df_1['na'] = df_1[var_list].isnull().any(axis = 1)
     df_1['NA'] = df_1[var_list].isin(['NA']).any(axis = 1)
     df_1['na999'] = df_1[var_list].isin(['999']).any(axis = 1)
