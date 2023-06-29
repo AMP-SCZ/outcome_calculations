@@ -629,12 +629,12 @@ for i, id in enumerate(id_list, 1):
 # --------------------------------------------------------------------#
 # GF-R
 # --------------------------------------------------------------------#
-    gfr = create_decline('chrgfrs_decline_in_global_role_functioning', df_all, df_all, ['chrgfr_gf_role_high', 'chrgfr_gf_role_scole'], voi_2, all_visits_list, 'int')
+    gfr = create_decline('chrgfrs_global_role_decline', df_all, df_all, ['chrgfr_gf_role_high', 'chrgfr_gf_role_scole'], voi_2, all_visits_list, 'int')
     gfr['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # GF- S
 # --------------------------------------------------------------------#
-    gfs = create_decline('chrgfss_decline_in_global_social_functioning', df_all, df_all, ['chrgfs_gf_social_high', 'chrgfs_gf_social_scale'], voi_2, all_visits_list, 'int')
+    gfs = create_decline('chrgfss_global_social_decline', df_all, df_all, ['chrgfs_gf_social_high', 'chrgfs_gf_social_scale'], voi_2, all_visits_list, 'int')
     gfs['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # Pubertal Developmental Scale 
