@@ -456,6 +456,97 @@ def create_sips_groups(new_sips_group,sips_group_lifetime, df, df_sips_group_scr
     sips_ac_final = create_use_value(sips_group_lifetime, sips_ac, df, ['psychs_fu_ac8_final'], visit_of_interest_2, all_visits, 'int')
     return sips_new_final, sips_ac_final
 
+def create_scid5(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_2):
+    use_value_df = create_use_value(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type)
+    use_value_df2 = create_use_value(outcome_2, df_1, df_2, outcome_2, visit_of_interest, all_visits, fill_type)
+    use_value_df2['value2'] = use_value_df2['value']
+    use_value_df2 = use_value_df2[['redcap_event_name', 'value2']]
+    use_value_merged = pd.merge(use_value_df, use_value_df2, on = 'redcap_event_name', how = 'left')
+    use_value_merged['value'] = np.where(use_value_merged['value'] == 3, 1, np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0,\
+                                use_value_merged['value']))
+    use_value_final=use_value_merged[['variable', 'redcap_event_name', 'value']]
+    return use_value_final
+
+def create_scid5_affective(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_2, outcome_3):
+    use_value_df = create_use_value(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type)
+    use_value_df2 = create_use_value(outcome_2, df_1, df_2, outcome_2, visit_of_interest, all_visits, fill_type)
+    use_value_df3 = create_use_value(outcome_3, df_1, df_2, outcome_3, visit_of_interest, all_visits, fill_type)
+    use_value_df2['value2'] = use_value_df2['value']
+    use_value_df2 = use_value_df2[['redcap_event_name', 'value2']]
+    use_value_df3['value3'] = use_value_df3['value']
+    use_value_df3 = use_value_df3[['redcap_event_name', 'value3']]
+    use_value_merged = pd.merge(pd.merge(use_value_df, use_value_df2, on = 'redcap_event_name', how = 'left'), use_value_df3, on = 'redcap_event_name', how = 'left')
+    if outcome == 'chrscid_szaff_bipolar':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] == 1), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    elif outcome == 'chrscid_szaff_depression':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] == 2), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    elif outcome == 'chrscid_szaff_unspecified':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] != 2) & (use_value_merged['value3'] != 1), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    use_value_final=use_value_merged[['variable', 'redcap_event_name', 'value']]
+    return use_value_final
+
+def create_scid5_bipolar_diff(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_2, outcome_3):
+    use_value_df = create_use_value(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type)
+    use_value_df2 = create_use_value(outcome_2, df_1, df_2, outcome_2, visit_of_interest, all_visits, fill_type)
+    use_value_df3 = create_use_value(outcome_3, df_1, df_2, outcome_3, visit_of_interest, all_visits, fill_type)
+    use_value_df2['value2'] = use_value_df2['value']
+    use_value_df2 = use_value_df2[['redcap_event_name', 'value2']]
+    use_value_df3['value3'] = use_value_df3['value']
+    use_value_df3 = use_value_df3[['redcap_event_name', 'value3']]
+    use_value_merged = pd.merge(pd.merge(use_value_df, use_value_df2, on = 'redcap_event_name', how = 'left'), use_value_df3, on = 'redcap_event_name', how = 'left')
+    if outcome == 'chrscid_bp_wo_psychosis':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] != 1), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    elif outcome == 'chrscid_bp_w_psychosis':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] == 1), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    use_value_final=use_value_merged[['variable', 'redcap_event_name', 'value']]
+    return use_value_final
+
+def create_scid5_mdd_diff(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_2, outcome_3):
+    use_value_df = create_use_value(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type)
+    use_value_df2 = create_use_value(outcome_2, df_1, df_2, outcome_2, visit_of_interest, all_visits, fill_type)
+    use_value_df3 = create_use_value(outcome_3, df_1, df_2, outcome_3, visit_of_interest, all_visits, fill_type)
+    use_value_df2['value2'] = use_value_df2['value']
+    use_value_df2 = use_value_df2[['redcap_event_name', 'value2']]
+    use_value_df3['value3'] = use_value_df3['value']
+    use_value_df3 = use_value_df3[['redcap_event_name', 'value3']]
+    use_value_merged = pd.merge(pd.merge(use_value_df, use_value_df2, on = 'redcap_event_name', how = 'left'), use_value_df3, on = 'redcap_event_name', how = 'left')
+    if outcome == 'chrscid_mdd_wo_psychosis':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] != 1), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    elif outcome == 'chrscid_mdd_w_psychosis':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] == 1), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    elif outcome == 'chrscid_persistent_depr':
+        use_value_merged['value'] = np.where((use_value_merged['value'] == 3) | (use_value_merged['value3'] == 3), 1, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+    use_value_final=use_value_merged[['variable', 'redcap_event_name', 'value']]
+    return use_value_final
+
+def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_1):
+    value_max_substance = create_max('max_substance', df_1, df_2, var_list, visit_of_interest, all_visits, 'int')
+    value_max_substance['value_max'] = value_max_substance['value']
+    value_max_substance = value_max_substance[['redcap_event_name', 'value_max']]
+    use_value_df = create_use_value(outcome, df_1, df_2, [var_list[0]], visit_of_interest, all_visits, fill_type)
+    use_value_df['value1'] = use_value_df['value']
+    use_value_df =           use_value_df[['redcap_event_name', 'value1']]
+    use_value_df2 = create_use_value(var_list[1], df_1, df_2, [var_list[1]], visit_of_interest, all_visits, fill_type)
+    use_value_df2['value2'] = use_value_df2['value']
+    use_value_df2 =           use_value_df2[['redcap_event_name', 'value2']]
+    use_value_df3 = create_use_value(outcome_1, df_1, df_2, [outcome_1], visit_of_interest, all_visits, fill_type)
+    use_value_df3['value3'] = use_value_df3['value']
+    use_value_df3 =           use_value_df3[['redcap_event_name', 'value3']]
+    sub_value = pd.merge(pd.merge(pd.merge(value_max_substance, use_value_df, on = 'redcap_event_name'), use_value_df2, on = 'redcap_event_name'), use_value_df3, on = 'redcap_event_name')
+    sub_value['value'] = np.where(sub_value['value_max']>1, sub_value['value_max'], np.where((sub_value['value3'] == 1) | (sub_value['value3'] == 0), 0, -900))
+    sub_value['value'] = np.where((sub_value['value'] == 0) | (sub_value['value'] == 1), 0, np.where((sub_value['value']==2) | (sub_value['value'] == 3), 1, \
+                         np.where((sub_value['value'] == 4) | (sub_value['value'] == 5), 2, np.where(sub_value['value']>5, 3, sub_value['value']))))
+    sub_value_final = create_use_value(outcome, sub_value, df_2, ['value'], visit_of_interest, all_visits, fill_type)
+    return sub_value_final
+
 # --------------------------------------------------------------------#
 # Here we load the data
 # --------------------------------------------------------------------#
@@ -1013,6 +1104,95 @@ for i, id in enumerate(id_list, 1):
         print("What is going on with the Trait anhedonia")
     polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14], axis = 0)
     polyrisk['data_type'] = 'Float'
+# --------------------------------------------------------------------#
+# SCID-V psychosis, depression, bipolar disorder, substance use
+# --------------------------------------------------------------------#
+    # psychosis
+    scid5_delusional = create_scid5('chrscid_delusional', df_all, df_all, ['chrscid_c37'], voi_11, all_visits_list, 'int', ['chrscid_b1'])
+    scid5_brief_psychotic = create_scid5('chrscid_briefpsychotic', df_all, df_all, ['chrscid_c44'], voi_11, all_visits_list, 'int', ['chrscid_b1'])
+    scid5_schizophreniform = create_scid5('chrscid_szform', df_all, df_all, ['chrscid_c14'], voi_11, all_visits_list, 'int', ['chrscid_b1'])
+    scid5_schizophrenia = create_scid5('chrscid_sz', df_all, df_all, ['chrscid_c10'], voi_11, all_visits_list, 'int', ['chrscid_b1'])
+    scid5_schizoaffective_bipolar= create_scid5_affective('chrscid_szaff_bipolar', df_all, df_all, ['chrscid_c26'], voi_11, all_visits_list, 'int', ['chrscid_b1'], ['chrscid_c27'])
+    scid5_schizoaffective_depression= create_scid5_affective('chrscid_szaff_depression', df_all, df_all, ['chrscid_c26'], voi_11, all_visits_list, 'int', ['chrscid_b1'], ['chrscid_c27'])
+    scid5_schizoaffective_unspecified= create_scid5_affective('chrscid_szaff_unspecified', df_all, df_all, ['chrscid_c26'], voi_11, all_visits_list, 'int', ['chrscid_b1'], ['chrscid_c27'])
+    scid5_subst_med_psychosis= create_scid5('chrscid_subst_med_psychosis', df_all, df_all, ['chrscid_c78'], voi_11, all_visits_list, 'int', ['chrscid_b1'])
+    scid5_amc_psychosis= create_scid5('chrscid_amc_psychosis', df_all, df_all, ['chrscid_c71'], voi_11, all_visits_list, 'int', ['chrscid_b1'])
+    scid5_other_psychosis= create_scid5('chrscid_other_psychosis', df_all, df_all, ['chrscid_c50'], voi_11, all_visits_list, 'int', ['chrscid_b1'])
+    # bipolar disorder
+    scid5_bp_wo_psychosis = create_scid5_bipolar_diff('chrscid_bp_wo_psychosis', df_all, df_all, ['chrscid_d3'], voi_11, all_visits_list, 'int', ['chrscid_a1'], ['chrscid_d47_d52___1'])
+    scid5_bp_w_psychosis = create_scid5_bipolar_diff('chrscid_bp_w_psychosis', df_all, df_all, ['chrscid_d3'], voi_11, all_visits_list, 'int', ['chrscid_a1'], ['chrscid_d47_d52___1'])
+    scid5_bp_2 = create_scid5('chrscid_bp_2', df_all, df_all, ['chrscid_d9'], voi_11, all_visits_list, 'int', ['chrscid_a1'])
+    scid5_cyclothymic = create_scid5('chrscid_cyclothymic', df_all, df_all, ['chrscid_a138'], voi_11, all_visits_list, 'int', ['chrscid_a1'])
+    scid5_subst_med_bp = create_scid5('chrscid_subst_med_bp', df_all, df_all, ['chrscid_a206'], voi_11, all_visits_list, 'int', ['chrscid_a1'])
+    scid5_other_bp = create_scid5('chrscid_other_bp', df_all, df_all, ['chrscid_d23'], voi_11, all_visits_list, 'int', ['chrscid_a1'])
+    # depressive disorders
+    scid5_mdd_wo_psychosis = create_scid5_mdd_diff('chrscid_mdd_wo_psychosis', df_all, df_all, ['chrscid_d28'], voi_11, all_visits_list, 'int', ['chrscid_a1'], ['chrscid_d63___1'])
+    scid5_mdd_w_psychosis = create_scid5_mdd_diff('chrscid_mdd_w_psychosis', df_all, df_all, ['chrscid_d28'], voi_11, all_visits_list, 'int', ['chrscid_a1'], ['chrscid_d63___1'])
+    scid5_persistent_depr = create_scid5_mdd_diff('chrscid_persistent_depr', df_all, df_all, ['chrscid_a153'], voi_11, all_visits_list, 'int', ['chrscid_a1'], ['chrscid_a170'])
+    scid5_subst_med_depr = create_scid5('chrscid_subst_med_depr', df_all, df_all, ['chrscid_a221'], voi_11, all_visits_list, 'int', ['chrscid_a1'])
+    scid5_amc_depr = create_scid5('chrscid_amc_depr', df_all, df_all, ['chrscid_a213'], voi_11, all_visits_list, 'int', ['chrscid_a1'])
+    scid5_other_depr = create_scid5('chrscid_other_depr', df_all, df_all, ['chrscid_d39'], voi_11, all_visits_list, 'int', ['chrscid_a1'])
+    # building summary scores for the different disorders
+    scid5_all_psychosis_condition= pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(scid5_delusional,scid5_brief_psychotic, on = 'redcap_event_name'),\
+                                                                                                                                      scid5_schizophreniform, on = 'redcap_event_name'),\
+                                                                                                                                      scid5_schizophrenia, on = 'redcap_event_name'), \
+                                                                                                                                      scid5_schizoaffective_bipolar, on = 'redcap_event_name'),\
+                                                                                                                                      scid5_schizoaffective_depression, on = 'redcap_event_name'), \
+                                                                                                                                      scid5_schizoaffective_unspecified, on = 'redcap_event_name'),\
+                                                                                                                                      scid5_subst_med_psychosis, on = 'redcap_event_name'), \
+                                                                                                                                      scid5_amc_psychosis, on = 'redcap_event_name'), \
+                                                                                                                                      scid5_other_psychosis, on = 'redcap_event_name'), \
+                                                                                                                                      scid5_bp_w_psychosis, on = 'redcap_event_name'),\
+                                                                                                                                      scid5_mdd_w_psychosis, on = 'redcap_event_name')
+    scid5_all_psychosis_condition['value'] = np.where((scid5_all_psychosis_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
+                                             np.where((scid5_all_psychosis_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_psychosis = create_use_value('chrscid_any_psychosis', scid5_all_psychosis_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
+    scid5_all_bipolar_condition= pd.merge(pd.merge(pd.merge(pd.merge(scid5_bp_wo_psychosis,scid5_bp_2, on = 'redcap_event_name'),\
+                                                                     scid5_cyclothymic, on = 'redcap_event_name'),\
+                                                                     scid5_subst_med_bp, on = 'redcap_event_name'), \
+                                                                     scid5_other_bp, on = 'redcap_event_name')
+    scid5_all_bipolar_condition['value'] = np.where((scid5_all_bipolar_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
+                                           np.where((scid5_all_bipolar_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_bipolar = create_use_value('chrscid_any_bipolar', scid5_all_bipolar_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
+    scid5_all_depression_condition= pd.merge(pd.merge(pd.merge(pd.merge(scid5_mdd_wo_psychosis, scid5_persistent_depr, on = 'redcap_event_name'),\
+                                                                     scid5_subst_med_depr, on = 'redcap_event_name'),\
+                                                                     scid5_amc_depr, on = 'redcap_event_name'), \
+                                                                     scid5_other_depr, on = 'redcap_event_name')
+    scid5_all_depression_condition['value'] = np.where((scid5_all_depression_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
+                                              np.where((scid5_all_depression_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_depression = create_use_value('chrscid_any_depression', scid5_all_depression_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
+    scid5_all_mood_condition= pd.merge(scid5_all_depression, scid5_all_bipolar, on = 'redcap_event_name')
+    scid5_all_mood_condition['value'] = np.where((scid5_all_mood_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
+                                              np.where((scid5_all_mood_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_mood = create_use_value('chrscid_any_mood', scid5_all_mood_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
+    # substance use disorder
+    alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    sed_hyp_anx_disorder     = create_scid5_substance('chrscid_sedhypanx_use_disorder',   df_all, df_all, ['chrscid_e136_137', 'chrscid_e299_301'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    cannabis_disorder        = create_scid5_substance('chrscid_cannabis_use_disorder',      df_all, df_all, ['chrscid_e138_139', 'chrscid_e303_305'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    stimulants_disorder      = create_scid5_substance('chrscid_stimulants_use_disorder',    df_all, df_all, ['chrscid_e140_141', 'chrscid_e307_309'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    opiod_disorder           = create_scid5_substance('chrscid_opiod_use_disorder',         df_all, df_all, ['chrscid_e142_143', 'chrscid_e311_313'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    inhalants_disorder       = create_scid5_substance('chrscid_inhalants_use_disorder',     df_all, df_all, ['chrscid_e144_145', 'chrscid_e315_317'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    pcp_disorder             = create_scid5_substance('chrscid_pcp_use_disorder',           df_all, df_all, ['chrscid_e146_147', 'chrscid_e319_321'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    hallucinogens_disorder   = create_scid5_substance('chrscid_halluc_use_disorder', df_all, df_all, ['chrscid_e148_149', 'chrscid_e323_325'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    other_substance_disorder = create_scid5_substance('chrscid_other_use_disorder',         df_all, df_all, ['chrscid_e150_151', 'chrscid_e327_329'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    scid5_all_substance_condition= pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(alcohol_disorder, sed_hyp_anx_disorder, on = 'redcap_event_name'),\
+                                                                                                           cannabis_disorder, on = 'redcap_event_name'),\
+                                                                                                           stimulants_disorder, on = 'redcap_event_name'), \
+                                                                                                           opiod_disorder, on = 'redcap_event_name'), \
+                                                                                                           inhalants_disorder, on = 'redcap_event_name'),\
+                                                                                                           pcp_disorder, on = 'redcap_event_name'), \
+                                                                                                           hallucinogens_disorder, on = 'redcap_event_name'), \
+                                                                                                           other_substance_disorder, on = 'redcap_event_name')
+    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
+                                             np.where((scid5_all_substance_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_substance = create_use_value('chrscid_any_subst_use_disorder', scid5_all_substance_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
+    scid_all = pd.concat([scid5_delusional, scid5_brief_psychotic, scid5_schizophreniform, scid5_schizophrenia, scid5_schizoaffective_bipolar, scid5_schizoaffective_depression,\
+                          scid5_schizoaffective_unspecified, scid5_subst_med_psychosis, scid5_amc_psychosis, scid5_other_psychosis,\
+                          scid5_bp_wo_psychosis, scid5_bp_w_psychosis, scid5_bp_2, scid5_cyclothymic, scid5_subst_med_bp, scid5_other_bp,\
+                          scid5_mdd_wo_psychosis, scid5_mdd_w_psychosis, scid5_persistent_depr, scid5_subst_med_depr, scid5_amc_depr, scid5_other_depr,\
+                          alcohol_disorder, sed_hyp_anx_disorder, cannabis_disorder, stimulants_disorder, opiod_disorder, inhalants_disorder, pcp_disorder, hallucinogens_disorder,\
+                          other_substance_disorder,\
+                          scid5_all_psychosis, scid5_all_bipolar, scid5_all_depression, scid5_all_mood, scid5_all_substance], axis = 0)
 # --------------------------------------------------------------------#
 # PSYCHS-screening
 # --------------------------------------------------------------------#
