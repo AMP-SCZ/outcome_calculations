@@ -608,6 +608,7 @@ for i, id in enumerate(id_list, 1):
     voi_8 = 'basel|month_1_arm_1|month_2_|month_3_arm_1|month_6_arm_1|month_12_|month_18_arm_1|month_24_|conversion_'
     voi_9 = 'screening|basel|month_1_|month_2_|month_3_|month_4_|month_5_|month_6|month_7_|month_8_|month_9|month_10_|month_11_|month_12_|month_18_|month_24_|conversion_|floating'
     voi_10= 'screening|basel|month_1_arm_1|month_2_|month_3_arm_1|month_6_arm_1|month_12_|month_18_arm_1|month_24_|conversion_'
+    voi_11= 'basel|month_12_|month_24_|conversion_'
 
     if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
         print("subject is arm_1 meaning chr")
