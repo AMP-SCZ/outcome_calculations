@@ -723,11 +723,13 @@ for i, id in enumerate(id_list, 1):
 # --------------------------------------------------------------------#
     gfr = create_decline('chrgfrs_global_role_decline', df_all, df_all, ['chrgfr_gf_role_high', 'chrgfr_gf_role_scole'], voi_2, all_visits_list, 'int')
     gfr['data_type'] = 'Integer'
+    gfr['value'] = np.where(gfr['value'] == -1, -900, gfr['value'])
 # --------------------------------------------------------------------#
 # GF- S
 # --------------------------------------------------------------------#
     gfs = create_decline('chrgfss_global_social_decline', df_all, df_all, ['chrgfs_gf_social_high', 'chrgfs_gf_social_scale'], voi_2, all_visits_list, 'int')
     gfs['data_type'] = 'Integer'
+    gfs['value'] = np.where(gfs['value'] == -1, -900, gfs['value'])
 # --------------------------------------------------------------------#
 # Pubertal Developmental Scale 
 # --------------------------------------------------------------------#
@@ -1184,7 +1186,7 @@ for i, id in enumerate(id_list, 1):
                                                                                                            pcp_disorder, on = 'redcap_event_name'), \
                                                                                                            hallucinogens_disorder, on = 'redcap_event_name'), \
                                                                                                            other_substance_disorder, on = 'redcap_event_name')
-    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
+    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition[['value_x', 'value_y']]>0).any(axis=1), 1, \
                                              np.where((scid5_all_substance_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
     scid5_all_substance = create_use_value('chrscid_any_subst_use_disorder', scid5_all_substance_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid_all = pd.concat([scid5_delusional, scid5_brief_psychotic, scid5_schizophreniform, scid5_schizophrenia, scid5_schizoaffective_bipolar, scid5_schizoaffective_depression,\
@@ -1778,7 +1780,7 @@ for i, id in enumerate(id_list, 1):
     else:
         print("as this is just the version to create the test file do not save the output to csv.")
 
-    output_df_id = pd.concat([psychs, polyrisk, assist, premorbid_adjustment,cssrs, ra, pgi_s, promis, gfr, gfs, nsipr, sofas_screening, sofas_fu, pds_final, bprs, oasis, pdt, cdss, pss],\
+    output_df_id = pd.concat([psychs, polyrisk, assist, premorbid_adjustment,cssrs, ra, pgi_s, promis, gfr, gfs, nsipr, sofas_screening, sofas_fu, pds_final, bprs, oasis, pdt, cdss, pss, scid_all],\
                    axis = 0)
     output_df_id['ID'] = id 
     subject_list.append(output_df_id)
