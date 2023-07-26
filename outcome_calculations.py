@@ -566,6 +566,9 @@ ids = pd.read_csv('/data/pnl/home/gj936/U24/Clinical_qc/flowqc/REAL_DATA/{0}_sub
 # Load the data. Depending on which network you load the data from you have to apply some different wrangling.
 if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
+        #id_list = ['CM01411']
+        #id_list = ['MT01504']
+        #id_list = ['YA16606','CM01411']
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
@@ -591,6 +594,7 @@ for i, id in enumerate(id_list, 1):
         df_all = pull_data(Network, id)
     else:
         print(f"File {sub_data} does not exist, skipping...")
+        #print(f"File {sub_data} does not exist, skipping... or id is CM01411")
         continue
     
 # --------------------------------------------------------------------#
@@ -737,7 +741,10 @@ for i, id in enumerate(id_list, 1):
         pds_female  = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
         pds_male    = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif age < 19 and sex == 'female':
-        pds_female  = create_total_division('chrpds_total_score_female_sex',df_all,df_all,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
+        df_pds = df_all.copy()
+        df_pds['chrpds_pds_2_p'] = np.where(df_pds['chrpds_pds_2_p'] == '1903-03-03', -300, df_pds['chrpds_pds_2_p'])
+        df_pds['chrpds_pds_3_p'] = np.where(df_pds['chrpds_pds_3_p'] == '1903-03-03', -300, df_pds['chrpds_pds_3_p'])
+        pds_female  = create_total_division('chrpds_total_score_female_sex',df_pds,df_pds,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
         pds_male    = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif age < 19 and sex == 'male':
         pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
@@ -775,8 +782,11 @@ for i, id in enumerate(id_list, 1):
 # --------------------------------------------------------------------#
 # SOFAS
 # --------------------------------------------------------------------#
-    sofas_5 = create_use_value('chrsofas_currscore_fu', df_all, df_all, ['chrsofas_currscore_fu'], voi_8, all_visits_list, 'int')
-    sofas_6 = create_use_value('chrsofas_currscore12mo_fu', df_all, df_all, ['chrsofas_currscore12mo_fu'], voi_8, all_visits_list, 'int')
+    df_sofas = df_all.copy()
+    df_sofas['chrsofas_currscore_fu'] = np.where(df_sofas['chrsofas_currscore_fu'] == '1909-09-09', -900, df_sofas['chrsofas_currscore_fu'])
+    df_sofas['chrsofas_currscore12mo_fu'] = np.where(df_sofas['chrsofas_currscore12mo_fu'] == '1909-09-09', -900, df_sofas['chrsofas_currscore12mo_fu'])
+    sofas_5 = create_use_value('chrsofas_currscore_fu', df_sofas, df_sofas, ['chrsofas_currscore_fu'], voi_8, all_visits_list, 'int')
+    sofas_6 = create_use_value('chrsofas_currscore12mo_fu', df_sofas, df_sofas, ['chrsofas_currscore12mo_fu'], voi_8, all_visits_list, 'int')
     sofas_fu = pd.concat([sofas_5, sofas_6], axis = 0)
     sofas_fu['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
