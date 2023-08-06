@@ -16,7 +16,6 @@ import time
 # We first have to define all functions needed for the outcome 
 # calculations later. 
 # --------------------------------------------------------------------#
-
 def pull_data(network, id):
     # we pull the data from the json file. Therefore, we provide the network, i.e. pronet/prescient.
     # network = pronet/prescient defined outside the script argv[0], id = subject id, taken from the updated file that Grace creates daily.
@@ -1206,6 +1205,9 @@ for i, id in enumerate(id_list, 1):
                           alcohol_disorder, sed_hyp_anx_disorder, cannabis_disorder, stimulants_disorder, opiod_disorder, inhalants_disorder, pcp_disorder, hallucinogens_disorder,\
                           other_substance_disorder,\
                           scid5_all_psychosis, scid5_all_bipolar, scid5_all_depression, scid5_all_mood, scid5_all_substance], axis = 0)
+    scid_all['data_type']='Integer'
+    scid_all['ID']=id
+    scid_all=scid_all[['variable','redcap_event_name','value','data_type','ID']]
 # --------------------------------------------------------------------#
 # PSYCHS-screening
 # --------------------------------------------------------------------#
@@ -1787,6 +1789,7 @@ for i, id in enumerate(id_list, 1):
         premorbid_adjustment.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/premorbid_adjustment_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         assist.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/assist.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         polyrisk.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/psychosis_polyrisk_score.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        scid_all.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/scid5_psychosis_mood_substance_abuse.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
     else:
         print("as this is just the version to create the test file do not save the output to csv.")
 
@@ -1794,6 +1797,9 @@ for i, id in enumerate(id_list, 1):
                    axis = 0)
     output_df_id['ID'] = id 
     subject_list.append(output_df_id)
+    # at the moment we want to create also the scid dictionary. Therefore, we write out the scid outcomes. These next lines will be deleted later.
+    if version == 'test':
+        scid_all.to_csv("/data/predict1/home/np487/amp_scz/scid_outcome_test/{0}_{1}_scid.csv".format(network, id), index = False, header = True, float_format = '%.3f')
 
 concatenated_df = pd.concat(subject_list)
 
