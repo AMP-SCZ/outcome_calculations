@@ -83,8 +83,7 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
     df_1['na9'] = df_1[var_list].isin(['-9']).any(axis = 1)
     df_1['na9nostring'] = df_1[var_list].isin([-9]).any(axis = 1)
     if string_series.str.contains('nsipr').any() == True or string_series.str.contains('chrpas').any() == True:
-        df_calculated = df_1[['value','nine','nine_str', 'na', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na99', 'na99nostring',\
-                              'na9nostring','na9', 'redcap_event_name']]
+        df_calculated = df_1[['value','nine','nine_str', 'na', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na9nostring','na9', 'redcap_event_name']]
     else:
         df_calculated = df_1[['value', 'na', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3','na99', 'na99nostring', 'na9nostring','na9', 'redcap_event_name']]
     df_2['redcap_event_name'] = df_2['redcap_event_name'].astype(str)
@@ -130,7 +129,6 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
         df2gether['value'] = np.where(df2gether['na3'] == True, -300, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na3nostring'] == True, -300, df2gether['value'])
         # keep in mind that the -99 might be changed to a missing instead of a non-applicable
-        print(df2gether['value'])
         df2gether['value'] = np.where(df2gether['na99'] == True, -300, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na99nostring'] == True, -300, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na9'] == True, -900, df2gether['value'])
@@ -228,7 +226,7 @@ def create_total_division(outcome, df_1, df_2, var_list, division, visit_of_inte
         df_1 = df_1[df_1['redcap_event_name'].str.contains('arm_2')]
     df_1 = df_1[df_1['redcap_event_name'].str.contains(visit_of_interest)]
     df_1['value'] = df_1[var_list].fillna(-900).astype(fill_type).sum(axis = 1)/division
-    print(df_1['value'])
+    print(df_1)
     final_df = finalize_df(df_fake, df_1, df_2, var_list, visit_of_interest, fill_type)
     return final_df 
 
