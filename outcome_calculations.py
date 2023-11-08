@@ -573,7 +573,7 @@ network = sys.argv[1]
 Network = network.capitalize()
 version = sys.argv[2]
 
-# list of ids to include depending on the network
+# I create the list of ids within the folder: /data/predict1/home/np487/amp_scz/create_list/ using hte bash script create list
 # ids = pd.read_csv('/data/pnl/home/gj936/U24/Clinical_qc/flowqc/REAL_DATA/{0}_sub_list.txt'.format(network), sep= '\n', index_col = False, header = None)
 ids = pd.read_csv('/data/predict1/home/np487/amp_scz/create_list/{0}_sub_list.txt'.format(network), sep= '\n', index_col = False, header = None)
 
