@@ -130,7 +130,6 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
         df2gether['value'] = np.where(df2gether['na3'] == True, -300, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na3nostring'] == True, -300, df2gether['value'])
         # keep in mind that the -99 might be changed to a missing instead of a non-applicable
-        print(df2gether['value'])
         df2gether['value'] = np.where(df2gether['na99'] == True, -300, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na99nostring'] == True, -300, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na9'] == True, -900, df2gether['value'])
@@ -228,7 +227,6 @@ def create_total_division(outcome, df_1, df_2, var_list, division, visit_of_inte
         df_1 = df_1[df_1['redcap_event_name'].str.contains('arm_2')]
     df_1 = df_1[df_1['redcap_event_name'].str.contains(visit_of_interest)]
     df_1['value'] = df_1[var_list].fillna(-900).astype(fill_type).sum(axis = 1)/division
-    print(df_1['value'])
     final_df = finalize_df(df_fake, df_1, df_2, var_list, visit_of_interest, fill_type)
     return final_df 
 
@@ -1826,4 +1824,16 @@ elif version == 'create_control':
 elif version == 'run_outcome':
     print("Wrote the real outcome - subjects to the control_subjects folder.")
     concatenated_df.to_csv("/data/predict1/home/np487/control_subjects/{0}_all.csv".format(network), index = False, header=True, float_format='%.3f')
+    # To know when the outcome_calculation script was run the last time for all subjects create a text file:
+    current_date = datetime.datetime.now()
+    # Format the date as a string
+    formatted_date = current_date.strftime("%Y-%m-%d %H:%M:%S")
+    # Create the message
+    message = f"Outcome calculations were run for the last time on: {formatted_date}"
+    # Specify the file path
+    file_path = "/data/predict1/home/np487/amp_scz/outcome_calculations/last_date_runoutcome.txt"
+    # Write the message to the file
+    with open(file_path, "w") as file:
+        file.write(message)
+    print(f"Log written to {file_path}")
 
