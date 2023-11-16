@@ -627,19 +627,19 @@ for i, id in enumerate(id_list, 1):
     voi_11= 'basel|month_12_|month_24_|conversion_'
 
     if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
-        print("subject is arm_1 meaning chr")
+        #print("subject is arm_1 meaning chr")
         group = 'chr'
     elif df_all['redcap_event_name'].astype(str).str.contains('arm_2').any():
-        print("subject is arm_2 meaning hc")
+        #print("subject is arm_2 meaning hc")
         group = 'hc'
     if df_all['chrdemo_sexassigned'].astype(str).str.contains('1').any():
-        print("subject is male")
+        #print("subject is male")
         sex = 'male'
     elif df_all['chrdemo_sexassigned'].astype(str).str.contains('2').any():
-        print("subject is female")
+        #print("subject is female")
         sex = 'female'
     else:
-        print("subject is unknown sex")
+        #print("subject is unknown sex")
         sex = 'unknown'
     baseln_df = df_all[df_all['redcap_event_name'].str.contains('basel')]
 #    if id == 'ME61146':
@@ -665,12 +665,12 @@ for i, id in enumerate(id_list, 1):
     elif age_3 != -900 and age_3 != -3 and age_3 != -9:
         age = age_3
     else:
-        print("What is the problem with age")
+        #print("What is the problem with age")
         age = age_4
     if age.size == 0:
         age = -900
-    print("age") 
-    print( age)
+    #print("age") 
+    #print( age)
     df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == '1909-09-09', -900, df_all['chrpas_pmod_adult3v1'])
     df_all['chrpas_pmod_adult3v1'] = df_all['chrpas_pmod_adult3v1'].fillna(-900).astype(int)
     df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == 9, -900, df_all['chrpas_pmod_adult3v1'])
@@ -680,19 +680,19 @@ for i, id in enumerate(id_list, 1):
     month1_df = df_all[df_all['redcap_event_name'].str.contains('month_1_')]
     married_1 = np.nan_to_num(month1_df['chrpas_pmod_adult3v1'].to_numpy(dtype=int), nan = -900)
     married_1 = np.where(married_1.size == 0, -900, married_1)
-    print("Married: currently or previously married")
-    print(married_1)
+    #print("Married: currently or previously married")
+    #print(married_1)
     married_2 = np.nan_to_num(month1_df['chrpas_pmod_adult3v3'].to_numpy(dtype=int), nan = -900)
     married_2 = np.where(married_2.size == 0, -900, married_2)
-    print("Married: never married ")
-    print(married_2)
+    #print("Married: never married ")
+    #print(married_2)
     if married_1.size == 0:
-        print("married_1")
-        print(married_1)
+        #print("married_1")
+        #print(married_1)
         married_1 = -900
     if married_2.size == 0:
-        print("married_2")
-        print(married_2)
+        #print("married_2")
+        #print(married_2)
         married_2 = -900
 
 # --------------------------------------------------------------------#
@@ -762,15 +762,15 @@ for i, id in enumerate(id_list, 1):
         pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
         pds_female    = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif sex != 'female' and sex != 'male':
-        print("sex is unknown")
+        #print("sex is unknown")
         pds_female = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
         pds_male = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
     elif np.isnan(age) and sex == 'female':
-        print("age is unknown")
+        #print("age is unknown")
         pds_female  = create_total_division('chrpds_total_score_female_sex',df_all,df_all,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
         pds_male    = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif np.isnan(age) and sex == 'male':
-        print("age is unknown")
+        #print("age is unknown")
         pds_female  = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
         pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
     # menarche
@@ -877,7 +877,7 @@ for i, id in enumerate(id_list, 1):
     elif married_1 == -900 or married_1 == -9 or married_1 == -3:
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v3'], 18, voi_3, all_visits_list, 'float')
     else:
-        print("Something odd is going on with the married variable")
+        #print("Something odd is going on with the married variable")
     pas_child_merge=pas_child1.copy()
     pas_earlyadol_merge=pas_earlyadol.copy()
     pas_lateadol_merge=pas_lateadol.copy()
@@ -1053,7 +1053,7 @@ for i, id in enumerate(id_list, 1):
         chrpps_sum10 = create_condition_value('chrpps_sum10', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         chrpps_sum10 = create_condition_value('chrpps_sum10', df_all, df_all, voi_2, all_visits_list, 'float', -900)
-        print('not sure what is going on with chrpps_sum10')
+        #print('not sure what is going on with chrpps_sum10')
     # pps 11 tobacco
     assist_1  = df_pps['chrassist_whoassist_often1'].fillna(-900).to_numpy(dtype=float)
     assist_12  = df_pps['chrassist_whoassist_use1'].fillna(-900).to_numpy(dtype=float)
@@ -1126,7 +1126,7 @@ for i, id in enumerate(id_list, 1):
     elif (trait_final_score == -300 or trait_final_score == -3):
         chrpps_sum14 = create_condition_value('chrpps_sum14', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
-        print("What is going on with the Trait anhedonia")
+        #print("What is going on with the Trait anhedonia")
     polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14], axis = 0)
     polyrisk['data_type'] = 'Float'
 # --------------------------------------------------------------------#
@@ -1804,7 +1804,7 @@ for i, id in enumerate(id_list, 1):
         polyrisk.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/psychosis_polyrisk_score.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         scid_all.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/scid5_psychosis_mood_substance_abuse.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
     else:
-        print("as this is just the version to create the test file do not save the output to csv.")
+        #print("as this is just the version to create the test file do not save the output to csv.")
 
     output_df_id = pd.concat([psychs, polyrisk, assist, premorbid_adjustment,cssrs, ra, pgi_s, promis, gfr, gfs, nsipr, sofas_screening, sofas_fu, pds_final, bprs, oasis, pdt, cdss, pss, scid_all],\
                    axis = 0, sort = True)
