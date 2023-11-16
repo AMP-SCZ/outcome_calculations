@@ -240,6 +240,7 @@ def create_max(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fil
     # all_visits = list with all visist of the amp-scz, 
     # fill_type = defines the final output variable. Either float or int
     df_fake = create_fake_df(outcome, all_visits, visit_of_interest)
+    df_1[var_list] = df_1[var_list].replace('NaN', np.nan)
     df_1['value'] = df_1[var_list].fillna(-900).astype(fill_type).max(axis = 1)
     final_df = finalize_df(df_fake, df_1, df_2, var_list, visit_of_interest, fill_type)
     return final_df 
@@ -578,9 +579,6 @@ ids = pd.read_csv('/data/predict1/home/np487/amp_scz/create_list/{0}_sub_list.tx
 # Load the data. Depending on which network you load the data from you have to apply some different wrangling.
 if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
-        #id_list = ['CM01411']
-        #id_list = ['MT01504']
-        #id_list = ['YA16606','CM01411']
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
@@ -606,9 +604,64 @@ for i, id in enumerate(id_list, 1):
         df_all = pull_data(Network, id)
     else:
         print(f"File {sub_data} does not exist, skipping...")
-        #print(f"File {sub_data} does not exist, skipping... or id is CM01411")
         continue
-    
+
+
+    # first create some important variables that you will need throughout the script
+    if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
+        group = 'chr'
+    elif df_all['redcap_event_name'].astype(str).str.contains('arm_2').any():
+        group = 'hc'
+    baseln_df = df_all[df_all['redcap_event_name'].str.contains('basel')]
+    if group == 'chr':
+        age_1 = baseln_df['chrdemo_age_yrs_chr'].fillna(-900).to_numpy(dtype=float)
+        age_2 = baseln_df['chrdemo_age_mos_chr'].fillna(-900).to_numpy(dtype=float)/12
+        if len(age_2)>1:
+            continue
+        else:
+         if age_2 < 0:
+             age_2 = age_2*12
+    elif group == 'hc':
+        age_1 = baseln_df['chrdemo_age_yrs_hc'].fillna(-900).to_numpy(dtype=float)
+        age_2 = baseln_df['chrdemo_age_mos_hc'].fillna(-900).to_numpy(dtype=float)/12
+        if age_2 <0:
+            age_2 = age_2 * 12
+    age_3 = baseln_df['chrdemo_age_mos3'].fillna(-900).to_numpy(dtype=float)
+    age_4 = baseln_df['chrdemo_age_mos2'].fillna(-900).to_numpy(dtype=float)/12
+    if age_4 <0:
+        age_4 = age_4 * 12
+    if age_1 != -900 and age_1 != -3 and age_1 != -9:
+        age = age_1 
+    elif age_2 != -900 and age_2 != -3 and age_2 != -9:
+        age = age_2
+    elif age_3 != -900 and age_3 != -3 and age_3 != -9:
+        age = age_3
+    else:
+        age = age_4
+    if age.size == 0:
+        age = -900
+    if df_all['chrdemo_sexassigned'].astype(str).str.contains('1').any():
+        sex = 'male'
+    elif df_all['chrdemo_sexassigned'].astype(str).str.contains('2').any():
+        sex = 'female'
+    else:
+        sex = 'unknown'
+    baseln_df = df_all[df_all['redcap_event_name'].str.contains('basel')]
+    df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == '1909-09-09', -900, df_all['chrpas_pmod_adult3v1'])
+    df_all['chrpas_pmod_adult3v1'] = df_all['chrpas_pmod_adult3v1'].fillna(-900).astype(int)
+    df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == 9, -900, df_all['chrpas_pmod_adult3v1'])
+    df_all['chrpas_pmod_adult3v3'] = np.where(df_all['chrpas_pmod_adult3v3'] == '1909-09-09', -900, df_all['chrpas_pmod_adult3v3'])
+    df_all['chrpas_pmod_adult3v3'] = df_all['chrpas_pmod_adult3v3'].fillna(-900).astype(int)
+    df_all['chrpas_pmod_adult3v3'] = np.where(df_all['chrpas_pmod_adult3v3'] == 9, -900, df_all['chrpas_pmod_adult3v3'])
+    month1_df = df_all[df_all['redcap_event_name'].str.contains('month_1_')]
+    married_1 = np.nan_to_num(month1_df['chrpas_pmod_adult3v1'].to_numpy(dtype=int), nan = -900)
+    married_1 = np.where(married_1.size == 0, -900, married_1)
+    married_2 = np.nan_to_num(month1_df['chrpas_pmod_adult3v3'].to_numpy(dtype=int), nan = -900)
+    married_2 = np.where(married_2.size == 0, -900, married_2)
+    if married_1.size == 0:
+        married_1 = -900
+    if married_2.size == 0:
+        married_2 = -900
 # --------------------------------------------------------------------#
 # We first extract/create some important variables for the script 
 # --------------------------------------------------------------------#
@@ -626,74 +679,6 @@ for i, id in enumerate(id_list, 1):
     voi_10= 'screening|basel|month_1_arm_1|month_2_|month_3_arm_1|month_6_arm_1|month_12_|month_18_arm_1|month_24_|conversion_'
     voi_11= 'basel|month_12_|month_24_|conversion_'
 
-    if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
-        #print("subject is arm_1 meaning chr")
-        group = 'chr'
-    elif df_all['redcap_event_name'].astype(str).str.contains('arm_2').any():
-        #print("subject is arm_2 meaning hc")
-        group = 'hc'
-    if df_all['chrdemo_sexassigned'].astype(str).str.contains('1').any():
-        #print("subject is male")
-        sex = 'male'
-    elif df_all['chrdemo_sexassigned'].astype(str).str.contains('2').any():
-        #print("subject is female")
-        sex = 'female'
-    else:
-        #print("subject is unknown sex")
-        sex = 'unknown'
-    baseln_df = df_all[df_all['redcap_event_name'].str.contains('basel')]
-#    if id == 'ME61146':
-#        baseln_df = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_1')]
-    if group == 'chr':
-        age_1 = baseln_df['chrdemo_age_yrs_chr'].fillna(-900).to_numpy(dtype=float)
-        age_2 = baseln_df['chrdemo_age_mos_chr'].fillna(-900).to_numpy(dtype=float)/12
-        if age_2 <0:
-            age_2 = age_2 * 12
-    elif group == 'hc':
-        age_1 = baseln_df['chrdemo_age_yrs_hc'].fillna(-900).to_numpy(dtype=float)
-        age_2 = baseln_df['chrdemo_age_mos_hc'].fillna(-900).to_numpy(dtype=float)/12
-        if age_2 <0:
-            age_2 = age_2 * 12
-    age_3 = baseln_df['chrdemo_age_mos3'].fillna(-900).to_numpy(dtype=float)
-    age_4 = baseln_df['chrdemo_age_mos2'].fillna(-900).to_numpy(dtype=float)/12
-    if age_4 <0:
-        age_4 = age_4 * 12
-    if age_1 != -900 and age_1 != -3 and age_1 != -9:
-        age = age_1 
-    elif age_2 != -900 and age_2 != -3 and age_2 != -9:
-        age = age_2
-    elif age_3 != -900 and age_3 != -3 and age_3 != -9:
-        age = age_3
-    else:
-        #print("What is the problem with age")
-        age = age_4
-    if age.size == 0:
-        age = -900
-    #print("age") 
-    #print( age)
-    df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == '1909-09-09', -900, df_all['chrpas_pmod_adult3v1'])
-    df_all['chrpas_pmod_adult3v1'] = df_all['chrpas_pmod_adult3v1'].fillna(-900).astype(int)
-    df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == 9, -900, df_all['chrpas_pmod_adult3v1'])
-    df_all['chrpas_pmod_adult3v3'] = np.where(df_all['chrpas_pmod_adult3v3'] == '1909-09-09', -900, df_all['chrpas_pmod_adult3v3'])
-    df_all['chrpas_pmod_adult3v3'] = df_all['chrpas_pmod_adult3v3'].fillna(-900).astype(int)
-    df_all['chrpas_pmod_adult3v3'] = np.where(df_all['chrpas_pmod_adult3v3'] == 9, -900, df_all['chrpas_pmod_adult3v3'])
-    month1_df = df_all[df_all['redcap_event_name'].str.contains('month_1_')]
-    married_1 = np.nan_to_num(month1_df['chrpas_pmod_adult3v1'].to_numpy(dtype=int), nan = -900)
-    married_1 = np.where(married_1.size == 0, -900, married_1)
-    #print("Married: currently or previously married")
-    #print(married_1)
-    married_2 = np.nan_to_num(month1_df['chrpas_pmod_adult3v3'].to_numpy(dtype=int), nan = -900)
-    married_2 = np.where(married_2.size == 0, -900, married_2)
-    #print("Married: never married ")
-    #print(married_2)
-    if married_1.size == 0:
-        #print("married_1")
-        #print(married_1)
-        married_1 = -900
-    if married_2.size == 0:
-        #print("married_2")
-        #print(married_2)
-        married_2 = -900
 
 # --------------------------------------------------------------------#
 # CDSS 
