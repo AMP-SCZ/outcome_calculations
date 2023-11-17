@@ -4,8 +4,7 @@ import pandas as pd
 import argparse
 import json
 import os
-from datetime import datetime
-from datetime import date
+from datetime import datetime, date
 import time
 
 # --------------------------------------------------------------------#
@@ -572,6 +571,7 @@ network = sys.argv[1]
 Network = network.capitalize()
 version = sys.argv[2]
 
+
 # I create the list of ids within the folder: /data/predict1/home/np487/amp_scz/create_list/ using hte bash script create list
 # ids = pd.read_csv('/data/pnl/home/gj936/U24/Clinical_qc/flowqc/REAL_DATA/{0}_sub_list.txt'.format(network), sep= '\n', index_col = False, header = None)
 ids = pd.read_csv('/data/predict1/home/np487/amp_scz/create_list/{0}_sub_list.txt'.format(network), sep= '\n', index_col = False, header = None)
@@ -955,6 +955,7 @@ for i, id in enumerate(id_list, 1):
     #print(list(df_all.filter(like='fdob').columns))
     # I have changed the paternal age calculation slightly because of newly introduced missing codes in date format
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900,df_pps['chrpps_fage'])
+    df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1903-03-03', -300,df_pps['chrpps_fage'])
     paternal_age = df_pps['chrpps_fage'].fillna(-900).to_numpy(dtype=float)
     paternal_age_calc = paternal_age - age
     if paternal_age == -900 or paternal_age == -9 or age == -900:
@@ -969,6 +970,7 @@ for i, id in enumerate(id_list, 1):
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
     # pps 8 SES
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1909-09-09', -900, df_pps['chrpps_focc'])
+    df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1903-03-03', -300, df_pps['chrpps_focc'])
     focc = df_pps['chrpps_focc'].fillna(-900).to_numpy(dtype=float)
     if focc == -900 or focc == -9:
         chrpps_sum8 = create_condition_value('chrpps_sum8', df_all, df_all, voi_2, all_visits_list, 'float', -900)
@@ -1810,15 +1812,24 @@ elif version == 'run_outcome':
     print("Wrote the real outcome - subjects to the control_subjects folder.")
     concatenated_df.to_csv("/data/predict1/home/np487/control_subjects/{0}_all.csv".format(network), index = False, header=True, float_format='%.3f')
     # To know when the outcome_calculation script was run the last time for all subjects create a text file:
-    current_date = datetime.datetime.now()
+    current_date = datetime.now()
     # Format the date as a string
-    formatted_date = current_date.strftime("%Y-%m-%d %H:%M:%S")
+    formatted_date = current_date.strftime('%Y-%m-%d %H:%M:%S')
     # Create the message
-    message = f"Outcome calculations were run for the last time on: {formatted_date}"
-    # Specify the file path
-    file_path = "/data/predict1/home/np487/amp_scz/outcome_calculations/last_date_runoutcome.txt"
-    # Write the message to the file
+    message = f'{Network}: outcome calculations were run for the last time on: {formatted_date}'
+    file_path = '/data/predict1/home/np487/amp_scz/outcome_calculations/last_date_runoutcome.txt'
+    # read the file from before:
+    existing_content = ''
+    try:
+        with open(file_path, 'r') as file:
+            existing_content = file.read()
+    except FileNotFoundError:
+        pass # File doesn't exist yet, which is fine
+    
+    # Combine the new message (date) with the existing content:
+    updated_content = f'{message}\n{existing_content}'
+    # Write the updated content back to the file
     with open(file_path, "w") as file:
-        file.write(message)
+        file.write(updated_content)
     print(f"Log written to {file_path}")
 
