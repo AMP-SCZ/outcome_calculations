@@ -561,30 +561,7 @@ def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all
     return sub_value_final
 
 
-<<<<<<< HEAD
-# Load the data. Depending on which network you load the data from you have to apply some different wrangling.
-if Network == 'Pronet':
-    if version == 'test' or version == 'create_control':
-        id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
-    elif version == 'run_outcome':
-        id_list = ids.iloc[:, 0].tolist()
-    
-elif Network == 'Prescient':
-    if version == 'test' or version == 'create_control':
-        id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
-    elif version == 'run_outcome':
-        id_list = ids.iloc[:, 0].tolist()
-        #id_list = [s.split(' ')[1] if ' ' in s else s for s in id_list]
-        
-subject_list = []
-start_time = time.time()
-for i, id in enumerate(id_list, 1):
-    print(f"Iteration {i}: ID: {id}")
-    elapsed_time = time.time()-start_time
-    print(f"Elapsed time: {elapsed_time:.2f} second")
-=======
 def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
->>>>>>> parallel
     # load the json data
     id = subject_id
     site=id[0:2]
