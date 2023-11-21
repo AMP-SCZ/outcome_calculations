@@ -587,8 +587,8 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'run_outcome':
-        id_list = ids.iloc[2:, 0].tolist()
-        id_list = [s.split(' ')[1] if ' ' in s else s for s in id_list]
+        id_list = ids.iloc[:, 0].tolist()
+        #id_list = [s.split(' ')[1] if ' ' in s else s for s in id_list]
         
 subject_list = []
 start_time = time.time()
