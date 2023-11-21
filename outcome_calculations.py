@@ -1,4 +1,5 @@
 import sys
+from typing import Optional, Tuple
 import numpy as np
 import pandas as pd
 import argparse
@@ -6,6 +7,7 @@ import json
 import os
 from datetime import datetime, date
 import time
+import multiprocessing
 
 # --------------------------------------------------------------------#
 # In this script we calculate all the outcomes for the AMP-SCZ study.
@@ -402,7 +404,7 @@ def create_sips_groups_scr(new_sips_group, df, onsetdate_sips_group, visit_of_in
                                              ((sips_merged[psychosis_str]=='1')&\
                                               (not any (date in ('1909-09-09', '1903-03-03') for date in sips_merged[['conversion_date', 'conversion_sips_group_date']])) &\
                                               (sips_merged['conversion_sips_group_date']>sips_merged['conversion_date'])), '0','-900'))
-    sips_new_final = create_use_value(new_sips_group, sips_merged, df_all, ['psychs_fu_ac8_new'], visit_of_interest, all_visits, 'int')
+    sips_new_final = create_use_value(new_sips_group, sips_merged, df, ['psychs_fu_ac8_new'], visit_of_interest, all_visits, 'int')
     # create the overall lifetime bips variable
     return sips_new_final
 
@@ -449,7 +451,7 @@ def create_sips_groups(new_sips_group,sips_group_lifetime, df, df_sips_group_scr
                                              ((sips_merged[conv_str]=='1')&\
                                               (not any (date in ('1909-09-09', '1903-03-03') for date in sips_merged[['conversion_date', 'conversion_sips_group_date']])) &\
                                               (sips_merged['conversion_sips_group_date']>sips_merged['conversion_date'])), '0','-900'))
-    sips_new_final = create_use_value(new_sips_group, sips_merged, df_all, ['psychs_fu_ac8_new'], visit_of_interest, all_visits, 'int')
+    sips_new_final = create_use_value(new_sips_group, sips_merged, df, ['psychs_fu_ac8_new'], visit_of_interest, all_visits, 'int')
     # create the overall lifetime bips variable
     sips_ac = pd.merge(sips_new_final, sips_scr, on = 'redcap_event_name', how = 'left')
     sips_ac['value'] = sips_ac['value'].astype(str)
@@ -558,45 +560,10 @@ def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all
     sub_value_final = create_use_value(outcome, sub_value, df_2, ['value'], visit_of_interest, all_visits, fill_type)
     return sub_value_final
 
-# --------------------------------------------------------------------#
-# Here we load the data
-# --------------------------------------------------------------------#
 
-all_visits_list = ['screening_arm_1', 'baseline_arm_1', 'floating_forms_arm_1', 'month_1_arm_1', 'month_2_arm_1', 'month_3_arm_1', 'month_4_arm_1', 'month_5_arm_1', 'month_6_arm_1',\
-                   'month_7_arm_1', 'month_8_arm_1', 'month_9_arm_1', 'month_10_arm_1', 'month_11_arm_1', 'month_12_arm_1', 'month_18_arm_1','month_24_arm_1', 'conversion_arm_1',\
-                   'screening_arm_2', 'baseline_arm_2', 'floating_forms_arm_2', 'month_1_arm_2', 'month_2_arm_2', 'month_3_arm_2', 'month_4_arm_2', 'month_5_arm_2', 'month_6_arm_2',\
-                   'month_7_arm_2', 'month_8_arm_2', 'month_9_arm_2', 'month_10_arm_2', 'month_11_arm_2', 'month_12_arm_2', 'month_18_arm_2','month_24_arm_2', 'conversion_arm_2']
-
-network = sys.argv[1]
-Network = network.capitalize()
-version = sys.argv[2]
-
-
-# I create the list of ids within the folder: /data/predict1/home/np487/amp_scz/create_list/ using hte bash script create list
-# ids = pd.read_csv('/data/pnl/home/gj936/U24/Clinical_qc/flowqc/REAL_DATA/{0}_sub_list.txt'.format(network), sep= '\n', index_col = False, header = None)
-ids = pd.read_csv('/data/predict1/home/np487/amp_scz/create_list/{0}_sub_list.txt'.format(network), sep= '\n', index_col = False, header = None)
-
-# Load the data. Depending on which network you load the data from you have to apply some different wrangling.
-if Network == 'Pronet':
-    if version == 'test' or version == 'create_control':
-        id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
-    elif version == 'run_outcome':
-        id_list = ids.iloc[:, 0].tolist()
-    
-elif Network == 'Prescient':
-    if version == 'test' or version == 'create_control':
-        id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
-    elif version == 'run_outcome':
-        id_list = ids.iloc[2:, 0].tolist()
-        id_list = [s.split(' ')[1] if ' ' in s else s for s in id_list]
-        
-subject_list = []
-start_time = time.time()
-for i, id in enumerate(id_list, 1):
-    print(f"Iteration {i}: ID: {id}")
-    elapsed_time = time.time()-start_time
-    print(f"Elapsed time: {elapsed_time:.2f} second")
+def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     # load the json data
+    id = subject_id
     site=id[0:2]
     sub_data = '/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/{2}.{0}.json'.format(Network, site, id)
     if os.path.isfile(sub_data):
@@ -604,7 +571,7 @@ for i, id in enumerate(id_list, 1):
         df_all = pull_data(Network, id)
     else:
         print(f"File {sub_data} does not exist, skipping...")
-        continue
+        return None
 
 
     # first create some important variables that you will need throughout the script
@@ -617,10 +584,10 @@ for i, id in enumerate(id_list, 1):
         age_1 = baseln_df['chrdemo_age_yrs_chr'].fillna(-900).to_numpy(dtype=float)
         age_2 = baseln_df['chrdemo_age_mos_chr'].fillna(-900).to_numpy(dtype=float)/12
         if len(age_2)>1:
-            continue
+            return None
         else:
-         if age_2 < 0:
-             age_2 = age_2*12
+            if age_2 < 0:
+                age_2 = age_2*12
     elif group == 'hc':
         age_1 = baseln_df['chrdemo_age_yrs_hc'].fillna(-900).to_numpy(dtype=float)
         age_2 = baseln_df['chrdemo_age_mos_hc'].fillna(-900).to_numpy(dtype=float)/12
@@ -706,7 +673,7 @@ for i, id in enumerate(id_list, 1):
     pss_df['chrpss_pssp2_4']  = 4 - pss_df['chrpss_pssp2_4'].astype(float)
     pss_df['chrpss_pssp2_5']  = 4 - pss_df['chrpss_pssp2_5'].astype(float)
     pss = create_total_division('chrpss_perceived_stress_scale_total', pss_df, df_all, ['chrpss_pssp1_1','chrpss_pssp1_2', 'chrpss_pssp1_3','chrpss_pssp2_1', 'chrpss_pssp2_2','chrpss_pssp2_3',\
-                                                                                 'chrpss_pssp2_4','chrpss_pssp2_5', 'chrpss_pssp3_1','chrpss_pssp3_4'], 1, voi_1, all_visits_list, 'int')
+                                                                                'chrpss_pssp2_4','chrpss_pssp2_5', 'chrpss_pssp3_1','chrpss_pssp3_4'], 1, voi_1, all_visits_list, 'int')
     pss['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # BPRS 
@@ -792,7 +759,7 @@ for i, id in enumerate(id_list, 1):
     nsipr_1 = create_total_division('chrnsipr_motivation_and_pleasure_dimension', df_all, df_all, ['chrnsipr_item1_rating', 'chrnsipr_item2_rating', 'chrnsipr_item3_rating', 'chrnsipr_item4_rating',\
                                                                                                 'chrnsipr_item5_rating',  'chrnsipr_item6_rating', 'chrnsipr_item7_rating'], 7, voi_1, all_visits_list, 'float')
     nsipr_2 = create_total_division('chrnsipr_diminished_expression_dimension', df_all, df_all, ['chrnsipr_item8_rating', 'chrnsipr_item9_rating', 'chrnsipr_item10_rating',\
-                                                                                              'chrnsipr_item11_rating'], 4, voi_1, all_visits_list, 'float')
+                                                                                            'chrnsipr_item11_rating'], 4, voi_1, all_visits_list, 'float')
     nsipr_3 = create_total_division('chrnsipr_avolition_domain', df_all, df_all, ['chrnsipr_item1_rating', 'chrnsipr_item2_rating'], 2, voi_1, all_visits_list, 'float')
     nsipr_4 = create_total_division('chrnsipr_asociality_domain', df_all, df_all, ['chrnsipr_item3_rating', 'chrnsipr_item4_rating', 'chrnsipr_item5_rating'], 3, voi_1, all_visits_list, 'float')
     nsipr_5 = create_total_division('chrnsipr_anhedonia_domain', df_all, df_all, ['chrnsipr_item6_rating', 'chrnsipr_item7_rating'], 2, voi_1, all_visits_list, 'float')
@@ -810,7 +777,7 @@ for i, id in enumerate(id_list, 1):
     promis_df['chrpromis_sleep72']     = 6 - promis_df['chrpromis_sleep72'].astype(float)
     promis_df['chrpromis_sleep67']     = 6 - promis_df['chrpromis_sleep67'].astype(float)
     promis = create_total_division('chrpromis_total', promis_df, df_all, ['chrpromis_sleep109','chrpromis_sleep116','chrpromis_sleep20','chrpromis_sleep44','chrpromise_sleep108','chrpromis_sleep72',\
-                                                                       'chrpromis_sleep67','chrpromis_sleep115'], 1, voi_7, all_visits_list, 'int')
+                                                                    'chrpromis_sleep67','chrpromis_sleep115'], 1, voi_7, all_visits_list, 'int')
     promis['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # PGI_S
@@ -838,12 +805,12 @@ for i, id in enumerate(id_list, 1):
         cssrs1 = create_condition_value('chrcssrs_intensity_lifetime', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     else:
         cssrs1 = create_total_division('chrcssrs_intensity_lifetime' , df_all, df_all, ['chrcssrsb_sidfrql','chrcssrsb_siddurl','chrcssrsb_sidctrl','chrcssrsb_siddtrl','chrcssrsb_sidrsnl'],\
-                                     1, voi_2, all_visits_list, 'int')
+                                    1, voi_2, all_visits_list, 'int')
     if cssrs_sil_sum == 4 or cssrs_sim_sum == 4:
         cssrs2 = create_condition_value('chrcssrs_intensity_pastmonth', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     else:
         cssrs2 = create_total_division('chrcssrs_intensity_pastmonth', df_all, df_all, ['chrcssrsb_css_sipmfreq','chrcssrsb_css_sipmdur','chrcssrsb_css_sipmctrl','chrcssrsb_css_sipmdet','chrcssrsb_css_sipmreas'],\
-                                     1, voi_2, all_visits_list, 'int')
+                                    1, voi_2, all_visits_list, 'int')
     cssrs = pd.concat([cssrs1, cssrs2], axis = 0)
     cssrs['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
@@ -851,9 +818,9 @@ for i, id in enumerate(id_list, 1):
 # --------------------------------------------------------------------#
     pas_child1    = create_total_division('chrpas_childhood_subtotal' , df_all, df_all, ['chrpas_pmod_child1','chrpas_pmod_child2','chrpas_pmod_child3','chrpas_pmod_child4'], 24, voi_3, all_visits_list, 'float')
     pas_earlyadol = create_total_division('chrpas_early_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_early1','chrpas_pmod_adol_early2','chrpas_pmod_adol_early3','chrpas_pmod_adol_early4',\
-                                                                                          'chrpas_pmod_adol_early5'], 30, voi_3, all_visits_list, 'float')
+                                                                                        'chrpas_pmod_adol_early5'], 30, voi_3, all_visits_list, 'float')
     pas_lateadol  = create_total_division('chrpas_late_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_late1','chrpas_pmod_adol_late2','chrpas_pmod_adol_late3','chrpas_pmod_adol_late4',\
-                                                                                         'chrpas_pmod_adol_late5'], 30, voi_3, all_visits_list, 'float')
+                                                                                        'chrpas_pmod_adol_late5'], 30, voi_3, all_visits_list, 'float')
     # for pas-adult the value for N/A can be 9. This does not fit our coding of missing/applicable. Therefore we change it here.
     if (married_1 == -900 or married_1 == -9 or married_1 == -3) and (married_2 == -900 or married_2 == -9 or married_2 == -3):
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
@@ -874,7 +841,7 @@ for i, id in enumerate(id_list, 1):
     pas_child_early = pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name')
     pas_child_early_late = pd.merge(pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name'), pas_lateadol_merge, on = 'redcap_event_name')
     pas_child_early_late_adult = pd.merge(pd.merge(pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name'), pas_lateadol_merge, on = 'redcap_event_name'),\
-                                          pas_adult_merge, on = 'redcap_event_name')
+                                        pas_adult_merge, on = 'redcap_event_name')
     pas_child_total=create_total_division('chrpas_total_score_only_childhood',df_all,df_all,['chrpas_pmod_child1','chrpas_pmod_child2','chrpas_pmod_child3','chrpas_pmod_child4'],24, voi_3, all_visits_list, 'float')
     pas_total_upto_early = create_total_division('chrpas_total_score_upto_early_adolescence', pas_child_early, df_all, ['value_child','value_early'], 2, voi_3, all_visits_list, 'float')
     pas_total_upto_late = create_total_division('chrpas_total_score_upto_late_adolescence', pas_child_early_late, df_all, ['value_child','value_early', 'value_late'], 3, voi_3, all_visits_list, 'float')
@@ -1796,12 +1763,53 @@ for i, id in enumerate(id_list, 1):
     output_df_id = pd.concat([psychs, polyrisk, assist, premorbid_adjustment,cssrs, ra, pgi_s, promis, gfr, gfs, nsipr, sofas_screening, sofas_fu, pds_final, bprs, oasis, pdt, cdss, pss, scid_all],\
                    axis = 0, sort = True)
     output_df_id['ID'] = id 
-    subject_list.append(output_df_id)
-    # at the moment we want to create also the scid dictionary. Therefore, we write out the scid outcomes. These next lines will be deleted later.
-    if version == 'test':
-        scid_all.to_csv("/data/predict1/home/np487/amp_scz/scid_outcome_test/{0}_{1}_scid.csv".format(network, id), index = False, header = True, float_format = '%.3f')
 
-concatenated_df = pd.concat(subject_list)
+    return output_df_id
+
+
+# --------------------------------------------------------------------#
+# Here we load the data
+# --------------------------------------------------------------------#
+
+all_visits_list = ['screening_arm_1', 'baseline_arm_1', 'floating_forms_arm_1', 'month_1_arm_1', 'month_2_arm_1', 'month_3_arm_1', 'month_4_arm_1', 'month_5_arm_1', 'month_6_arm_1',\
+                   'month_7_arm_1', 'month_8_arm_1', 'month_9_arm_1', 'month_10_arm_1', 'month_11_arm_1', 'month_12_arm_1', 'month_18_arm_1','month_24_arm_1', 'conversion_arm_1',\
+                   'screening_arm_2', 'baseline_arm_2', 'floating_forms_arm_2', 'month_1_arm_2', 'month_2_arm_2', 'month_3_arm_2', 'month_4_arm_2', 'month_5_arm_2', 'month_6_arm_2',\
+                   'month_7_arm_2', 'month_8_arm_2', 'month_9_arm_2', 'month_10_arm_2', 'month_11_arm_2', 'month_12_arm_2', 'month_18_arm_2','month_24_arm_2', 'conversion_arm_2']
+
+network = sys.argv[1]
+Network = network.capitalize()
+version = sys.argv[2]
+
+
+# I create the list of ids within the folder: /data/predict1/home/np487/amp_scz/create_list/ using hte bash script create list
+# ids = pd.read_csv('/data/pnl/home/gj936/U24/Clinical_qc/flowqc/REAL_DATA/{0}_sub_list.txt'.format(network), sep= '\n', index_col = False, header = None)
+ids = pd.read_csv('/data/predict1/home/np487/amp_scz/create_list/{0}_sub_list.txt'.format(network), index_col = False, header = None)
+
+# Load the data. Depending on which network you load the data from you have to apply some different wrangling.
+if Network == 'Pronet':
+    if version == 'test' or version == 'create_control':
+        id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
+    elif version == 'run_outcome':
+        id_list = ids.iloc[:, 0].tolist()
+    
+elif Network == 'Prescient':
+    if version == 'test' or version == 'create_control':
+        id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
+    elif version == 'run_outcome':
+        id_list = ids.iloc[2:, 0].tolist()
+        id_list = [s.split(' ')[1] if ' ' in s else s for s in id_list]
+
+num_workers = multiprocessing.cpu_count() // 2
+print("Number of processes: {0}".format(num_workers))
+pool = multiprocessing.Pool(num_workers)
+outcomes = pool.map(compute_outcomes, id_list)
+
+pool.close()
+pool.join()
+
+subject_list = []
+outcomes = [outcome for outcome in outcomes if outcome is not None]
+concatenated_df = pd.concat(outcomes)
 
 if version == 'test':
     print("Wrote the test - subjects to the control_subjects folder.")
