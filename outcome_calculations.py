@@ -584,6 +584,11 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     '''create all warning messages as empty strings'''
     num_warnings = 11
     warnings = ['']*num_warnings
+    # here I just create an example for how the warning messages could be printed:
+    current_date_warn = datetime.now()
+    # Format the date as a string
+    formatted_date_warn = current_date_warn.strftime('%Y-%m-%d %H:%M:%S')
+    
     # load the json data
     id = subject_id
     site=id[0:2]
@@ -595,10 +600,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         print(f"File {sub_data} does not exist, skipping...")
         warnings[0] = 'no file exist'
         return None
-    # here I just create an example for how the warning messages could be printed:
-    current_date_warn = datetime.now()
-    # Format the date as a string
-    formatted_date_warn = current_date_warn.strftime('%Y-%m-%d %H:%M:%S')
     # first create some important variables that you will need throughout the script
     if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
         group = 'chr'
@@ -1814,10 +1815,15 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                    axis = 0, sort = True)
     output_df_id['ID'] = id 
 
-    '''throughout the script I have collected warnings. These warnings are now summarized and will be printed to individual subjects'''
+    #'''throughout the script I have collected warnings. These warnings are now summarized and will be printed to individual subjects'''
     concat_logs = '\n'.join([formatted_date_warn] + [str(warning) for warning in warnings])
     all_empty = all(not s.strip() for s in warnings)
-    warning_file_path = f'/data/predict1/home/np487/amp_scz/logs/warnings_{id}.txt'
+    # create a new folder per date including the logs
+    date_with_time = datetime.strptime(formatted_date_warn, '%Y-%m-%d %H:%M:%S')
+    date_folder_warn = date_with_time.strftime('%Y-%m-%d')
+    new_log_folder = f'/data/predict1/home/np487/amp_scz/logs/{date_folder_warn}_{network}_{version}'
+    os.makedirs(new_log_folder, exist_ok = True)
+    warning_file_path = f'{new_log_folder}/warnings_{id}.txt'
     existing_content = ''
     # read the file from before:
     if all_empty == False:
