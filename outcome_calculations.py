@@ -43,6 +43,25 @@ def create_fake_df(var_list, all_visits, voi):
     df_fake['value_fake'] = np.where(df_fake['redcap_event_name'].str.contains(voi), '-900', df_fake['value_fake'])
     return df_fake 
 
+def create_fake_df_float(var_list, all_visits, voi):
+    # we create a fake dataframe that includes all visits and the outcome measures.
+    # var_list = list with all variables that are needed for the calculation. 
+    # all_visits = list with all visist of the amp-scz, 
+    # voi = visits that are applicable for this outcome.
+    df_fake = {'variable': [var_list]*len(all_visits), 'redcap_event_name': all_visits}
+    df_fake = pd.DataFrame(df_fake)  
+    # by default we give all the values a -300 if not changed afterwards
+    df_fake['value_fake'] = '-300.000'
+    # vois = visits of interest. We change the values from -300 (not applicable) to -900 (missing) for all the visits 
+    # for which we actually expect data.
+    df_fake['value_fake'] = np.where(df_fake['redcap_event_name'].str.contains(voi), '-900.000', df_fake['value_fake'])
+    df_fake['value'] = np.round(df_fake['value_fake'].astype(float),1)
+    print(df_fake)
+    df_fake = df_fake[['variable', 'redcap_event_name', 'value']]
+    df_fake['variable'] = df_fake['variable'].astype(str)
+    df_fake['variable'] = df_fake['variable'].str.strip("['']")
+    return df_fake 
+
 def create_fake_df_date(var_list, all_visits, voi):
     # we create a fake dataframe that includes all visits and the outcome measures.
     # var_list = list with all variables that are needed for the calculation. 
@@ -593,6 +612,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         age_2 = baseln_df['chrdemo_age_mos_hc'].fillna(-900).to_numpy(dtype=float)/12
         if age_2 <0:
             age_2 = age_2 * 12
+    else: 
+        print(f"Something weird is going on with group {id}")
     age_3 = baseln_df['chrdemo_age_mos3'].fillna(-900).to_numpy(dtype=float)
     age_4 = baseln_df['chrdemo_age_mos2'].fillna(-900).to_numpy(dtype=float)/12
     if age_4 <0:
@@ -629,7 +650,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         married_1 = -900
     if married_2.size == 0:
         married_2 = -900
-    print(married_1, married_2, id)
 # --------------------------------------------------------------------#
 # We first extract/create some important variables for the script 
 # --------------------------------------------------------------------#
@@ -726,6 +746,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         #print("age is unknown")
         pds_female  = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
         pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
+    else:
+        print(f"Something weird is going on with age {id}")
     # menarche
     if age > 18 or sex == 'male':
         pds_menarche = create_condition_value('chrpds_pds_f5b_p', df_all, df_all, voi_2, all_visits_list, 'int', -300)
@@ -799,6 +821,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         df_pps = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_1')]
     elif group == 'hc':
         df_pps = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_2')]
+    else: 
+        print(f"Something werid is going on with hte group")
     cssrs_sil_sum = df_pps[['chrcssrsb_si1l', 'chrcssrsb_si2l']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
     cssrs_sim_sum = df_pps[['chrcssrsb_css_sim1', 'chrcssrsb_css_sim2']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
     # In the week from April, 16th - April 22nd we have decided (Sylvain and Cheryl) to give a non-applicable instead of 0 if individuals never had any suicidal ideation
@@ -823,6 +847,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     pas_lateadol  = create_total_division('chrpas_late_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_late1','chrpas_pmod_adol_late2','chrpas_pmod_adol_late3','chrpas_pmod_adol_late4',\
                                                                                         'chrpas_pmod_adol_late5'], 30, voi_3, all_visits_list, 'float')
     # for pas-adult the value for N/A can be 9. This does not fit our coding of missing/applicable. Therefore we change it here.
+    if (married_1 == 0) and (married_2 == 0):
+        pas_adult = create_fake_df_float(['chrpas_adulthood_subtotal'], all_visits_list, voi_3)
     if (married_1 == -900 or married_1 == -9 or married_1 == -3) and (married_2 == -900 or married_2 == -9 or married_2 == -3):
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
     elif married_2 == -900 or married_2 == -9 or married_2 == -3:
@@ -830,7 +856,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     elif married_1 == -900 or married_1 == -9 or married_1 == -3:
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v3'], 18, voi_3, all_visits_list, 'float')
     else:
-        print("Something odd is going on with the married variable")
+        print(f"Something odd is going on with the married variable {id}")
     pas_child_merge=pas_child1.copy()
     pas_earlyadol_merge=pas_earlyadol.copy()
     pas_lateadol_merge=pas_lateadol.copy()
@@ -891,6 +917,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         df_figs = df_all[df_all['redcap_event_name'].str.contains('screening_arm_1')]
     elif group == 'hc':
         df_figs = df_all[df_all['redcap_event_name'].str.contains('screening_arm_2')]
+    else:
+        print(f"neither chr nor hc")
     # pps based on age and gender:
     if age > 24 and age < 36 and sex == 'male':
         chrpps_sum1 = create_condition_value('chrpps_sum1', df_all, df_all, voi_2, all_visits_list, 'float', 2)
@@ -1795,6 +1823,7 @@ if Network == 'Pronet':
     
 elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
+        #id_list = ['ME61146']
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
