@@ -629,6 +629,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         married_1 = -900
     if married_2.size == 0:
         married_2 = -900
+    print(married_1, married_2, id)
 # --------------------------------------------------------------------#
 # We first extract/create some important variables for the script 
 # --------------------------------------------------------------------#
@@ -828,8 +829,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
     elif married_1 == -900 or married_1 == -9 or married_1 == -3:
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v3'], 18, voi_3, all_visits_list, 'float')
-    #else:
-        #print("Something odd is going on with the married variable")
+    else:
+        print("Something odd is going on with the married variable")
     pas_child_merge=pas_child1.copy()
     pas_earlyadol_merge=pas_earlyadol.copy()
     pas_lateadol_merge=pas_lateadol.copy()
