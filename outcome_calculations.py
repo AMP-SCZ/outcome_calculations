@@ -598,7 +598,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         df_all = pull_data(Network, id)
     else:
         print(f"File {sub_data} does not exist, skipping...")
-        warnings[0] = 'no file exist'
+        #warnings[0] = 'no file exist'
         return None
     # first create some important variables that you will need throughout the script
     if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
