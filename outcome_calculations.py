@@ -581,6 +581,9 @@ def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all
 
 
 def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
+    '''create all warning messages as empty strings'''
+    num_warnings = 11
+    warnings = ['']*num_warnings
     # load the json data
     id = subject_id
     site=id[0:2]
@@ -590,9 +593,12 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         df_all = pull_data(Network, id)
     else:
         print(f"File {sub_data} does not exist, skipping...")
+        warnings[0] = 'no file exist'
         return None
-
-
+    # here I just create an example for how the warning messages could be printed:
+    current_date_warn = datetime.now()
+    # Format the date as a string
+    formatted_date_warn = current_date_warn.strftime('%Y-%m-%d %H:%M:%S')
     # first create some important variables that you will need throughout the script
     if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
         group = 'chr'
@@ -613,7 +619,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         if age_2 <0:
             age_2 = age_2 * 12
     else: 
-        print(f"Something weird is going on with group {id}")
+        print(f"Subject is neither hc nor chr {id}")
+        warnings[1] = f"Subject is neither hc nor chr {id}"
     age_3 = baseln_df['chrdemo_age_mos3'].fillna(-900).to_numpy(dtype=float)
     age_4 = baseln_df['chrdemo_age_mos2'].fillna(-900).to_numpy(dtype=float)/12
     if age_4 <0:
@@ -748,6 +755,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
     else:
         print(f"Something weird is going on with age {id}")
+        warnings[2] = f"Something weird is going on with age and or sex {id}"
     # menarche
     if age > 18 or sex == 'male':
         pds_menarche = create_condition_value('chrpds_pds_f5b_p', df_all, df_all, voi_2, all_visits_list, 'int', -300)
@@ -823,6 +831,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         df_pps = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_2')]
     else: 
         print(f"Something werid is going on with hte group")
+        warnings[3] = f"Something werid is going on with the group line 832"
     cssrs_sil_sum = df_pps[['chrcssrsb_si1l', 'chrcssrsb_si2l']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
     cssrs_sim_sum = df_pps[['chrcssrsb_css_sim1', 'chrcssrsb_css_sim2']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
     # In the week from April, 16th - April 22nd we have decided (Sylvain and Cheryl) to give a non-applicable instead of 0 if individuals never had any suicidal ideation
@@ -857,6 +866,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v3'], 18, voi_3, all_visits_list, 'float')
     else:
         print(f"Something odd is going on with the married variable {id}")
+        warnings[4]=f"Something odd is going on with the married variable {id} line 867"
     pas_child_merge=pas_child1.copy()
     pas_earlyadol_merge=pas_earlyadol.copy()
     pas_lateadol_merge=pas_lateadol.copy()
@@ -919,6 +929,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         df_figs = df_all[df_all['redcap_event_name'].str.contains('screening_arm_2')]
     else:
         print(f"neither chr nor hc")
+        warnings[5] = f"neither chr nor hc line 930"
     # pps based on age and gender:
     if age > 24 and age < 36 and sex == 'male':
         chrpps_sum1 = create_condition_value('chrpps_sum1', df_all, df_all, voi_2, all_visits_list, 'float', 2)
@@ -938,6 +949,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     elif group == 'hc':
         total_handedness_df = total_handedness_df[total_handedness_df['redcap_event_name'].str.contains('baseline_arm_2')]
         total_handedness = total_handedness_df['value'].to_numpy(dtype=float)
+    else:
+        warnings[6] = f"neither chr nor hc line 951"
     if total_handedness > 0 and total_handedness < 16:
         chrpps_sum2 = create_condition_value('chrpps_sum2', df_all, df_all, voi_2, all_visits_list, 'float', 2)
     elif total_handedness == -300:
@@ -1007,6 +1020,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
        mother_ddx == 9 or mother_mdx == 9 or mother_pdx == 9 or mother_napdx == 9 or mother_apdx == 9 or\
        father_ddx == 9 or father_mdx == 9 or father_pdx == 9 or father_napdx == 9 or father_apdx == 9:
         chrpps_sum9 = create_condition_value('chrpps_sum9', df_all, df_all, voi_2, all_visits_list, 'float', -900)
+    # I am not so sure about the chrpps_sum9: maybe I have to go back to this later. 
     # pps 10 life event
     sixmo_1  = df_pps['chrpps_sixmo___1'].fillna(-900).to_numpy(dtype=float)
     sixmo_2  = df_pps['chrpps_sixmo___2'].fillna(-900).to_numpy(dtype=float)
@@ -1078,6 +1092,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     elif group == 'hc':
         ctq = ctq[ctq['redcap_event_name'].str.contains('baseline_arm_2')]
         ctq_final_score  = ctq['value'].to_numpy(dtype=float)
+    else:
+        warnings[7] = f"neither chr nor hc 1094"
     if ctq_final_score > 55:
         chrpps_sum13 = create_condition_value('chrpps_sum13', df_all, df_all, voi_2, all_visits_list, 'float', 4)
     elif ctq_final_score > -1 and ctq_final_score < 56:
@@ -1088,6 +1104,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum13 = create_condition_value('chrpps_sum13', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         prfloat("What is going on with the CTQ")
+        warnings[8] = f"What is going on with the CTQ"
     # pps 14 Trait anhedonia
     trait_df = df_all
     trait_df['chrpps_restaur']   = 7 - trait_df['chrpps_restaur'].astype(float)
@@ -1100,6 +1117,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     elif group == 'hc':
         trait = trait[trait['redcap_event_name'].str.contains('baseline_arm_2')]
         trait_final_score  = trait['value'].to_numpy(dtype=float)
+    else:
+        warnings[9] = f"neither chr nor hc 1094"
     if trait_final_score < 36 and trait_final_score > -1:
         chrpps_sum14 = create_condition_value('chrpps_sum14', df_all, df_all, voi_2, all_visits_list, 'float', 6.5)
     elif trait_final_score > 35:
@@ -1108,8 +1127,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum14 = create_condition_value('chrpps_sum14', df_all, df_all, voi_2, all_visits_list, 'float', -900)
     elif (trait_final_score == -300 or trait_final_score == -3):
         chrpps_sum14 = create_condition_value('chrpps_sum14', df_all, df_all, voi_2, all_visits_list, 'float', -300)
-    #else:
-        #print("What is going on with the Trait anhedonia")
+    else:
+        warnings[10] = f"trait_final_score is werid 1129"
     polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14], axis = 0)
     polyrisk['data_type'] = 'Float'
 # --------------------------------------------------------------------#
@@ -1359,6 +1378,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         sips_scr_chr['value'] = np.where(sips_scr_chr['redcap_event_name'].str.contains('arm_2'), -300, sips_scr_chr['value'])
     elif df_visit_sips['redcap_event_name'].str.contains('arm_2').any():
         sips_scr_chr['value'] = np.where(sips_scr_chr['redcap_event_name'].str.contains('arm_1'), -300, sips_scr_chr['value'])
+    else:
+        warnings[11] = f"not the righ arm: 1380"
     # create the sips/bips/grd diagnosis from baseline for follow-up
     psychs_scr = pd.concat([psychs_pos_tot_scr, psychs_sips_p1_scr, psychs_sips_p2_scr, psychs_sips_p3_scr, psychs_sips_p4_scr, psychs_sips_p5_scr, sips_pos_tot_scr, psychs_caarms_p1_scr,\
                             psychs_caarms_p2_scr, psychs_caarms_p3_scr, psychs_caarms_p4_scr, caarms_pos_tot_scr, psychosis_onset_date_scr, psychosis_scr,\
@@ -1793,6 +1814,26 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                    axis = 0, sort = True)
     output_df_id['ID'] = id 
 
+    '''throughout the script I have collected warnings. These warnings are now summarized and will be printed to individual subjects'''
+    concat_logs = '\n'.join([formatted_date_warn] + [str(warning) for warning in warnings])
+    all_empty = all(not s.strip() for s in warnings)
+    warning_file_path = f'/data/predict1/home/np487/amp_scz/logs/warnings_{id}.txt'
+    existing_content = ''
+    # read the file from before:
+    if all_empty == False:
+        try:
+            with open(warning_file_path, 'r') as file:
+                existing_content = file.read()
+        except FileNotFoundError:
+            pass # File doesn't exist yet, which is fine
+        
+        # Combine the new message (date) with the existing content:
+        updated_warning = f'{concat_logs}\n{existing_content}'
+        # Write the updated content back to the file
+        with open(warning_file_path, "w") as file:
+            file.write(updated_warning)
+        print(f"Log written to {warning_file_path}")
+
     return output_df_id
 
 
@@ -1840,6 +1881,10 @@ pool.join()
 subject_list = []
 outcomes = [outcome for outcome in outcomes if outcome is not None]
 concatenated_df = pd.concat(outcomes)
+
+# I should calculate all the warning messages
+#outcomes = [outcome for outcome in outcomes if outcome is not None]
+#concatenated_df = pd.concat(outcomes)
 
 if version == 'test':
     print("Wrote the test - subjects to the control_subjects folder.")
