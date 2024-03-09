@@ -1217,26 +1217,26 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                                                                       scid5_other_psychosis, on = 'redcap_event_name'), \
                                                                                                                                       scid5_bp_w_psychosis, on = 'redcap_event_name'),\
                                                                                                                                       scid5_mdd_w_psychosis, on = 'redcap_event_name')
-    scid5_all_psychosis_condition['value'] = np.where((scid5_all_psychosis_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
-                                             np.where((scid5_all_psychosis_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
+    scid5_all_psychosis_condition['value'] = np.where((scid5_all_psychosis_condition.filter(like='value').eq(1)).any(axis=1), 1,\
+                                             np.where((scid5_all_psychosis_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_psychosis = create_use_value('chrscid_any_psychosis', scid5_all_psychosis_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid5_all_bipolar_condition= pd.merge(pd.merge(pd.merge(pd.merge(scid5_bp_wo_psychosis,scid5_bp_2, on = 'redcap_event_name'),\
                                                                      scid5_cyclothymic, on = 'redcap_event_name'),\
                                                                      scid5_subst_med_bp, on = 'redcap_event_name'), \
                                                                      scid5_other_bp, on = 'redcap_event_name')
-    scid5_all_bipolar_condition['value'] = np.where((scid5_all_bipolar_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
-                                           np.where((scid5_all_bipolar_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
+    scid5_all_bipolar_condition['value'] = np.where((scid5_all_bipolar_condition.filter(like='value').eq(1)).any(axis=1), 1,\
+                                           np.where((scid5_all_bipolar_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_bipolar = create_use_value('chrscid_any_bipolar', scid5_all_bipolar_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid5_all_depression_condition= pd.merge(pd.merge(pd.merge(pd.merge(scid5_mdd_wo_psychosis, scid5_persistent_depr, on = 'redcap_event_name'),\
                                                                      scid5_subst_med_depr, on = 'redcap_event_name'),\
                                                                      scid5_amc_depr, on = 'redcap_event_name'), \
                                                                      scid5_other_depr, on = 'redcap_event_name')
-    scid5_all_depression_condition['value'] = np.where((scid5_all_depression_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
-                                              np.where((scid5_all_depression_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
+    scid5_all_depression_condition['value'] = np.where((scid5_all_depression_condition.filter(like='value').eq(1)).any(axis=1), 1,\
+                                              np.where((scid5_all_depression_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_depression = create_use_value('chrscid_any_depression', scid5_all_depression_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid5_all_mood_condition= pd.merge(scid5_all_depression, scid5_all_bipolar, on = 'redcap_event_name')
-    scid5_all_mood_condition['value'] = np.where((scid5_all_mood_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
-                                        np.where((scid5_all_mood_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
+    scid5_all_mood_condition['value'] = np.where((scid5_all_mood_condition.filter(like='value').eq(1)).any(axis=1), 1,\
+                                        np.where((scid5_all_mood_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_mood = create_use_value('chrscid_any_mood', scid5_all_mood_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     # substance use disorder
     alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int',        'chrscid_sedhypanx_yn') # no yn check for alcohol but in 
@@ -1257,8 +1257,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                                            pcp_disorder, on = 'redcap_event_name'), \
                                                                                                            hallucinogens_disorder, on = 'redcap_event_name'), \
                                                                                                            other_substance_disorder, on = 'redcap_event_name')
-    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition[['value_x', 'value_y', 'value']]>0).any(axis=1), 1, \
-                                             np.where((scid5_all_substance_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
+    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition.filter(like='value').gt(0)).any(axis=1), 1,\
+                                             np.where((scid5_all_substance_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_substance = create_use_value('chrscid_any_subst_use_disorder', scid5_all_substance_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid_all = pd.concat([scid5_delusional, scid5_brief_psychotic, scid5_schizophreniform, scid5_schizophrenia, scid5_schizoaffective_bipolar, scid5_schizoaffective_depression,\
                           scid5_schizoaffective_unspecified, scid5_subst_med_psychosis, scid5_amc_psychosis, scid5_other_psychosis,\
