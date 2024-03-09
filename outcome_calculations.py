@@ -56,7 +56,6 @@ def create_fake_df_float(var_list, all_visits, voi):
     # for which we actually expect data.
     df_fake['value_fake'] = np.where(df_fake['redcap_event_name'].str.contains(voi), '-900.000', df_fake['value_fake'])
     df_fake['value'] = np.round(df_fake['value_fake'].astype(float),1)
-    print(df_fake)
     df_fake = df_fake[['variable', 'redcap_event_name', 'value']]
     df_fake['variable'] = df_fake['variable'].astype(str)
     df_fake['variable'] = df_fake['variable'].str.strip("['']")
@@ -171,6 +170,37 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
         clean_df['value'] = clean_df['value'].astype(fill_type)
     return clean_df
 
+def finalize_df_scid(df_created, df_1, df_2, var_list, voi, fill_type):
+    # used for all dataframes in the end to create it in the way we need it for appropriate handling of all timepoints etc.(creating a clean version)
+    # df_created = comes from the create_fake_df function. A dataframe that includes all variables, visits and initially value_fake with -300
+    # df_1 = the dataframe with the actual calculated value 
+    # df_2 = the dataframe with all visits that are relevant for the participants. used to define whether individual is chr or hc
+    # var_list = list of all variables needed for the calculation
+    # voi = visit of interest for the variable of calculation to define whether missing values are -900 or -300
+    # fill_type = defines the final output variable. Either float or int
+    string_series = pd.Series(var_list)
+    df_visit_pas = df_2[['redcap_event_name']]
+    df_calculated = df_1[['value', 'redcap_event_name']]
+    df_2['redcap_event_name'] = df_2['redcap_event_name'].astype(str)
+    df_visits = df_2[['redcap_event_name']]
+    df_visits = df_visits[df_visits['redcap_event_name'].str.contains(voi)]
+    df_concat = pd.merge(df_visits, df_calculated, on = 'redcap_event_name', how = 'left')
+    df2gether = pd.merge(df_created, df_concat, on = 'redcap_event_name', how = 'left')
+    if df_visits['redcap_event_name'].str.contains('arm_1').any():
+        df2gether['value'] = np.where(df2gether['redcap_event_name'].str.contains('arm_2'), -300, df2gether['value'])
+    elif df_visits['redcap_event_name'].str.contains('arm_2').any():
+        df2gether['value'] = np.where(df2gether['redcap_event_name'].str.contains('arm_1'), -300, df2gether['value'])
+    elif df_visit_pas['redcap_event_name'].str.contains('arm_2').any() and voi == 'month_1_arm_1':
+        df2gether['value'] = -300
+    df2gether['value'] = df2gether['value'].astype(float)
+    df2gether['value'] = np.where(pd.isna(df2gether['value']),df2gether['value_fake'], df2gether['value'])
+    clean_df = df2gether[['variable', 'redcap_event_name', 'value']]
+    if fill_type == 'float':
+        clean_df['value'] = np.round(clean_df['value'].astype(fill_type),3)
+    else:
+        clean_df['value'] = clean_df['value'].astype(fill_type)
+    return clean_df
+
 def finalize_df_date(df_created, df_1, df_2, var_list, voi, fill_type):
     # used for all dataframes in the end to create it in the way we need it for appropriate handling of all timepoints etc.(creating a clean version)
     # df_created = comes from the create_fake_df function. A dataframe that includes all variables, visits and initially value_fake with -300
@@ -263,6 +293,21 @@ def create_max(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fil
     df_1[var_list] = df_1[var_list].replace('NaN', np.nan)
     df_1['value'] = df_1[var_list].fillna(-900).astype(fill_type).max(axis = 1)
     final_df = finalize_df(df_fake, df_1, df_2, var_list, visit_of_interest, fill_type)
+    return final_df 
+
+def create_max_scid(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type):
+    # we create the total (max) score 
+    # outcome = string that defines the outcome name, e.g., bprs_total
+    # df_1 = the dataframe including the actual variables needed to calculate the outcome. This is most of the time df_all, but sometimes is the dataframe created by previous calculations, e.g., promis_df
+    # df_2 = the dataframe with all visits that are relevant for the participants. used to define whether individual is chr or hc
+    # var_list = list of all variables needed for the calculation
+    # visit_of_interest = visit of interest for the variable of calculation to define whether missing values are -900 or -300
+    # all_visits = list with all visist of the amp-scz, 
+    # fill_type = defines the final output variable. Either float or int
+    df_fake = create_fake_df(outcome, all_visits, visit_of_interest)
+    df_1[var_list] = df_1[var_list].replace('NaN', np.nan)
+    df_1['value'] = df_1[var_list].fillna(-900).astype(fill_type).max(axis = 1)
+    final_df = finalize_df_scid(df_fake, df_1, df_2, var_list, visit_of_interest, fill_type)
     return final_df 
 
 def create_min_date(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type):
@@ -560,7 +605,7 @@ def create_scid5_mdd_diff(outcome, df_1, df_2, var_list, visit_of_interest, all_
     return use_value_final
 
 def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_1):
-    value_max_substance = create_max('max_substance', df_1, df_2, var_list, visit_of_interest, all_visits, 'int')
+    value_max_substance = create_max_scid('max_substance', df_1, df_2, var_list, visit_of_interest, all_visits, 'int')
     value_max_substance['value_max'] = value_max_substance['value']
     value_max_substance = value_max_substance[['redcap_event_name', 'value_max']]
     use_value_df = create_use_value(outcome, df_1, df_2, [var_list[0]], visit_of_interest, all_visits, fill_type)
@@ -1172,36 +1217,37 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                                                                       scid5_other_psychosis, on = 'redcap_event_name'), \
                                                                                                                                       scid5_bp_w_psychosis, on = 'redcap_event_name'),\
                                                                                                                                       scid5_mdd_w_psychosis, on = 'redcap_event_name')
-    scid5_all_psychosis_condition['value'] = np.where((scid5_all_psychosis_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
-                                             np.where((scid5_all_psychosis_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_psychosis_condition['value'] = np.where((scid5_all_psychosis_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
+                                             np.where((scid5_all_psychosis_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
     scid5_all_psychosis = create_use_value('chrscid_any_psychosis', scid5_all_psychosis_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid5_all_bipolar_condition= pd.merge(pd.merge(pd.merge(pd.merge(scid5_bp_wo_psychosis,scid5_bp_2, on = 'redcap_event_name'),\
                                                                      scid5_cyclothymic, on = 'redcap_event_name'),\
                                                                      scid5_subst_med_bp, on = 'redcap_event_name'), \
                                                                      scid5_other_bp, on = 'redcap_event_name')
-    scid5_all_bipolar_condition['value'] = np.where((scid5_all_bipolar_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
-                                           np.where((scid5_all_bipolar_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_bipolar_condition['value'] = np.where((scid5_all_bipolar_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
+                                           np.where((scid5_all_bipolar_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
     scid5_all_bipolar = create_use_value('chrscid_any_bipolar', scid5_all_bipolar_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid5_all_depression_condition= pd.merge(pd.merge(pd.merge(pd.merge(scid5_mdd_wo_psychosis, scid5_persistent_depr, on = 'redcap_event_name'),\
                                                                      scid5_subst_med_depr, on = 'redcap_event_name'),\
                                                                      scid5_amc_depr, on = 'redcap_event_name'), \
                                                                      scid5_other_depr, on = 'redcap_event_name')
-    scid5_all_depression_condition['value'] = np.where((scid5_all_depression_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
-                                              np.where((scid5_all_depression_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_depression_condition['value'] = np.where((scid5_all_depression_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
+                                              np.where((scid5_all_depression_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
     scid5_all_depression = create_use_value('chrscid_any_depression', scid5_all_depression_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid5_all_mood_condition= pd.merge(scid5_all_depression, scid5_all_bipolar, on = 'redcap_event_name')
-    scid5_all_mood_condition['value'] = np.where((scid5_all_mood_condition[['value_x', 'value_y']]==1).any(axis=1), 1, \
-                                              np.where((scid5_all_mood_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_mood_condition['value'] = np.where((scid5_all_mood_condition[['value_x', 'value_y', 'value']]==1).any(axis=1), 1, \
+                                        np.where((scid5_all_mood_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
     scid5_all_mood = create_use_value('chrscid_any_mood', scid5_all_mood_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     # substance use disorder
-    alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    sed_hyp_anx_disorder     = create_scid5_substance('chrscid_sedhypanx_use_disorder',   df_all, df_all, ['chrscid_e136_137', 'chrscid_e299_301'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    cannabis_disorder        = create_scid5_substance('chrscid_cannabis_use_disorder',      df_all, df_all, ['chrscid_e138_139', 'chrscid_e303_305'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    stimulants_disorder      = create_scid5_substance('chrscid_stimulants_use_disorder',    df_all, df_all, ['chrscid_e140_141', 'chrscid_e307_309'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    opiod_disorder           = create_scid5_substance('chrscid_opiod_use_disorder',         df_all, df_all, ['chrscid_e142_143', 'chrscid_e311_313'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    inhalants_disorder       = create_scid5_substance('chrscid_inhalants_use_disorder',     df_all, df_all, ['chrscid_e144_145', 'chrscid_e315_317'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int',        'chrscid_sedhypanx_yn') # no yn check for alcohol but in 
+    # function it anyway just counts that there is an answer provided at all so it should be fine like this. 
+    sed_hyp_anx_disorder     = create_scid5_substance('chrscid_sedhypanx_use_disorder',     df_all, df_all, ['chrscid_e136_137', 'chrscid_e299_301'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    cannabis_disorder        = create_scid5_substance('chrscid_cannabis_use_disorder',      df_all, df_all, ['chrscid_e138_139', 'chrscid_e303_305'], voi_11, all_visits_list, 'int', 'chrscid_cannabis_yn')
+    stimulants_disorder      = create_scid5_substance('chrscid_stimulants_use_disorder',    df_all, df_all, ['chrscid_e140_141', 'chrscid_e307_309'], voi_11, all_visits_list, 'int', 'chrscid_stimulant_yn')
+    opiod_disorder           = create_scid5_substance('chrscid_opiod_use_disorder',         df_all, df_all, ['chrscid_e142_143', 'chrscid_e311_313'], voi_11, all_visits_list, 'int', 'chrscid_opioids_yn')
+    inhalants_disorder       = create_scid5_substance('chrscid_inhalants_use_disorder',     df_all, df_all, ['chrscid_e144_145', 'chrscid_e315_317'], voi_11, all_visits_list, 'int', 'chrscid_inhalant_yn')
     pcp_disorder             = create_scid5_substance('chrscid_pcp_use_disorder',           df_all, df_all, ['chrscid_e146_147', 'chrscid_e319_321'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    hallucinogens_disorder   = create_scid5_substance('chrscid_halluc_use_disorder', df_all, df_all, ['chrscid_e148_149', 'chrscid_e323_325'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    hallucinogens_disorder   = create_scid5_substance('chrscid_halluc_use_disorder',        df_all, df_all, ['chrscid_e148_149', 'chrscid_e323_325'], voi_11, all_visits_list, 'int', 'chrscid_hallucinogen_yn')
     other_substance_disorder = create_scid5_substance('chrscid_other_use_disorder',         df_all, df_all, ['chrscid_e150_151', 'chrscid_e327_329'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
     scid5_all_substance_condition= pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(alcohol_disorder, sed_hyp_anx_disorder, on = 'redcap_event_name'),\
                                                                                                            cannabis_disorder, on = 'redcap_event_name'),\
@@ -1211,8 +1257,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                                            pcp_disorder, on = 'redcap_event_name'), \
                                                                                                            hallucinogens_disorder, on = 'redcap_event_name'), \
                                                                                                            other_substance_disorder, on = 'redcap_event_name')
-    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition[['value_x', 'value_y']]>0).any(axis=1), 1, \
-                                             np.where((scid5_all_substance_condition[['value_x', 'value_y']]==0).all(axis=1), 0, -900))
+    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition[['value_x', 'value_y', 'value']]>0).any(axis=1), 1, \
+                                             np.where((scid5_all_substance_condition[['value_x', 'value_y', 'value']]==0).all(axis=1), 0, -900))
     scid5_all_substance = create_use_value('chrscid_any_subst_use_disorder', scid5_all_substance_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid_all = pd.concat([scid5_delusional, scid5_brief_psychotic, scid5_schizophreniform, scid5_schizophrenia, scid5_schizoaffective_bipolar, scid5_schizoaffective_depression,\
                           scid5_schizoaffective_unspecified, scid5_subst_med_psychosis, scid5_amc_psychosis, scid5_other_psychosis,\
@@ -1864,13 +1910,14 @@ ids = pd.read_csv('/data/predict1/home/np487/amp_scz/create_list/{0}_sub_list.tx
 # Load the data. Depending on which network you load the data from you have to apply some different wrangling.
 if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
+        #id_list = ['YA16606']
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
 elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
-        #id_list = ['ME61146']
+        #id_list = ['ME21922']
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
