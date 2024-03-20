@@ -1833,7 +1833,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     psychs_merged['value'] = np.where(psychs_merged['value_scr'] == '-300', psychs_merged['value_fu'], psychs_merged['value_scr'])
     psychs = psychs_merged[['variable', 'redcap_event_name', 'value']]
     psychs['data_type'] = np.where((psychs['variable'] == 'psychosis_onset_date') | (psychs['variable'] == 'conversion_date'), 'Date', 'Integer')
-    if version == 'run_outcome':
+    if version == 'run_outcome' or version == 'single_subject':
         psychs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/psychs.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         cdss.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/cdss.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         pdt.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/perceived_discrimination_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
@@ -1854,8 +1854,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         assist.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/assist.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         polyrisk.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/psychosis_polyrisk_score.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         scid_all.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/scid5_psychosis_mood_substance_abuse.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
-    #else:
-        #print("as this is just the version to create the test file do not save the output to csv.")
 
     output_df_id = pd.concat([psychs, polyrisk, assist, premorbid_adjustment,cssrs, ra, pgi_s, promis, gfr, gfs, nsipr, sofas_screening, sofas_fu, pds_final, bprs, oasis, pdt, cdss, pss, scid_all],\
                    axis = 0, sort = True)
@@ -1910,18 +1908,19 @@ ids = pd.read_csv('/data/predict1/home/np487/amp_scz/create_list/{0}_sub_list.tx
 # Load the data. Depending on which network you load the data from you have to apply some different wrangling.
 if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
-        #id_list = ['YA16606']
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
+    elif version == 'single_subject':
+        id_list = ['YA16606']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
 elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
-        #id_list = ['ME21922']
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
+    elif version == 'single_subject':
+        id_list = ['ME12189']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
-        #id_list = [s.split(' ')[1] if ' ' in s else s for s in id_list]
 
 num_workers = multiprocessing.cpu_count() // 2
 print("Number of processes: {0}".format(num_workers))
@@ -1953,6 +1952,28 @@ elif version == 'run_outcome':
     formatted_date = current_date.strftime('%Y-%m-%d %H:%M:%S')
     # Create the message
     message = f'{Network}: outcome calculations were run for the last time on: {formatted_date}'
+    file_path = '/data/predict1/home/np487/amp_scz/outcome_calculations/last_date_runoutcome.txt'
+    # read the file from before:
+    existing_content = ''
+    try:
+        with open(file_path, 'r') as file:
+            existing_content = file.read()
+    except FileNotFoundError:
+        pass # File doesn't exist yet, which is fine
+    
+    # Combine the new message (date) with the existing content:
+    updated_content = f'{message}\n{existing_content}'
+    # Write the updated content back to the file
+    with open(file_path, "w") as file:
+        file.write(updated_content)
+    print(f"Log written to {file_path}")
+elif version == 'single_subject':
+    # To know when the outcome_calculation script was run the last time for all subjects create a text file:
+    current_date = datetime.now()
+    # Format the date as a string
+    formatted_date = current_date.strftime('%Y-%m-%d %H:%M:%S')
+    # Create the message
+    message = f'Single Subject {id_list} outcome for {Network} were run for the last time on: {formatted_date}'
     file_path = '/data/predict1/home/np487/amp_scz/outcome_calculations/last_date_runoutcome.txt'
     # read the file from before:
     existing_content = ''
