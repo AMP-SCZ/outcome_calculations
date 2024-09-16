@@ -1192,8 +1192,29 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum14 = create_condition_value('chrpps_sum14', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         warnings[10] = f"trait_final_score is werid 1129"
-    polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14], axis = 0)
+        # --------------------------------------------------------------------------
+    # add the childhood trauma variables based on conversation with Luis Alameda
+    ctq_traumageneral_df = create_total_division('ctq_trauma_general', ctq_df, df_all, ['chrpps_lazy', 'chrpps_born', 'chrpps_hate', 'chrpps_hurt',\
+                                                                                'chrpps_emoab', 'chrpps_doc', 'chrpps_bruise', 'chrpps_belt',\
+                                                                                'chrpps_physab', 'chrpps_beat', 'chrpps_touch', 'chrpps_threat',\
+                                                                                'chrpps_sexual', 'chrpps_molest', 'chrpps_sexab', 'chrpps_loved',\
+                                                                                'chrpps_special', 'chrpps_care', 'chrpps_closefam', 'chrpps_support',\
+                                                                                'chrpps_hunger', 'chrpps_protect', 'chrpps_pardrunk',\
+                                                                                'chrpps_dirty', 'chrpps_docr'], 1, voi_2, all_visits_list, 'float')
+    ctq_PA_df = create_total_division('ctq_physical_abuse', ctq_df, df_all, ['chrpps_doc', 'chrpps_bruise', 'chrpps_belt',\
+                                                                                'chrpps_physab', 'chrpps_beat'], 1, voi_2, all_visits_list, 'float')
+    ctq_SA_df = create_total_division('ctq_sexual_abuse', ctq_df, df_all, ['chrpps_touch', 'chrpps_sexual', 'chrpps_molest',\
+                                                                              'chrpps_sexab', 'chrpps_threat'], 1, voi_2, all_visits_list, 'float')
+    ctq_EA_df = create_total_division('ctq_emotional_abuse', ctq_df, df_all, ['chrpps_hurt', 'chrpps_hate', 'chrpps_emoab',\
+                                                                                 'chrpps_lazy', 'chrpps_born'], 1, voi_2, all_visits_list, 'float')
+    ctq_EN_df = create_total_division('ctq_emotional_neglect', ctq_df, df_all, ['chrpps_special', 'chrpps_loved', 'chrpps_care',\
+                                                                                   'chrpps_closefam', 'chrpps_support'], 1, voi_2, all_visits_list, 'float')
+    ctq_PN_df = create_total_division('ctq_physical_neglect', ctq_df, df_all, ['chrpps_hunger', 'chrpps_pardrunk', 'chrpps_dirty',\
+                                                                                  'chrpps_docr', 'chrpps_protect'], 1, voi_2, all_visits_list, 'float')
+    polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14,\
+                              ctq_traumageneral_df, ctq_PA_df, ctq_SA_df, ctq_EA_df, ctq_EN_df, ctq_PN_df], axis = 0)
     polyrisk['data_type'] = 'Float'
+    #polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14], axis = 0)
 # --------------------------------------------------------------------#
 # SCID-V psychosis, depression, bipolar disorder, substance use
 # --------------------------------------------------------------------#

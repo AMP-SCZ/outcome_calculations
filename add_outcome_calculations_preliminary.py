@@ -1196,8 +1196,9 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                    'chrpps_closefam', 'chrpps_support'], 1, voi_2, all_visits_list, 'float')
     ctq_PN_df = create_total_division('ctq_physical_neglect', ctq_df, df_all, ['chrpps_hunger', 'chrpps_pardrunk', 'chrpps_dirty',\
                                                                                   'chrpps_docr', 'chrpps_protect'], 1, voi_2, all_visits_list, 'float')
-    ctq_final_df = pd.concat([ctq_traumageneral_df, ctq_PA_df, ctq_SA_df, ctq_EA_df, ctq_EN_df, ctq_PN_df], axis = 0)
-    ctq_final_df['data_type'] = 'Float'
+    polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14,\
+                              ctq_traumageneral_df, ctq_PA_df, ctq_SA_df, ctq_EA_df, ctq_EN_df, ctq_PN_df], axis = 0)
+    polyrisk['data_type'] = 'Float'
 # --------------------------------------------------------------------#
 # SCID-V psychosis, depression, bipolar disorder, substance use
 # --------------------------------------------------------------------#
