@@ -747,7 +747,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
 # --------------------------------------------------------------------#
 # Perceived Discrimination Scale 
 # --------------------------------------------------------------------#
-    pdt = create_total_division('chrpds_perceived_discrimination_total', df_all, df_all, ['chrdim_dim_yesno_q1_1','chrdlm_dim_yesno_q1_2','chrdlm_dim_sex','chrdlm_dim_yesno_age','chrdlm_dim_yesno_q4_1',\
+    pdt = create_total_division('chrdim_perceived_discrim_total', df_all, df_all, ['chrdim_dim_yesno_q1_1','chrdlm_dim_yesno_q1_2','chrdlm_dim_sex','chrdlm_dim_yesno_age','chrdlm_dim_yesno_q4_1',\
                                                                                    'chrdlm_dim_yesno_q5','chrdlm_dim_yesno_q3','chrdlm_dim_yesno_q6','chrdlm_dim_yesno_other'], 1, voi_2, all_visits_list, 'int')
     pdt['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
