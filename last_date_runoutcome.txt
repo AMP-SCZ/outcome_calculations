@@ -1,3 +1,8 @@
+Pronet: outcome calculations were run for the last time on: 2024-07-03 06:33:13
+Prescient: outcome calculations were run for the last time on: 2024-07-03 05:10:26
+Single Subject ['ME41251', 'ME36620', 'ME83306', 'ME41273', 'ME31119'] outcome for Prescient were run for the last time on: 2024-06-20 18:22:42
+Prescient: only add-on preliminary outcome calculations were run. They will not update the real outcomes. The add-on calculations are run for the last time on: 2024-05-28 00:25:38
+Pronet: only add-on preliminary outcome calculations were run. They will not update the real outcomes. The add-on calculations are run for the last time on: 2024-05-28 00:25:26
 Single Subject ['ME44786'] outcome for Prescient were run for the last time on: 2024-03-25 09:00:02
 Single Subject ['SI26382', 'NC36722'] outcome for Pronet were run for the last time on: 2024-03-25 08:59:31
 Single Subject ['ME12189'] outcome for Prescient were run for the last time on: 2024-03-20 17:09:50

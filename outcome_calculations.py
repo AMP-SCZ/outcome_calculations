@@ -646,6 +646,23 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         #warnings[0] = 'no file exist'
         return None
     # first create some important variables that you will need throughout the script
+    # add a conversion of '.' because this is causing issues:
+    def replace_dot(value):
+        if value == '.':
+            if isinstance(value, str):
+                return '-900'
+            else:
+                return -900
+        return value
+    df_all = df_all.applymap(replace_dot)
+    def replace_NslashA(value):
+        if value == 'N/A':
+            if isinstance(value, str):
+                return '-900'
+            else:
+                return -900
+        return value
+    df_all = df_all.applymap(replace_NslashA)
     if df_all['redcap_event_name'].astype(str).str.contains('arm_1').any():
         group = 'chr'
     elif df_all['redcap_event_name'].astype(str).str.contains('arm_2').any():
@@ -1918,7 +1935,7 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['ME44786']
+        id_list = ['ME41251', 'ME36620', 'ME83306', 'ME41273', 'ME31119']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
