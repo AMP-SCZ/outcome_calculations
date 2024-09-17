@@ -736,6 +736,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     voi_9 = 'screening|basel|month_1_|month_2_|month_3_|month_4_|month_5_|month_6|month_7_|month_8_|month_9|month_10_|month_11_|month_12_|month_18_|month_24_|conversion_|floating'
     voi_10= 'screening|basel|month_1_arm_1|month_2_|month_3_arm_1|month_6_arm_1|month_12_|month_18_arm_1|month_24_|conversion_'
     voi_11= 'basel|month_12_|month_24_|conversion_'
+    voi_12= 'month_2_|month_6_arm_1|month_12_arm_1|month_18_arm_1|month_24_arm_1|conversion_'
 
 
 # --------------------------------------------------------------------#
@@ -910,6 +911,16 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                     1, voi_2, all_visits_list, 'int')
     cssrs = pd.concat([cssrs1, cssrs2], axis = 0)
     cssrs['data_type'] = 'Integer'
+# --------------------------------------------------------------------#
+# CSSRS-Follow-up
+# --------------------------------------------------------------------#
+    cssrs_fu = df_all.copy()
+    cssrs_fu['cssrs_fu_sim_sum'] = df_all[['chrcssrsfu_css_sim1', 'chrcssrsfu_css_sim2']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
+    cssrs_fu = cssrs_fu[['redcap_event_name', 'cssrs_fu_sim_sum']]
+    cssrs_fu_first = create_total_division('chrcssrsfu_int_since_past', df_all, df_all, ['chrcssrsfu_css_sipmfreq', 'chrcssrsfu_css_sipmdur', 'chrcssrsfu_css_sipmctrl', 'chrcssrsfu_css_sipmdet', 'chrcssrsfu_css_sipmreas'],\
+                              1, voi_12, all_visits_list, 'int')
+    cssrs_fu_both = pd.merge(cssrs_fu, cssrs_fu_first, on = 'redcap_event_name', how = 'left')
+    cssrs_fu_both['value'] = np.where(cssrs_fu_both['cssrs_fu_sim_sum'] == 0, -300, cssrs_fu_both['value'])
 # --------------------------------------------------------------------#
 # Premorbid adjustment scale
 # --------------------------------------------------------------------#
@@ -1888,12 +1899,13 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         pgi_s.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/pgis.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         ra.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/ra_prediction.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         cssrs.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/cssrs_baseline.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
+        cssrs_fu_both.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/cssrs_followup.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         premorbid_adjustment.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/premorbid_adjustment_scale.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         assist.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/assist.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         polyrisk.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/psychosis_polyrisk_score.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
         scid_all.to_csv('/data/predict1/data_from_nda/{0}/PHOENIX/GENERAL/{0}{1}/processed/{2}/surveys/scid5_psychosis_mood_substance_abuse.csv'.format(Network, site, id), index = False, header=True, float_format='%.3f')
 
-    output_df_id = pd.concat([psychs, polyrisk, assist, premorbid_adjustment,cssrs, ra, pgi_s, promis, gfr, gfs, nsipr, sofas_screening, sofas_fu, pds_final, bprs, oasis, pdt, cdss, pss, scid_all],\
+    output_df_id = pd.concat([psychs, polyrisk, assist, premorbid_adjustment,cssrs, cssrs_fu_both, ra, pgi_s, promis, gfr, gfs, nsipr, sofas_screening, sofas_fu, pds_final, bprs, oasis, pdt, cdss, pss, scid_all],\
                    axis = 0, sort = True)
     output_df_id['ID'] = id 
 
