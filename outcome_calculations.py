@@ -921,6 +921,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                               1, voi_12, all_visits_list, 'int')
     cssrs_fu_both = pd.merge(cssrs_fu, cssrs_fu_first, on = 'redcap_event_name', how = 'left')
     cssrs_fu_both['value'] = np.where(cssrs_fu_both['cssrs_fu_sim_sum'] == 0, -300, cssrs_fu_both['value'])
+    cssrs_fu_both = cssrs_fu_both.drop('cssrs_fu_sim_sum', axis = 1)
 # --------------------------------------------------------------------#
 # Premorbid adjustment scale
 # --------------------------------------------------------------------#
@@ -1306,7 +1307,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                                            pcp_disorder, on = 'redcap_event_name'), \
                                                                                                            hallucinogens_disorder, on = 'redcap_event_name'), \
                                                                                                            other_substance_disorder, on = 'redcap_event_name')
-    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition.filter(like='value').gt(0)).any(axis=1), 1,\
+    scid5_all_substance_condition['value'] = np.where((scid5_all_substance_condition.filter(like='value').gt(0)).any(axis=1), scid5_all_substance_condition.filter(like='value').max(axis=1),\
                                              np.where((scid5_all_substance_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_substance = create_use_value('chrscid_any_subst_use_disorder', scid5_all_substance_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     scid_all = pd.concat([scid5_delusional, scid5_brief_psychotic, scid5_schizophreniform, scid5_schizophrenia, scid5_schizoaffective_bipolar, scid5_schizoaffective_depression,\
