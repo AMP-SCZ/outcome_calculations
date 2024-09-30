@@ -1034,6 +1034,38 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum2 = create_condition_value('chrpps_sum2', df_all, df_all, voi_2, all_visits_list, 'float', -900)
     else:
         chrpps_sum2 = create_condition_value('chrpps_sum2', df_all, df_all, voi_2, all_visits_list, 'float', 0)
+    # pps 6 immigration
+    if group == 'chr':
+        pps6_df = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_1')]
+    elif group == 'hc':
+        pps6_df = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_2')]
+    pps6_df['chrdemo_cob'] = pd.to_numeric(pps6_df['chrdemo_cob'], errors='coerce')
+    pps6_df['chrdemo_country_situation'] = pd.to_numeric(pps6_df['chrdemo_country_situation'], errors='coerce')
+    pps6_df['chrpps_mcob'] = pd.to_numeric(pps6_df['chrpps_mcob'], errors='coerce')
+    pps6_df['chrpps_fcob'] = pd.to_numeric(pps6_df['chrpps_fcob'], errors='coerce')
+    if pps6_df['chrdemo_country_situation'].isin([2,3]).any() & \
+        pps6_df['chrdemo_cob'].isin([3,98,109,117,179]).any():
+        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 3)
+    elif pps6_df['chrdemo_country_situation'].isin([2,3]).any() & \
+        ~pps6_df['chrdemo_cob'].isin([3,98,109,117,179]).any():
+        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 2)
+    elif pps6_df['chrdemo_country_situation'].isin([4]).any() & \
+        pps6_df['chrpps_fcob'].isin([3,98,109,117,179]).any() & \
+        pps6_df['chrpps_mcob'].isin([3,98,109,117,179]).any():
+        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 2.5)
+    elif pps6_df['chrdemo_country_situation'].isin([4]).any() & \
+        ~pps6_df['chrpps_fcob'].isin([3,98,109,117,179]).any() & \
+        ~pps6_df['chrpps_mcob'].isin([3,98,109,117,179]).any():
+        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 1.5)
+    elif pps6_df['chrdemo_country_situation'].isna().any() or pps6_df['chrdemo_country_situation'].isin([-900, -9, -99]).any():
+        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', -900)
+    elif (pps6_df['chrpps_fres'].isin([1]).any() & (pps6_df['chrpps_fcob'].isin([-900, -9, -99]).any() or \
+        pps6_df['chrpps_fcob'].isna().any())) or \
+        (pps6_df['chrpps_mres'].isin([1]).any() & (pps6_df['chrpps_mcob'].isin([-900, -9, -99]).any() or \
+        pps6_df['chrpps_mcob'].isna().any())):
+        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', -900)
+    else:
+        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
     # pps 7 paternal age
     #paternal_age_date = df_pps['chrpps_fdobpii'].astype(str).str.contains('1903-03-03')
     #print(list(df_all.filter(like='fdob').columns))
@@ -1223,7 +1255,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                    'chrpps_closefam', 'chrpps_support'], 1, voi_2, all_visits_list, 'float')
     ctq_PN_df = create_total_division('ctq_physical_neglect', ctq_df, df_all, ['chrpps_hunger', 'chrpps_pardrunk', 'chrpps_dirty',\
                                                                                   'chrpps_docr', 'chrpps_protect'], 1, voi_2, all_visits_list, 'float')
-    polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14,\
+    polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum6, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14,\
                               ctq_traumageneral_df, ctq_PA_df, ctq_SA_df, ctq_EA_df, ctq_EN_df, ctq_PN_df], axis = 0)
     polyrisk['data_type'] = 'Float'
     #polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14], axis = 0)
