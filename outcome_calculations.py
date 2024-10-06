@@ -1050,8 +1050,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         ~pps6_df['chrdemo_cob'].isin([3,98,109,117,179]).any():
         chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 2)
     elif pps6_df['chrdemo_country_situation'].isin([4]).any() & \
-        pps6_df['chrpps_fcob'].isin([3,98,109,117,179]).any() & \
-        pps6_df['chrpps_mcob'].isin([3,98,109,117,179]).any():
+        (pps6_df['chrpps_fcob'].isin([3,98,109,117,179]).any() or \
+        pps6_df['chrpps_mcob'].isin([3,98,109,117,179]).any()):
         chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 2.5)
     elif pps6_df['chrdemo_country_situation'].isin([4]).any() & \
         ~pps6_df['chrpps_fcob'].isin([3,98,109,117,179]).any() & \
@@ -1059,19 +1059,16 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 1.5)
     elif pps6_df['chrdemo_country_situation'].isna().any() or pps6_df['chrdemo_country_situation'].isin([-900, -9, -99]).any():
         chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', -900)
-    elif (pps6_df['chrpps_fres'].isin([1]).any() & (pps6_df['chrpps_fcob'].isin([-900, -9, -99]).any() or \
-        pps6_df['chrpps_fcob'].isna().any())) or \
-        (pps6_df['chrpps_mres'].isin([1]).any() & (pps6_df['chrpps_mcob'].isin([-900, -9, -99]).any() or \
-        pps6_df['chrpps_mcob'].isna().any())):
-        chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', -900)
     else:
         chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
     # pps 7 paternal age
     #paternal_age_date = df_pps['chrpps_fdobpii'].astype(str).str.contains('1903-03-03')
     #print(list(df_all.filter(like='fdob').columns))
     # I have changed the paternal age calculation slightly because of newly introduced missing codes in date format
-    df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900,df_pps['chrpps_fage'])
-    df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1903-03-03', -300,df_pps['chrpps_fage'])
+    print(df_pps['chrpps_fdob'])
+    sys.exit()
+    df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900, df_pps['chrpps_fage'])
+    df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1903-03-03', -300, df_pps['chrpps_fage'])
     paternal_age = df_pps['chrpps_fage'].fillna(-900).to_numpy(dtype=float)
     paternal_age_calc = paternal_age - age
     if paternal_age == -900 or paternal_age == -9 or age == -900:
