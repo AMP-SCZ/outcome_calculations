@@ -922,6 +922,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     cssrs_fu_both = pd.merge(cssrs_fu, cssrs_fu_first, on = 'redcap_event_name', how = 'left')
     cssrs_fu_both['value'] = np.where(cssrs_fu_both['cssrs_fu_sim_sum'] == 0, -300, cssrs_fu_both['value'])
     cssrs_fu_both = cssrs_fu_both.drop('cssrs_fu_sim_sum', axis = 1)
+    cssrs_fu_both['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
 # Premorbid adjustment scale
 # --------------------------------------------------------------------#
@@ -1065,8 +1066,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     #paternal_age_date = df_pps['chrpps_fdobpii'].astype(str).str.contains('1903-03-03')
     #print(list(df_all.filter(like='fdob').columns))
     # I have changed the paternal age calculation slightly because of newly introduced missing codes in date format
-    print(df_pps['chrpps_fdob'])
-    sys.exit()
+    #print(df_pps['chrpps_fdob'])
+    #sys.exit()
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900, df_pps['chrpps_fage'])
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1903-03-03', -300, df_pps['chrpps_fage'])
     paternal_age = df_pps['chrpps_fage'].fillna(-900).to_numpy(dtype=float)
