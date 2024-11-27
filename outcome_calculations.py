@@ -88,6 +88,7 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
         df_1['nine'] = df_1[var_list].isin([9]).any(axis=1)
         df_1['nine_str'] = df_1[var_list].isin(['9']).any(axis=1)
     df_1['na'] = df_1[var_list].isnull().any(axis = 1)
+    df_1['na2'] = df_1[var_list].isin(['n/a']).any(axis = 1)
     df_1['NA'] = df_1[var_list].isin(['NA']).any(axis = 1)
     df_1['na999'] = df_1[var_list].isin(['999']).any(axis = 1)
     df_1['na999nostring'] = df_1[var_list].isin([999]).any(axis = 1)
@@ -102,16 +103,17 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
     df_1['na9'] = df_1[var_list].isin(['-9']).any(axis = 1)
     df_1['na9nostring'] = df_1[var_list].isin([-9]).any(axis = 1)
     if string_series.str.contains('nsipr').any() == True or string_series.str.contains('chrpas').any() == True:
-        df_calculated = df_1[['value','nine','nine_str', 'na', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na99', 'na99nostring',\
+        df_calculated = df_1[['value','nine','nine_str', 'na', 'na2', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na99', 'na99nostring',\
                               'na9nostring','na9', 'redcap_event_name']]
     else:
-        df_calculated = df_1[['value', 'na', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3','na99', 'na99nostring', 'na9nostring','na9', 'redcap_event_name']]
+        df_calculated = df_1[['value', 'na', 'na2', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3','na99', 'na99nostring', 'na9nostring','na9', 'redcap_event_name']]
     df_2['redcap_event_name'] = df_2['redcap_event_name'].astype(str)
     df_visits = df_2[['redcap_event_name']]
     df_visits = df_visits[df_visits['redcap_event_name'].str.contains(voi)]
     df_concat = pd.merge(df_visits, df_calculated, on = 'redcap_event_name', how = 'left')
     df2gether = pd.merge(df_created, df_concat, on = 'redcap_event_name', how = 'left')
     if fill_type == 'str':
+        df2gether['value'] = np.where(df2gether['na2'] == True, '-900', df2gether['value'])
         df2gether['value'] = np.where(df2gether['na'] == True, '-900', df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999'] == True, '-900', df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999nostring'] == True, '-900', df2gether['value'])
@@ -139,6 +141,7 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
         if string_series.str.contains('nsipr').any() == True or string_series.str.contains('chrpas').any() == True:
             df2gether['value'] = np.where(df2gether['nine'] == True, -900, df2gether['value'])
             df2gether['value'] = np.where(df2gether['nine_str'] == True, -900, df2gether['value'])
+        df2gether['value'] = np.where(df2gether['na2'] == True, -900, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na'] == True, -900, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999'] == True, -900, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999nostring'] == True, -900, df2gether['value'])
@@ -165,9 +168,9 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
         df2gether['value'] = np.where(pd.isna(df2gether['value']),df2gether['value_fake'], df2gether['value'])
     clean_df = df2gether[['variable', 'redcap_event_name', 'value']]
     if fill_type == 'float':
-        clean_df['value'] = np.round(clean_df['value'].astype(fill_type),3)
+        clean_df.loc[:,'value'] = np.round(clean_df['value'].astype(fill_type),3)
     else:
-        clean_df['value'] = clean_df['value'].astype(fill_type)
+        clean_df.loc[:,'value'] = clean_df['value'].astype(fill_type)
     return clean_df
 
 def finalize_df_scid(df_created, df_1, df_2, var_list, voi, fill_type):
@@ -196,9 +199,9 @@ def finalize_df_scid(df_created, df_1, df_2, var_list, voi, fill_type):
     df2gether['value'] = np.where(pd.isna(df2gether['value']),df2gether['value_fake'], df2gether['value'])
     clean_df = df2gether[['variable', 'redcap_event_name', 'value']]
     if fill_type == 'float':
-        clean_df['value'] = np.round(clean_df['value'].astype(fill_type),3)
+        clean_df.loc[:,'value'] = np.round(clean_df['value'].astype(fill_type),3)
     else:
-        clean_df['value'] = clean_df['value'].astype(fill_type)
+        clean_df.loc[:,'value'] = clean_df['value'].astype(fill_type)
     return clean_df
 
 def finalize_df_date(df_created, df_1, df_2, var_list, voi, fill_type):
@@ -258,7 +261,7 @@ def finalize_df_date(df_created, df_1, df_2, var_list, voi, fill_type):
         df2gether['value'] = df2gether['value'].astype(str)
         df2gether['value'] = np.where(pd.isna(df2gether['value']),df2gether['value_fake'], df2gether['value'])
     clean_df = df2gether[['variable', 'redcap_event_name', 'value']]
-    clean_df['value'] = clean_df['value'].astype(fill_type)
+    clean_df.loc[:,'value'] = clean_df['value'].astype(fill_type)
     return clean_df
 
 def create_total_division(outcome, df_1, df_2, var_list, division, visit_of_interest, all_visits, fill_type):
@@ -404,7 +407,7 @@ def create_condition_value(outcome, df_1, df_2, visit_of_interest, all_visits, f
         df2gether['value'] = np.where(df2gether['redcap_event_name'].str.contains('arm_1'), '-300', df2gether['value'])
     df2gether['value'] = np.where(pd.isnull(df2gether['value']),df2gether['value_fake'], df2gether['value'])
     clean_df = df2gether[['variable', 'redcap_event_name', 'value']]
-    clean_df['value'] = clean_df['value'].astype(fill_type)
+    clean_df.loc[:,'value'] = clean_df['value'].astype(fill_type)
     return clean_df 
 
 def create_assist(outcome, df_1, df_2, assist_var1, assist_var2, var_list, division, visit_of_interest, all_visits, fill_type):
@@ -1040,10 +1043,10 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         pps6_df = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_1')]
     elif group == 'hc':
         pps6_df = df_all[df_all['redcap_event_name'].str.contains('baseline_arm_2')]
-    pps6_df['chrdemo_cob'] = pd.to_numeric(pps6_df['chrdemo_cob'], errors='coerce')
-    pps6_df['chrdemo_country_situation'] = pd.to_numeric(pps6_df['chrdemo_country_situation'], errors='coerce')
-    pps6_df['chrpps_mcob'] = pd.to_numeric(pps6_df['chrpps_mcob'], errors='coerce')
-    pps6_df['chrpps_fcob'] = pd.to_numeric(pps6_df['chrpps_fcob'], errors='coerce')
+    pps6_df.loc[:,'chrdemo_cob'] = pd.to_numeric(pps6_df['chrdemo_cob'], errors='coerce')
+    pps6_df.loc[:,'chrdemo_country_situation'] = pd.to_numeric(pps6_df['chrdemo_country_situation'], errors='coerce')
+    pps6_df.loc[:,'chrpps_mcob'] = pd.to_numeric(pps6_df['chrpps_mcob'], errors='coerce')
+    pps6_df.loc[:,'chrpps_fcob'] = pd.to_numeric(pps6_df['chrpps_fcob'], errors='coerce')
     if pps6_df['chrdemo_country_situation'].isin([2,3]).any() & \
         pps6_df['chrdemo_cob'].isin([3,98,109,117,179]).any():
         chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', 3)
@@ -1991,7 +1994,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['SI26382', 'NC36722']
+        id_list = ['SD15218']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
