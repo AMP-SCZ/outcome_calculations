@@ -89,6 +89,7 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
         df_1['nine_str'] = df_1[var_list].isin(['9']).any(axis=1)
     df_1['na'] = df_1[var_list].isnull().any(axis = 1)
     df_1['na2'] = df_1[var_list].isin(['n/a']).any(axis = 1)
+    df_1['na22'] = df_1[var_list].isin(['na']).any(axis = 1)
     df_1['NA'] = df_1[var_list].isin(['NA']).any(axis = 1)
     df_1['na999'] = df_1[var_list].isin(['999']).any(axis = 1)
     df_1['na999nostring'] = df_1[var_list].isin([999]).any(axis = 1)
@@ -103,10 +104,10 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
     df_1['na9'] = df_1[var_list].isin(['-9']).any(axis = 1)
     df_1['na9nostring'] = df_1[var_list].isin([-9]).any(axis = 1)
     if string_series.str.contains('nsipr').any() == True or string_series.str.contains('chrpas').any() == True:
-        df_calculated = df_1[['value','nine','nine_str', 'na', 'na2', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na99', 'na99nostring',\
+        df_calculated = df_1[['value','nine','nine_str', 'na', 'na22','na2', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na99', 'na99nostring',\
                               'na9nostring','na9', 'redcap_event_name']]
     else:
-        df_calculated = df_1[['value', 'na', 'na2', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3','na99', 'na99nostring', 'na9nostring','na9', 'redcap_event_name']]
+        df_calculated = df_1[['value', 'na', 'na2', 'na22','NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3','na99', 'na99nostring', 'na9nostring','na9', 'redcap_event_name']]
     df_2['redcap_event_name'] = df_2['redcap_event_name'].astype(str)
     df_visits = df_2[['redcap_event_name']]
     df_visits = df_visits[df_visits['redcap_event_name'].str.contains(voi)]
@@ -114,6 +115,7 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
     df2gether = pd.merge(df_created, df_concat, on = 'redcap_event_name', how = 'left')
     if fill_type == 'str':
         df2gether['value'] = np.where(df2gether['na2'] == True, '-900', df2gether['value'])
+        df2gether['value'] = np.where(df2gether['na22'] == True, '-900', df2gether['value'])
         df2gether['value'] = np.where(df2gether['na'] == True, '-900', df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999'] == True, '-900', df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999nostring'] == True, '-900', df2gether['value'])
@@ -142,6 +144,7 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
             df2gether['value'] = np.where(df2gether['nine'] == True, -900, df2gether['value'])
             df2gether['value'] = np.where(df2gether['nine_str'] == True, -900, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na2'] == True, -900, df2gether['value'])
+        df2gether['value'] = np.where(df2gether['na22'] == True, -900, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na'] == True, -900, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999'] == True, -900, df2gether['value'])
         df2gether['value'] = np.where(df2gether['na999nostring'] == True, -900, df2gether['value'])
