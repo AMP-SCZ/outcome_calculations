@@ -1,3 +1,6 @@
+Pronet: outcome calculations were run for the last time on: 2024-12-17 18:08:26
+Prescient: outcome calculations were run for the last time on: 2024-12-16 19:29:00
+Single Subject ['GA41374'] outcome for Pronet were run for the last time on: 2024-12-16 14:27:02
 Prescient: outcome calculations were run for the last time on: 2024-11-30 14:46:56
 Pronet: outcome calculations were run for the last time on: 2024-11-27 16:57:13
 Single Subject ['SD15218'] outcome for Pronet were run for the last time on: 2024-11-27 12:18:08

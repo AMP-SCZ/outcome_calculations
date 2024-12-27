@@ -1997,7 +1997,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['SD15218']
+        id_list = ['GA41374']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
