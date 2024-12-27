@@ -24,6 +24,7 @@ cssrs01,chrcssrs_intensity_pastmonth,Integer,C-SSRS (Suicide intensity): Past Mo
 ,,,,,,,
 sri01,chrpromis_total,Integer,Sleep quality (Patient-Reported Outcomes Measurement Information System [PROMIS]): A total of the 8 items with very poor being 1 and up to very good being 5,7::35;-900;-300,chrpromis_sleep109+chrpromis_sleep116+(6-chrpromis_sleep20)+(6-chrpromis_sleep44)+(6-chrpromise_sleep108)+(6-chrpromis_sleep72)+(6-chrpromis_sleep67)+chrpromis_sleep115,item_promis_for_sleep.csv,
 gfs01,chrgfrs_global_role_decline,Integer,Decline in role functioning (highest score in lifetime - current score),0::10;-900;-300,chrgfr_gf_role_high-chrgfr_gf_role_scole,global_functioning_role_scale.csv,chrgfrs_decline_in_global_role_functioning
+gfs01,chrgfss_global_social_decline,Integer,Decline in social functioning (highest score in lifetime - current score),0::10;-900;-300,chrgfs_gf_social_high-chrgfs_gf_social_scale,global_functioning_social_scale.csv,chrgfss_decline_in_global_social_functioning
 ,,,,,,,
 ampscz_nsipr01,chrnsipr_motivation_and_pleasure_dimension,Float,Motivation and Pleasure (Negative Symptom Inventory-Psychosis Risk [NSI-PR]),0::5;-900;-300,(chrnsipr_item1 + chrnsipr_item2 + chrnsipr_item3 + chrnsipr_item4 + chrnsipr_item5 + chrnsipr_item6 + chrnsipr_item7)/7,nsipr.csv,
 ampscz_nsipr01,chrnsipr_diminished_expression_dimension,Float,Diminished Expression Dimension (NSI-PR),0::5;-900;-300,(chrnsipr_item8 + chrnsipr_item9 + chrnsipr_item10 + chrnsipr_item11)/4,nsipr.csv,
