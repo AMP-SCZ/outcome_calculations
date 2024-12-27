@@ -46,3 +46,6 @@ bprs01,chrbprs_disorganization_subscale,Integer,BPRS: Disorganization,3::21;-900
 oasis01,chroasis_total,Integer,Overall Anxiety Severity and Impairment Scale (OASIS) total (Anxiety),0::20;-900;-300,chroasis_oasis_1+chroasis_oasis_2+chroasis_oasis_3+chroasis_oasis_4+chroasis_oasis_5,oasis.csv,
 ,,,,,,,
 cdss01,chrcdss_total,Integer,Total of depressive symptoms (Calgary Depression Scale for Schizophrenia [CDSS]),0::27;-900;-300,chrcdss_calg1 + chrcdss_calg2+chrcdss_calg3+chrcdss_calg4+chrcdss_calg5+chrcdss_calg6+chrcdss_calg7+chrcdss_calg8+chrcdss_calg9,cdss.csv,
+,,,,,,,
+pss01,chrpss_perceived_stress_scale_total,Integer,PSS: Perceived Stress Scale - Total Scale Raw Score,0::40,Higher scores indicate higher level of perceived stress,perceived_stress_scale.csv,
+
