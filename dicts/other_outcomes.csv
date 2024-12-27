@@ -23,6 +23,7 @@ cssrs01,chrcssrs_intensity_lifetime,Integer,Columbia-Suicide Severity Rating Sca
 cssrs01,chrcssrs_intensity_pastmonth,Integer,C-SSRS (Suicide intensity): Past Month,0::25;-900;-300,chrcssrs_intensity_pastmonth = -300 if (chrcssrsb_si1l and chrcssrsb_si2l) or (chrcssrsb_css_sim1 and chrcssrsb_css_sim1 == 0) else chrcssrsb_css_sipmfreq + chrcssrsb_css_sipmdur + chrcssrsb_css_sipmctrl + chrcssrsb_css_sipmdet + chrcssrsb_css_sipmreas,cssrs_baseline.csv,
 ,,,,,,,
 sri01,chrpromis_total,Integer,Sleep quality (Patient-Reported Outcomes Measurement Information System [PROMIS]): A total of the 8 items with very poor being 1 and up to very good being 5,7::35;-900;-300,chrpromis_sleep109+chrpromis_sleep116+(6-chrpromis_sleep20)+(6-chrpromis_sleep44)+(6-chrpromise_sleep108)+(6-chrpromis_sleep72)+(6-chrpromis_sleep67)+chrpromis_sleep115,item_promis_for_sleep.csv,
+,,,,,,,
 gfs01,chrgfrs_global_role_decline,Integer,Decline in role functioning (highest score in lifetime - current score),0::10;-900;-300,chrgfr_gf_role_high-chrgfr_gf_role_scole,global_functioning_role_scale.csv,chrgfrs_decline_in_global_role_functioning
 gfs01,chrgfss_global_social_decline,Integer,Decline in social functioning (highest score in lifetime - current score),0::10;-900;-300,chrgfs_gf_social_high-chrgfs_gf_social_scale,global_functioning_social_scale.csv,chrgfss_decline_in_global_social_functioning
 ,,,,,,,
