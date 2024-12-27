@@ -88,3 +88,110 @@ chrpsychs_fu_ac29,Integer,SIPS CHR Partial Remission,0;1;-900;-300,Redcap variab
 chrpsychs_fu_ac30,Integer,SIPS CHR Full Remission,0;1;-900;-300,Redcap variable; 0 = No; 1 = Yes; -900 = Missing; -300 = Not Applicable,
 chrpsychs_fu_ac31,Integer,SIPS Current Status,1::5;-900;-300,Redcap variable; 1 = Psychosis; 2 = SIPS CHR Progression; 3 = SIPS CHR Persistence; 4 = SIPS CHR Partial Remission; 5 = SIPS CHR Full Remission; -900 = Missing; -300 = Not Applicable,
 chrpsychs_fu_ac32,Integer,DSM-5 Attenuated Psychosis Syndrome,0;1;-900;-300,Redcap variable; 0 = No; 1 = Yes; -900 = Missing; -300 = Not Applicable,
+,,,,,
+chrpsychs_scr_1d1,Integer,severity/intensity for unusual thoughts and experiences,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_1d1; hcpsychs_fu_1d1
+chrpsychs_scr_2d1,Integer,severity/intensity for suspiciousness,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_2d1; hcpsychs_fu_2d1
+chrpsychs_scr_3d1,Integer,severity/intensity for unusual somatic ideas,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_3d1; hcpsychs_fu_3d1
+chrpsychs_scr_4d1,Integer,severity/intensity for ideas of guilt,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_4d1; hcpsychs_fu_4d1
+chrpsychs_scr_5d1,Integer,severity/intensity for jealous ideas,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_5d1; hcpsychs_fu_5d1
+chrpsychs_scr_6d1,Integer,severity/intensity for unusual religious ideas,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_6d1; hcpsychs_fu_6d1
+chrpsychs_scr_7d1,Integer,severity/intensity for erotomanic ideas,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_7d1; hcpsychs_fu_7d1
+chrpsychs_scr_8d1,Integer,severity/intensity for grandiosity,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_8d1; hcpsychs_fu_8d1
+chrpsychs_scr_9d1,Integer,severity/intensity for auditory perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_9d1; hcpsychs_fu_9d1
+chrpsychs_scr_10d1,Integer,severity/intensity for visual perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_10d1; hcpsychs_fu_10d1
+chrpsychs_scr_11d1,Integer,severity/intensity for olfactory perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_11d1; hcpsychs_fu_11d1
+chrpsychs_scr_12d1,Integer,severity/intensity for gustatory perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_12d1; hcpsychs_fu_12d1
+chrpsychs_scr_13d1,Integer,severity/intensity for tactile perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_13d1; hcpsychs_fu_13d1
+chrpsychs_scr_14d1,Integer,severity/intensity for somatic perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_14d1; hcpsychs_fu_14d1
+chrpsychs_scr_15d1,Integer,severity/intensity for disorganized communication expression,0::6;-300;-900,0 = Absent; 1 = Questionable; 2 = Mild; 3 = Moderate; 4 = Marked; 5 = Severe but not Psychotic; 6 = Psychotic and Very Severe; -300 = N/A; -900 = Missing,chrpsychs_fu_15d1; hcpsychs_fu_15d1
+,,,,,
+,,,,,
+,,,,,
+chrpsychs_scr_1d2,Integer,CAARMS frequency for unusual thoughts and experiences,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_1d2; hcpsychs_fu_1d2
+chrpsychs_scr_2d2,Integer,CAARMS frequency for suspiciousness,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_2d2; hcpsychs_fu_2d2
+chrpsychs_scr_3d2,Integer,CAARMS frequency for unusual somatic ideas,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_3d2; hcpsychs_fu_3d2
+chrpsychs_scr_4d2,Integer,CAARMS frequency for ideas of guilt,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_4d2; hcpsychs_fu_4d2
+chrpsychs_scr_5d2,Integer,CAARMS frequency for jealous ideas,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_5d2; hcpsychs_fu_5d2
+chrpsychs_scr_6d2,Integer,CAARMS frequency for unusual religious ideas,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_6d2; hcpsychs_fu_6d2
+chrpsychs_scr_7d2,Integer,CAARMS frequency for erotomanic ideas,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_7d2; hcpsychs_fu_7d2
+chrpsychs_scr_8d2,Integer,CAARMS frequency for grandiosity,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_8d2; hcpsychs_fu_8d2
+chrpsychs_scr_9d2,Integer,CAARMS frequency for auditory perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_9d2; hcpsychs_fu_9d2
+chrpsychs_scr_10d2,Integer,CAARMS frequency for visual perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_10d2; hcpsychs_fu_10d2
+chrpsychs_scr_11d2,Integer,CAARMS frequency for olfactory perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_11d2; hcpsychs_fu_11d2
+chrpsychs_scr_12d2,Integer,CAARMS frequency for gustatory perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_12d2; hcpsychs_fu_12d2
+chrpsychs_scr_13d2,Integer,CAARMS frequency for tactile perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_13d2; hcpsychs_fu_13d2
+chrpsychs_scr_14d2,Integer,CAARMS frequency for somatic perceptual abnormalities,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_14d2; hcpsychs_fu_14d2
+chrpsychs_scr_15d2,Integer,CAARMS frequency for disorganized communication expression,0::6;-300;-900,0 = Absent; 1 = One day a month to two days a week - less than one minute a day;  2 = One day a month to two days a week - one minute or more but less than one hour a day; 3 = One day a month to two days a week - one hour or more a day OR 3-6 days a week - less than one hour a day; 4 = 3-6 days a week - one hour or more a day OR daily - less than one hour a day; 5 = Daily - one hour or more a day OR several times a day; 6 = Continuous; -300 = N/A; -900 = Missing,chrpsychs_fu_15d2; hcpsychs_fu_15d2
+,,,,,
+,,,,,
+,,,,,
+chrpsychs_scr_1a1_on6,Date,lifetime date when severity/intensity of unusual thoughts and experiences first became a 6,,,
+chrpsychs_scr_2a1_on6,Date,lifetime date when severity/intensity of suspiciousness first became a 6,,,
+chrpsychs_scr_3a1_on6,Date,lifetime date when severity/intensity of unusual somatic ideas first became a 6,,,
+chrpsychs_scr_4a1_on6,Date,lifetime date when severity/intensity of ideas of guilt first became a 6,,,
+chrpsychs_scr_5a1_on6,Date,lifetime date when severity/intensity of jealous ideas first became a 6,,,
+chrpsychs_scr_6a1_on6,Date,lifetime date when severity/intensity of unusual religious ideas first became a 6,,,
+chrpsychs_scr_7a1_on6,Date,lifetime date when severity/intensity of erotomanic ideas first became a 6,,,
+chrpsychs_scr_8a1_on6,Date,lifetime date when severity/intensity of grandiosity first became a 6,,,
+chrpsychs_scr_9a1_on6,Date,lifetime date when severity/intensity of auditory perceptual abnormalities first became a 6,,,
+chrpsychs_scr_10a1_on6,Date,lifetime date when severity/intensity of visual perceptual abnormalities first became a 6,,,
+chrpsychs_scr_11a1_on6,Date,lifetime date when severity/intensity of olfactory perceptual abnormalities first became a 6,,,
+chrpsychs_scr_12a1_on6,Date,lifetime date when severity/intensity of gustatory perceptual abnormalities first became a 6,,,
+chrpsychs_scr_13a1_on6,Date,lifetime date when severity/intensity of tactile perceptual abnormalities first became a 6,,,
+chrpsychs_scr_14a1_on6,Date,lifetime date when severity/intensity of somatic perceptual abnormalities first became a 6,,,
+chrpsychs_scr_15a1_on6,Date,lifetime date when severity/intensity of disorganized communication expression first became a 6,,,
+,,,,,
+,,,,,
+,,,,,
+chrpsychs_scr_1a1_on3,Date,lifetime date when severity/intensity of unusual thoughts and experiences first entered the 3-5 range,,,
+chrpsychs_scr_2a1_on3,Date,lifetime date when severity/intensity of suspiciousness first entered the 3-5 range,,,
+chrpsychs_scr_3a1_on3,Date,lifetime date when severity/intensity of unusual somatic ideas first entered the 3-5 range,,,
+chrpsychs_scr_4a1_on3,Date,lifetime date when severity/intensity of ideas of guilt first entered the 3-5 range,,,
+chrpsychs_scr_5a1_on3,Date,lifetime date when severity/intensity of jealous ideas first entered the 3-5 range,,,
+chrpsychs_scr_6a1_on3,Date,lifetime date when severity/intensity of unusual religious ideas first entered the 3-5 range,,,
+chrpsychs_scr_7a1_on3,Date,lifetime date when severity/intensity of erotomanic ideas first entered the 3-5 range,,,
+chrpsychs_scr_8a1_on3,Date,lifetime date when severity/intensity of grandiosity first entered the 3-5 range,,,
+chrpsychs_scr_9a1_on3,Date,lifetime date when severity/intensity of auditory perceptual abnormalities first entered the 3-5 range,,,
+chrpsychs_scr_10a1_on3,Date,lifetime date when severity/intensity of visual perceptual abnormalities first entered the 3-5 range,,,
+chrpsychs_scr_11a1_on3,Date,lifetime date when severity/intensity of olfactory perceptual abnormalities first entered the 3-5 range,,,
+chrpsychs_scr_12a1_on3,Date,lifetime date when severity/intensity of gustatory perceptual abnormalities first entered the 3-5 range,,,
+chrpsychs_scr_13a1_on3,Date,lifetime date when severity/intensity of tactile perceptual abnormalities first entered the 3-5 range,,,
+chrpsychs_scr_14a1_on3,Date,lifetime date when severity/intensity of somatic perceptual abnormalities first entered the 3-5 range,,,
+chrpsychs_scr_15a1_on3,Date,lifetime date when severity/intensity of disorganized communication expression first entered the 3-5 range,,,
+,,,,,
+,,,,,
+,,,,,
+chrpsychs_fu_1c1_on6,Date,date when severity/intensity of unusual thoughts and experiences became a 6 since the previous visit,,,hcpsychs_fu_1c1_on6
+chrpsychs_fu_2c1_on6,Date,date when severity/intensity of suspiciousness became a 6  since the previous visit,,,hcpsychs_fu_2c1_on6
+chrpsychs_fu_3c1_on6,Date,date when severity/intensity of unusual somatic ideas first became a 6 since the previous visit,,,hcpsychs_fu_3c1_on6
+chrpsychs_fu_4c1_on6,Date,date when severity/intensity of ideas of guilt first became a 6 since the previous visit,,,hcpsychs_fu_4c1_on6
+chrpsychs_fu_5c1_on6,Date,date when severity/intensity of jealous ideas first became a 6 since the previous visit,,,hcpsychs_fu_5c1_on6
+chrpsychs_fu_6c1_on6,Date,date when severity/intensity of unusual religious ideas first became a 6 since the previous visit,,,hcpsychs_fu_6c1_on6
+chrpsychs_fu_7c1_on6,Date,date when severity/intensity of erotomanic ideas first became a 6 since the previous visit,,,hcpsychs_fu_7c1_on6
+chrpsychs_fu_8c1_on6,Date,date when severity/intensity of grandiosity first became a 6 since the previous visit,,,hcpsychs_fu_8c1_on6
+chrpsychs_fu_9c1_on6,Date,date when severity/intensity of auditory perceptual abnormalities first became a 6 since the previous visit,,,hcpsychs_fu_9c1_on6
+chrpsychs_fu_10c1_on6,Date,date when severity/intensity of visual perceptual abnormalities first 6 since the previous visit,,,hcpsychs_fu_10c1_on6
+chrpsychs_fu_11c1_on6,Date,date when severity/intensity of olfactory perceptual abnormalities first 6 since the previous visit,,,hcpsychs_fu_11c1_on6
+chrpsychs_fu_12c1_on6,Date,date when severity/intensity of gustatory perceptual abnormalities first 6 since the previous visit,,,hcpsychs_fu_12c1_on6
+chrpsychs_fu_13c1_on6,Date,date when severity/intensity of tactile perceptual abnormalities first 6 since the previous visit,,,hcpsychs_fu_13c1_on6
+chrpsychs_fu_14c1_on6,Date,date when severity/intensity of somatic perceptual abnormalities first 6 since the previous visit,,,hcpsychs_fu_14c1_on6
+chrpsychs_fu_15c1_on6,Date,date when severity/intensity of disorganized communication expression first 6 since the previous visit,,,hcpsychs_fu_15c1_on6
+,,,,,
+,,,,,
+,,,,,
+chrpsychs_fu_1c1_on3,Date,date when severity/intensity of unusual thoughts and experiences first entered the 3-5 range since the previous visit,,,hcpsychs_fu_1c1_on3
+chrpsychs_fu_2c1_on3,Date,date when severity/intensity of suspiciousness first entered the 3-5 range since the previous visit,,,hcpsychs_fu_2c1_on3
+chrpsychs_fu_3c1_on3,Date,date when severity/intensity of unusual somatic ideas first entered the 3-5 range since the previous visit,,,hcpsychs_fu_3c1_on3
+chrpsychs_fu_4c1_on3,Date,date when severity/intensity of ideas of guilt first entered the 3-5 range since the previous visit,,,hcpsychs_fu_4c1_on3
+chrpsychs_fu_5c1_on3,Date,date when severity/intensity of jealous ideas first entered the 3-5 range since the previous visit,,,hcpsychs_fu_5c1_on3
+chrpsychs_fu_6c1_on3,Date,date when severity/intensity of unusual religious ideas first entered the 3-5 range since the previous visit,,,hcpsychs_fu_6c1_on3
+chrpsychs_fu_7c1_on3,Date,date when severity/intensity of erotomanic ideas first entered the 3-5 range since the previous visit,,,hcpsychs_fu_7c1_on3
+chrpsychs_fu_8c1_on3,Date,date when severity/intensity of grandiosity first entered the 3-5 range since the previous visit,,,hcpsychs_fu_8c1_on3
+chrpsychs_fu_9c1_on3,Date,date when severity/intensity of auditory perceptual abnormalities first entered the 3-5 range since the previous visit,,,hcpsychs_fu_9c1_on3
+chrpsychs_fu_10c1_on3,Date,date when severity/intensity of visual perceptual abnormalities first entered the 3-5 range since the previous visit,,,hcpsychs_fu_10c1_on3
+chrpsychs_fu_11c1_on3,Date,date when severity/intensity of olfactory perceptual abnormalities first entered the 3-5 range since the previous visit,,,hcpsychs_fu_11c1_on3
+chrpsychs_fu_12c1_on3,Date,date when severity/intensity of gustatory perceptual abnormalities first entered the 3-5 range since the previous visit,,,hcpsychs_fu_12c1_on3
+chrpsychs_fu_13c1_on3,Date,date when severity/intensity of tactile perceptual abnormalities first entered the 3-5 range since the previous visit,,,hcpsychs_fu_13c1_on3
+chrpsychs_fu_14c1_on3,Date,date when severity/intensity of somatic perceptual abnormalities first entered the 3-5 range since the previous visit,,,hcpsychs_fu_14c1_on3
+chrpsychs_fu_15c1_on3,Date,date when severity/intensity of disorganized communication expression first entered the 3-5 range since the previous visit,,,hcpsychs_fu_15c1_on3
+
