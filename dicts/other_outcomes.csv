@@ -48,4 +48,6 @@ oasis01,chroasis_total,Integer,Overall Anxiety Severity and Impairment Scale (OA
 cdss01,chrcdss_total,Integer,Total of depressive symptoms (Calgary Depression Scale for Schizophrenia [CDSS]),0::27;-900;-300,chrcdss_calg1 + chrcdss_calg2+chrcdss_calg3+chrcdss_calg4+chrcdss_calg5+chrcdss_calg6+chrcdss_calg7+chrcdss_calg8+chrcdss_calg9,cdss.csv,
 ,,,,,,,
 pss01,chrpss_perceived_stress_scale_total,Integer,PSS: Perceived Stress Scale - Total Scale Raw Score,0::40,Higher scores indicate higher level of perceived stress,perceived_stress_scale.csv,
+,,,,,,,
+ampscz_dim01,chrdim_perceived_discrim_total,Integer,Total score of Perceived Discrimination,0::9;-900;-300,Sum [chrdim_dim_yesno_q1_1 + chrdim_dim_yesno_q1_2 + chrdim_dim_sex + chrdim_dim_yesno_age + chrdim_dim_yesno_q4_1 + chrdim_dim_yesno_q5 + chrdim_dim_yesno_q3 + chrdim_dim_yesno_q6 + chrdim_dim_yesno_other],perceived_discrimination_scale.csv,chrdim_perceived_discrimination_total
 
