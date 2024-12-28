@@ -43,7 +43,7 @@ bprs01,chrbprs_negative_symptom_subscale,Integer,BPRS: Negative symptoms subscal
 bprs01,chrbprs_activation_subscale,Integer,BPRS: Activation subscale,3::21;-900;-300,chrbprs_bprs_exci+chrbprs_bprs_mohy+chrbprs_bprs_elat ,bprs.csv,
 bprs01,chrbprs_disorganization_subscale,Integer,BPRS: Disorganization,3::21;-900;-300,chrbprs_bprs_diso+chrbprs_bprs_conc+chrbprs_bprs_self,bprs.csv,
 ,,,,,,,
-oasis01,chroasis_total,Integer,Overall Anxiety Severity and Impairment Scale (OASIS) total (Anxiety),0::20;-900;-300,chroasis_oasis_1+chroasis_oasis_2+chroasis_oasis_3+chroasis_oasis_4+chroasis_oasis_5,oasis.csv,
+oasis01,chroasis_oasis_total10,Integer,Overall Anxiety Severity and Impairment Scale (OASIS) total (Anxiety),0::20;-900;-300,chroasis_oasis_1+chroasis_oasis_2+chroasis_oasis_3+chroasis_oasis_4+chroasis_oasis_5,oasis.csv,chroasis_total
 ,,,,,,,
 cdss01,chrcdss_total,Integer,Total of depressive symptoms (Calgary Depression Scale for Schizophrenia [CDSS]),0::27;-900;-300,chrcdss_calg1 + chrcdss_calg2+chrcdss_calg3+chrcdss_calg4+chrcdss_calg5+chrcdss_calg6+chrcdss_calg7+chrcdss_calg8+chrcdss_calg9,cdss.csv,
 ,,,,,,,
