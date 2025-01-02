@@ -1,3 +1,5 @@
+Pronet: outcome calculations were run for the last time on: 2025-01-02 07:23:52
+Prescient: outcome calculations were run for the last time on: 2025-01-02 07:18:46
 Pronet: outcome calculations were run for the last time on: 2024-12-27 09:16:16
 Prescient: outcome calculations were run for the last time on: 2024-12-27 09:10:18
 Prescient: outcome calculations were run for the last time on: 2024-12-27 08:33:13
