@@ -906,14 +906,14 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     cssrs_sim_sum = df_pps[['chrcssrsb_css_sim1', 'chrcssrsb_css_sim2']].fillna(-900).astype(int).sum(axis = 1).to_numpy(dtype=int)
     # In the week from April, 16th - April 22nd we have decided (Sylvain and Cheryl) to give a non-applicable instead of 0 if individuals never had any suicidal ideation
     if cssrs_sil_sum == 4:
-        cssrs1 = create_condition_value('chrcssrs_intensity_lifetime', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        cssrs1 = create_condition_value('chrcssrsb_intensity_lifetime', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     else:
-        cssrs1 = create_total_division('chrcssrs_intensity_lifetime' , df_all, df_all, ['chrcssrsb_sidfrql','chrcssrsb_siddurl','chrcssrsb_sidctrl','chrcssrsb_siddtrl','chrcssrsb_sidrsnl'],\
+        cssrs1 = create_total_division('chrcssrsb_intensity_lifetime' , df_all, df_all, ['chrcssrsb_sidfrql','chrcssrsb_siddurl','chrcssrsb_sidctrl','chrcssrsb_siddtrl','chrcssrsb_sidrsnl'],\
                                     1, voi_2, all_visits_list, 'int')
     if cssrs_sil_sum == 4 or cssrs_sim_sum == 4:
-        cssrs2 = create_condition_value('chrcssrs_intensity_pastmonth', df_all, df_all, voi_2, all_visits_list, 'int', -300)
+        cssrs2 = create_condition_value('chrcssrsb_intensity_pastmonth', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     else:
-        cssrs2 = create_total_division('chrcssrs_intensity_pastmonth', df_all, df_all, ['chrcssrsb_css_sipmfreq','chrcssrsb_css_sipmdur','chrcssrsb_css_sipmctrl','chrcssrsb_css_sipmdet','chrcssrsb_css_sipmreas'],\
+        cssrs2 = create_total_division('chrcssrsb_intensity_pastmonth', df_all, df_all, ['chrcssrsb_css_sipmfreq','chrcssrsb_css_sipmdur','chrcssrsb_css_sipmctrl','chrcssrsb_css_sipmdet','chrcssrsb_css_sipmreas'],\
                                     1, voi_2, all_visits_list, 'int')
     cssrs = pd.concat([cssrs1, cssrs2], axis = 0)
     cssrs['data_type'] = 'Integer'
@@ -1242,22 +1242,22 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         warnings[10] = f"trait_final_score is werid 1129"
         # --------------------------------------------------------------------------
     # add the childhood trauma variables based on conversation with Luis Alameda
-    ctq_traumageneral_df = create_total_division('ctq_trauma_general', ctq_df, df_all, ['chrpps_lazy', 'chrpps_born', 'chrpps_hate', 'chrpps_hurt',\
+    ctq_traumageneral_df = create_total_division('chrpps_total', ctq_df, df_all, ['chrpps_lazy', 'chrpps_born', 'chrpps_hate', 'chrpps_hurt',\
                                                                                 'chrpps_emoab', 'chrpps_doc', 'chrpps_bruise', 'chrpps_belt',\
                                                                                 'chrpps_physab', 'chrpps_beat', 'chrpps_touch', 'chrpps_threat',\
                                                                                 'chrpps_sexual', 'chrpps_molest', 'chrpps_sexab', 'chrpps_loved',\
                                                                                 'chrpps_special', 'chrpps_care', 'chrpps_closefam', 'chrpps_support',\
                                                                                 'chrpps_hunger', 'chrpps_protect', 'chrpps_pardrunk',\
                                                                                 'chrpps_dirty', 'chrpps_docr'], 1, voi_2, all_visits_list, 'float')
-    ctq_PA_df = create_total_division('ctq_physical_abuse', ctq_df, df_all, ['chrpps_doc', 'chrpps_bruise', 'chrpps_belt',\
+    ctq_PA_df = create_total_division('chrpps_pa_sum', ctq_df, df_all, ['chrpps_doc', 'chrpps_bruise', 'chrpps_belt',\
                                                                                 'chrpps_physab', 'chrpps_beat'], 1, voi_2, all_visits_list, 'float')
-    ctq_SA_df = create_total_division('ctq_sexual_abuse', ctq_df, df_all, ['chrpps_touch', 'chrpps_sexual', 'chrpps_molest',\
+    ctq_SA_df = create_total_division('chrpps_sa_sum', ctq_df, df_all, ['chrpps_touch', 'chrpps_sexual', 'chrpps_molest',\
                                                                               'chrpps_sexab', 'chrpps_threat'], 1, voi_2, all_visits_list, 'float')
-    ctq_EA_df = create_total_division('ctq_emotional_abuse', ctq_df, df_all, ['chrpps_hurt', 'chrpps_hate', 'chrpps_emoab',\
+    ctq_EA_df = create_total_division('chrpps_ea_sum', ctq_df, df_all, ['chrpps_hurt', 'chrpps_hate', 'chrpps_emoab',\
                                                                                  'chrpps_lazy', 'chrpps_born'], 1, voi_2, all_visits_list, 'float')
-    ctq_EN_df = create_total_division('ctq_emotional_neglect', ctq_df, df_all, ['chrpps_special', 'chrpps_loved', 'chrpps_care',\
+    ctq_EN_df = create_total_division('chrpps_en_sum', ctq_df, df_all, ['chrpps_special', 'chrpps_loved', 'chrpps_care',\
                                                                                    'chrpps_closefam', 'chrpps_support'], 1, voi_2, all_visits_list, 'float')
-    ctq_PN_df = create_total_division('ctq_physical_neglect', ctq_df, df_all, ['chrpps_hunger', 'chrpps_pardrunk', 'chrpps_dirty',\
+    ctq_PN_df = create_total_division('chrpps_pn_sum', ctq_df, df_all, ['chrpps_hunger', 'chrpps_pardrunk', 'chrpps_dirty',\
                                                                                   'chrpps_docr', 'chrpps_protect'], 1, voi_2, all_visits_list, 'float')
     polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum6, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14,\
                               ctq_traumageneral_df, ctq_PA_df, ctq_SA_df, ctq_EA_df, ctq_EN_df, ctq_PN_df], axis = 0)
