@@ -13,10 +13,16 @@ dict1 <- read.csv('/data/predict1/home/np487/amp_scz/outcome_calculations/dicts/
                 VALUE_RANGE = VALUERANGE)
 dict2 <- read.csv('/data/predict1/home/np487/amp_scz/outcome_calculations/dicts/psychs.csv')
 dict3 <- read.csv('/data/predict1/home/np487/amp_scz/outcome_calculations/dicts/SCID5_dictionary.csv')
+dict4 <- read.csv('/data/predict1/home/np487/amp_scz/outcome_calculations/dicts/psychs_outcomes_for_NDA_Nora_updated_20230605.csv')
+
+dict4_added <- dict4 %>%
+  filter(!ELEMENT_NAME %in% dict2$ELEMENT_NAME)%>%
+  filter(!ELEMENT_NAME %in% c('interview_date', 'ampscz_missing', 'ampscz_missing_spec'))
 
 dict <- dict1 %>%
   rbind(., dict2)%>%
   rbind(., dict3)%>%
+  rbind(., dict4_added)%>%
   # filter out all rows that are completely empty
   filter(if_any(everything(), ~ !is.na(.) & . != ""))
 
@@ -45,17 +51,20 @@ dict_outcomes_calculated <- dict %>%
 dict_additional_outcomes <- dict %>%
   filter(!ELEMENT_NAME %in% vars1$variable)
 
-add_outcomes_calc <- data.frame(ELEMENT_NAME = c('sips_bips_scr_lifetime', 
-                                                 'sips_aps_scr_lifetime', 
-                                                 'sips_grd_scr_lifetime',
-                                                 'sips_bips_fu_new',
-                                                 'sips_bips_lifetime',
-                                                 'sips_aps_fu_new',
-                                                 'sips_aps_lifetime',
-                                                 'sips_grd_fu_new',
-                                                 'sips_chr_lifetime'),
-                                DATA_TYPE = c(),
-                                DESCRIPTION = c(),
-                                VALUE_RANGE = c(),
-                                NOTES = c(),
-                                ALIASES = c())
+dict_outcomes_calculated %>%
+  filter(!ELEMENT_NAME %in% vars1$variable)%>%
+  dplyr::select(ELEMENT_NAME)
+
+dict_additional_outcomes %>%
+  filter(!ELEMENT_NAME %in% vars1$variable)%>%
+  dplyr::select(ELEMENT_NAME)
+
+vars1 %>%
+  filter(!variable %in% dict_outcomes_calculated$ELEMENT_NAME)%>%
+  dplyr::select(variable)
+
+# we calculate 13 variables that are not in dict_outcomes_calculated
+# we have 0 outcomes in dict_outcomes_calculated that are not included in outcome-calculations
+# we have 91 outcomes in additional dictionary that are nto in outcome calculated
+
+write.csv(dict_outcomes_calculated, '/data/predict1/home/np487/amp_scz/outcome_calculations/dicts/dict_calculated_nda3.csv', row.names = FALSE)
