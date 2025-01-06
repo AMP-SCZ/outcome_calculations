@@ -46,7 +46,9 @@ vars1 %>%
 # not generate this data. Instead, PSYCHS data is pulled directly.
 
 dict_outcomes_calculated <- dict %>%
-  filter(ELEMENT_NAME %in% vars1$variable)
+  filter(ELEMENT_NAME %in% vars1$variable)%>%
+  mutate(ALIASES = case_when(is.na(ALIASES) ~ '',
+                             TRUE ~ ALIASES))
 
 dict_additional_outcomes <- dict %>%
   filter(!ELEMENT_NAME %in% vars1$variable)
