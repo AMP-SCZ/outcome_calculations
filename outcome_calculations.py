@@ -84,30 +84,74 @@ def finalize_df(df_created, df_1, df_2, var_list, voi, fill_type):
     df_visit_pas = df_2[['redcap_event_name']]
     # Here, we account for missingness (-900) and not applicableness (-300) and change values 
     # to the appropriate missingcodes (e.g., 999 -> -900)
+    if all(col in df_2.columns for col in var_list):
+        df_2_vars = df_2.copy()
+        df_1_vars = df_1.copy()
+        df_2_vars = df_2_vars[['redcap_event_name'] + var_list]
+        df_1_vars = df_1.copy()
+        df_1_vars = df_1_vars[['redcap_event_name'] + var_list]
+        merged_df = pd.merge(df_1_vars, df_2_vars, on = 'redcap_event_name', how = 'left', suffixes = ('_left', ''))
+        merged_df[var_list] = merged_df[var_list].fillna(333)
+        var_list_plus = var_list + [f'{col}_left' for col in var_list]
+        df_1 = df_1.reset_index(drop=True)
+        merged_df = merged_df.reset_index(drop=True)
     if string_series.str.contains('nsipr').any() == True or string_series.str.contains('chrpas').any() == True:
         df_1['nine'] = df_1[var_list].isin([9]).any(axis=1)
         df_1['nine_str'] = df_1[var_list].isin(['9']).any(axis=1)
-    df_1['na'] = df_1[var_list].isnull().any(axis = 1)
-    df_1['na2'] = df_1[var_list].isin(['n/a']).any(axis = 1)
-    df_1['na22'] = df_1[var_list].isin(['na']).any(axis = 1)
-    df_1['NA'] = df_1[var_list].isin(['NA']).any(axis = 1)
-    df_1['na999'] = df_1[var_list].isin(['999']).any(axis = 1)
-    df_1['na999nostring'] = df_1[var_list].isin([999]).any(axis = 1)
-    df_1['na900'] = df_1[var_list].isin(['-900']).any(axis = 1)
-    df_1['na900nostring'] = df_1[var_list].isin([-900]).any(axis = 1)
-    df_1['na300'] = df_1[var_list].isin(['-300']).any(axis = 1)
-    df_1['na300nostring'] = df_1[var_list].isin([-300]).any(axis = 1)
-    df_1['na3'] = df_1[var_list].isin(['-3']).any(axis = 1)
-    df_1['na3nostring'] = df_1[var_list].isin([-3]).any(axis = 1)
-    df_1['na99'] = df_1[var_list].isin(['-99']).any(axis = 1)
-    df_1['na99nostring'] = df_1[var_list].isin([-99]).any(axis = 1)
-    df_1['na9'] = df_1[var_list].isin(['-9']).any(axis = 1)
-    df_1['na9nostring'] = df_1[var_list].isin([-9]).any(axis = 1)
+        if all(col in df_2.columns for col in var_list):
+            df_1['nine'] = merged_df[var_list_plus].isin([9]).any(axis=1)
+            df_1['nine_str'] = merged_df[var_list_plus].isin(['9']).any(axis=1)
+    # Check if the columns in var_list are present in df_2 before applying the logic
+    if all(col in df_2.columns for col in var_list):
+        df_1['NA2'] = merged_df[var_list_plus].isin(['N/A']).any(axis=1)            #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-9']).any(axis=1)            
+        df_1['NULL'] = merged_df[var_list_plus].isin(['NULL']).any(axis=1)            #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-9']).any(axis=1)            
+        df_1['empty'] = merged_df[var_list_plus].isin(['']).any(axis=1)            #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-9']).any(axis=1)            
+        df_1['na_NaN'] = merged_df[var_list_plus].isna().any(axis=1)            #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-9']).any(axis=1)            
+        df_1['na9'] = merged_df[var_list_plus].isin(['-9']).any(axis=1)            #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-9']).any(axis=1)            
+        df_1['na']  = merged_df[var_list_plus].isnull().any(axis = 1)              #| merged_df[[f'{col}_left' for col in var_list_plus]].isnull.any(axis=1)                       
+        df_1['na2'] = merged_df[var_list_plus].isin(['n/a']).any(axis = 1)         #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['n/a']).any(axis=1)            
+        df_1['na22'] = merged_df[var_list_plus].isin(['na']).any(axis = 1)         #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['na']).any(axis=1)            
+        df_1['NaN'] = merged_df[var_list_plus].isin(['NaN']).any(axis = 1)         #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['NaN']).any(axis=1)             
+        df_1['NA'] = merged_df[var_list_plus].isin(['NA']).any(axis = 1)           #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['NA']).any(axis=1)            
+        df_1['na999'] = merged_df[var_list_plus].isin(['999']).any(axis = 1)       #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['999']).any(axis=1)            
+        df_1['na999nostring'] = merged_df[var_list_plus].isin([999]).any(axis = 1) #| merged_df[[f'{col}_left' for col in var_list_plus]].isin([999]).any(axis=1)            
+        df_1['na900'] = merged_df[var_list_plus].isin(['-900']).any(axis = 1)      #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-900']).any(axis=1)            
+        df_1['na900nostring'] = merged_df[var_list_plus].isin([-900]).any(axis = 1)#| merged_df[[f'{col}_left' for col in var_list_plus]].isin([-900]).any(axis=1)            
+        df_1['na300'] = merged_df[var_list_plus].isin(['-300']).any(axis = 1)      #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-300']).any(axis=1)            
+        df_1['na300nostring'] = merged_df[var_list_plus].isin([-300]).any(axis = 1)#| merged_df[[f'{col}_left' for col in var_list_plus]].isin([-300]).any(axis=1)            
+        df_1['na3'] = merged_df[var_list_plus].isin(['-3']).any(axis = 1)          #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-3']).any(axis=1)            
+        df_1['na3nostring'] = merged_df[var_list_plus].isin([-3]).any(axis = 1)    #| merged_df[[f'{col}_left' for col in var_list_plus]].isin([-3]).any(axis=1)            
+        df_1['na99'] = merged_df[var_list_plus].isin(['-99']).any(axis = 1)        #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-99']).any(axis=1)            
+        df_1['na99nostring'] = merged_df[var_list_plus].isin([-99]).any(axis = 1)  #| merged_df[[f'{col}_left' for col in var_list_plus]].isin([-99]).any(axis=1)            
+        df_1['na9'] = merged_df[var_list_plus].isin(['-9']).any(axis = 1)          #| merged_df[[f'{col}_left' for col in var_list_plus]].isin(['-9']).any(axis=1)            
+        df_1['na9nostring'] = merged_df[var_list_plus].isin([-9]).any(axis = 1)    #| merged_df[[f'{col}_left' for col in var_list_plus]].isin([-9]).any(axis=1)            
+    else:
+        df_1['NA2'] = df_1[var_list].isin(['N/A']).any(axis = 1)
+        df_1['NULL'] = df_1[var_list].isin(['NULL']).any(axis = 1)
+        df_1['empty'] = df_1[var_list].isin(['empty']).any(axis = 1)
+        df_1['na_NaN'] = df_1[var_list].isna().any(axis = 1)
+        df_1['na'] = df_1[var_list].isnull().any(axis = 1)
+        df_1['na2'] = df_1[var_list].isin(['n/a']).any(axis = 1)
+        df_1['na22'] = df_1[var_list].isin(['na']).any(axis = 1)
+        df_1['NaN'] = df_1[var_list].isin(['NaN']).any(axis = 1)
+        df_1['NA'] = df_1[var_list].isin(['NA']).any(axis = 1)
+        df_1['na999'] = df_1[var_list].isin(['999']).any(axis = 1)
+        df_1['na999nostring'] = df_1[var_list].isin([999]).any(axis = 1)
+        df_1['na900'] = df_1[var_list].isin(['-900']).any(axis = 1)
+        df_1['na900nostring'] = df_1[var_list].isin([-900]).any(axis = 1)
+        df_1['na300'] = df_1[var_list].isin(['-300']).any(axis = 1)
+        df_1['na300nostring'] = df_1[var_list].isin([-300]).any(axis = 1)
+        df_1['na3'] = df_1[var_list].isin(['-3']).any(axis = 1)
+        df_1['na3nostring'] = df_1[var_list].isin([-3]).any(axis = 1)
+        df_1['na99'] = df_1[var_list].isin(['-99']).any(axis = 1)
+        df_1['na99nostring'] = df_1[var_list].isin([-99]).any(axis = 1)
+        df_1['na9'] = df_1[var_list].isin(['-9']).any(axis = 1)
+        df_1['na9nostring'] = df_1[var_list].isin([-9]).any(axis = 1)
     if string_series.str.contains('nsipr').any() == True or string_series.str.contains('chrpas').any() == True:
-        df_calculated = df_1[['value','nine','nine_str', 'na', 'na22','na2', 'NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na99', 'na99nostring',\
+        df_calculated = df_1[['value','nine','nine_str', 'na', 'empty', 'na_NaN', 'na22','na2', 'NA', 'NaN', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3', 'na99', 'na99nostring',\
                               'na9nostring','na9', 'redcap_event_name']]
     else:
-        df_calculated = df_1[['value', 'na', 'na2', 'na22','NA', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3','na99', 'na99nostring', 'na9nostring','na9', 'redcap_event_name']]
+        df_calculated = df_1[['value', 'NULL', 'NA2', 'na', 'empty', 'na_NaN', 'na2', 'na22','NA', 'NaN', 'na999nostring', 'na999', 'na900nostring','na900', 'na300nostring', 'na300', 'na3nostring','na3','na99', 'na99nostring', 'na9nostring','na9', 'redcap_event_name']]
     df_2['redcap_event_name'] = df_2['redcap_event_name'].astype(str)
     df_visits = df_2[['redcap_event_name']]
     df_visits = df_visits[df_visits['redcap_event_name'].str.contains(voi)]
@@ -770,6 +814,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     pss_df['chrpss_pssp2_2']  = 4 - pss_df['chrpss_pssp2_2'].astype(float)
     pss_df['chrpss_pssp2_4']  = 4 - pss_df['chrpss_pssp2_4'].astype(float)
     pss_df['chrpss_pssp2_5']  = 4 - pss_df['chrpss_pssp2_5'].astype(float)
+    #changed data minus
     pss = create_total_division('chrpss_perceived_stress_scale_total', pss_df, df_all, ['chrpss_pssp1_1','chrpss_pssp1_2', 'chrpss_pssp1_3','chrpss_pssp2_1', 'chrpss_pssp2_2','chrpss_pssp2_3',\
                                                                                 'chrpss_pssp2_4','chrpss_pssp2_5', 'chrpss_pssp3_1','chrpss_pssp3_4'], 1, voi_1, all_visits_list, 'int')
     pss['data_type'] = 'Integer'
@@ -812,15 +857,12 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
         pds_female    = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif sex != 'female' and sex != 'male':
-        #print("sex is unknown")
         pds_female = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
         pds_male = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -900)
     elif np.isnan(age) and sex == 'female':
-        #print("age is unknown")
         pds_female  = create_total_division('chrpds_total_score_female_sex',df_all,df_all,['chrpds_pds_1_p','chrpds_pds_2_p','chrpds_pds_3_p','chrpds_pds_f4_p','chrpds_pds_f5b_p'],1, voi_2, all_visits_list, 'int')
         pds_male    = create_condition_value('chrpds_total_score_male_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
     elif np.isnan(age) and sex == 'male':
-        #print("age is unknown")
         pds_female  = create_condition_value('chrpds_total_score_female_sex', df_all, df_all, voi_2, all_visits_list, 'int', -300)
         pds_male  = create_total_division('chrpds_total_score_male_sex',df_all,df_all,['chrpds_pds_1_p', 'chrpds_pds_2_p', 'chrpds_pds_3_p', 'chrpds_pds_m4_p', 'chrpds_pds_m5_p'], 1, voi_2, all_visits_list, 'int')
     else:
@@ -872,9 +914,10 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
 # Promis 
 # --------------------------------------------------------------------#
     promis_df = df_all
+    # difference in data minus
     promis_df['chrpromis_sleep20']     = 6 - promis_df['chrpromis_sleep20'].astype(float)
     promis_df['chrpromis_sleep44']     = 6 - promis_df['chrpromis_sleep44'].astype(float)
-    promis_df['chrpromise_sleep108'] = 6 - promis_df['chrpromise_sleep108'].astype(float)
+    promis_df['chrpromise_sleep108']   = 6 - promis_df['chrpromise_sleep108'].astype(float)
     promis_df['chrpromis_sleep72']     = 6 - promis_df['chrpromis_sleep72'].astype(float)
     promis_df['chrpromis_sleep67']     = 6 - promis_df['chrpromis_sleep67'].astype(float)
     promis = create_total_division('chrpromis_total', promis_df, df_all, ['chrpromis_sleep109','chrpromis_sleep116','chrpromis_sleep20','chrpromis_sleep44','chrpromise_sleep108','chrpromis_sleep72',\
@@ -1073,7 +1116,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     #print(list(df_all.filter(like='fdob').columns))
     # I have changed the paternal age calculation slightly because of newly introduced missing codes in date format
     #print(df_pps['chrpps_fdob'])
-    #sys.exit()
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900, df_pps['chrpps_fage'])
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1903-03-03', -300, df_pps['chrpps_fage'])
     paternal_age = df_pps['chrpps_fage'].fillna(-900).to_numpy(dtype=float)
@@ -1185,7 +1227,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     else:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', 0)
     # pps 13 Childhood trauma
-    ctq_df = df_all
+    ctq_df = df_all.copy()
     ctq_df['chrpps_special']   = 6 - ctq_df['chrpps_special'].astype(float)
     ctq_df['chrpps_care']      = 6 - ctq_df['chrpps_care'].astype(float)
     ctq_df['chrpps_loved']     = 6 - ctq_df['chrpps_loved'].astype(float)
@@ -1217,7 +1259,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         prfloat("What is going on with the CTQ")
         warnings[8] = f"What is going on with the CTQ"
     # pps 14 Trait anhedonia
-    trait_df = df_all
+    trait_df = df_all.copy()
     trait_df['chrpps_restaur']   = 7 - trait_df['chrpps_restaur'].astype(float)
     trait = create_total_division('trait', trait_df, df_all, ['chrpps_taste', 'chrpps_restaur', 'chrpps_roller', 'chrpps_holiday', 'chrpps_tasty', 'chrpps_pleasure', 'chrpps_lookfwd',\
                                                               'chrpps_menu', 'chrpps_actor', 'chrpps_crackle', 'chrpps_rain', 'chrpps_grass', 'chrpps_air', 'chrpps_coffee', 'chrpps_hair',\
@@ -1261,6 +1303,10 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                                                                   'chrpps_docr', 'chrpps_protect'], 1, voi_2, all_visits_list, 'float')
     polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum6, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14,\
                               ctq_traumageneral_df, ctq_PA_df, ctq_SA_df, ctq_EA_df, ctq_EN_df, ctq_PN_df], axis = 0)
+    print("ctq_EN_df")
+    print(ctq_EN_df)
+    print("polyrisk")
+    print(polyrisk)
     polyrisk['data_type'] = 'Float'
     #polyrisk = pd.concat([chrpps_sum1, chrpps_sum2, chrpps_sum7, chrpps_sum8, chrpps_sum9, chrpps_sum10, chrpps_sum11, chrpps_sum12, chrpps_sum13, chrpps_sum14], axis = 0)
 # --------------------------------------------------------------------#
@@ -1325,8 +1371,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                         np.where((scid5_all_mood_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_mood = create_use_value('chrscid_any_mood', scid5_all_mood_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     # substance use disorder
-    alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int',        'chrscid_sedhypanx_yn') # no yn check for alcohol but in 
-    # function it anyway just counts that there is an answer provided at all so it should be fine like this. 
+    alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int',        'chrscid_sedhypanx_yn') 
     sed_hyp_anx_disorder     = create_scid5_substance('chrscid_sedhypanx_use_disorder',     df_all, df_all, ['chrscid_e136_137', 'chrscid_e299_301'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
     cannabis_disorder        = create_scid5_substance('chrscid_cannabis_use_disorder',      df_all, df_all, ['chrscid_e138_139', 'chrscid_e303_305'], voi_11, all_visits_list, 'int', 'chrscid_cannabis_yn')
     stimulants_disorder      = create_scid5_substance('chrscid_stimulants_use_disorder',    df_all, df_all, ['chrscid_e140_141', 'chrscid_e307_309'], voi_11, all_visits_list, 'int', 'chrscid_stimulant_yn')
@@ -1997,7 +2042,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['GA41374']
+        id_list = ['OR05031']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
