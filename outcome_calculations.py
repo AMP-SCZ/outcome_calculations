@@ -756,9 +756,11 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         sex = 'unknown'
     baseln_df = df_all[df_all['redcap_event_name'].str.contains('basel')]
     df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == '1909-09-09', -900, df_all['chrpas_pmod_adult3v1'])
+    df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == '1903-03-03', -300, df_all['chrpas_pmod_adult3v1'])
     df_all['chrpas_pmod_adult3v1'] = df_all['chrpas_pmod_adult3v1'].fillna(-900).astype(int)
     df_all['chrpas_pmod_adult3v1'] = np.where(df_all['chrpas_pmod_adult3v1'] == 9, -900, df_all['chrpas_pmod_adult3v1'])
     df_all['chrpas_pmod_adult3v3'] = np.where(df_all['chrpas_pmod_adult3v3'] == '1909-09-09', -900, df_all['chrpas_pmod_adult3v3'])
+    df_all['chrpas_pmod_adult3v3'] = np.where(df_all['chrpas_pmod_adult3v3'] == '1903-03-03', -300, df_all['chrpas_pmod_adult3v3'])
     df_all['chrpas_pmod_adult3v3'] = df_all['chrpas_pmod_adult3v3'].fillna(-900).astype(int)
     df_all['chrpas_pmod_adult3v3'] = np.where(df_all['chrpas_pmod_adult3v3'] == 9, -900, df_all['chrpas_pmod_adult3v3'])
     month1_df = df_all[df_all['redcap_event_name'].str.contains('month_1_')]
