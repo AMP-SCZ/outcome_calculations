@@ -1000,20 +1000,36 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     pas_child_merge=pas_child1.copy()
     pas_earlyadol_merge=pas_earlyadol.copy()
     pas_lateadol_merge=pas_lateadol.copy()
-    pas_adult_merge=pas_adult.copy()
+
+    # Now: Check if pas_adult exists and is not None
+    try:
+        pas_adult_merge = pas_adult.copy()
+        pas_adult_merge['value_adult']=pas_adult_merge['value']
+    except (NameError, AttributeError):
+        warnings[5] = f"PAS-Adult missing or problematic for subject {id} at line 988-999; married_1={married_1}, married_2={married_2}. N/A values need to be handled (see PAS rules)."
+        print(f"PAS-Adult missing or problematic for subject {id}: check married_1 and married_2 coding.")
+
     pas_child_merge['value_child']=pas_child_merge['value']
     pas_earlyadol_merge['value_early']=pas_earlyadol_merge['value']
     pas_lateadol_merge['value_late']=pas_lateadol_merge['value']
-    pas_adult_merge['value_adult']=pas_adult_merge['value']
     pas_child_early = pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name')
     pas_child_early_late = pd.merge(pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name'), pas_lateadol_merge, on = 'redcap_event_name')
-    pas_child_early_late_adult = pd.merge(pd.merge(pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name'), pas_lateadol_merge, on = 'redcap_event_name'),\
-                                        pas_adult_merge, on = 'redcap_event_name')
+    try:
+        pas_child_early_late_adult = pd.merge(pd.merge(pd.merge(pas_child_merge, pas_earlyadol_merge, on = 'redcap_event_name'), pas_lateadol_merge, on = 'redcap_event_name'),\
+                                            pas_adult_merge, on = 'redcap_event_name')
+    except:
+        pass
     pas_child_total=create_total_division('chrpas_total_score_only_childhood',df_all,df_all,['chrpas_pmod_child1','chrpas_pmod_child2','chrpas_pmod_child3','chrpas_pmod_child4'],24, voi_3, all_visits_list, 'float')
     pas_total_upto_early = create_total_division('chrpas_total_score_upto_early_adolescence', pas_child_early, df_all, ['value_child','value_early'], 2, voi_3, all_visits_list, 'float')
     pas_total_upto_late = create_total_division('chrpas_total_score_upto_late_adolescence', pas_child_early_late, df_all, ['value_child','value_early', 'value_late'], 3, voi_3, all_visits_list, 'float')
-    pas_total_upto_adult = create_total_division('chrpas_total_score_upto_adulthood', pas_child_early_late_adult, df_all, ['value_child','value_early','value_late','value_adult'],4,voi_3, all_visits_list, 'float')
-    premorbid_adjustment = pd.concat([pas_child1, pas_earlyadol, pas_lateadol, pas_adult, pas_child_total, pas_total_upto_early, pas_total_upto_late, pas_total_upto_adult], axis = 0)
+    try:
+        pas_total_upto_adult = create_total_division('chrpas_total_score_upto_adulthood', pas_child_early_late_adult, df_all, ['value_child','value_early','value_late','value_adult'],4,voi_3, all_visits_list, 'float')
+    except:
+        pass
+    try:
+        premorbid_adjustment = pd.concat([pas_child1, pas_earlyadol, pas_lateadol, pas_adult, pas_child_total, pas_total_upto_early, pas_total_upto_late, pas_total_upto_adult], axis = 0)
+    except NameError:
+        premorbid_adjustment = pd.concat([pas_child1, pas_earlyadol, pas_lateadol, pas_child_total, pas_total_upto_early, pas_total_upto_late], axis = 0)
     premorbid_adjustment['data_type'] = 'Float'
 # --------------------------------------------------------------------#
 # ASSIST
@@ -2043,7 +2059,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['OR05031']
+        id_list = ['OR36278']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
