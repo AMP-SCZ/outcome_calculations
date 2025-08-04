@@ -897,6 +897,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     df_sofas = df_all.copy()
     df_sofas['chrsofas_currscore_fu'] = np.where(df_sofas['chrsofas_currscore_fu'] == '1909-09-09', -900, df_sofas['chrsofas_currscore_fu'])
     df_sofas['chrsofas_currscore12mo_fu'] = np.where(df_sofas['chrsofas_currscore12mo_fu'] == '1909-09-09', -900, df_sofas['chrsofas_currscore12mo_fu'])
+    df_sofas['chrsofas_currscore_fu'] = np.where(df_sofas['chrsofas_currscore_fu'] == '1903-03-03', -300, df_sofas['chrsofas_currscore_fu'])
+    df_sofas['chrsofas_currscore12mo_fu'] = np.where(df_sofas['chrsofas_currscore12mo_fu'] == '1903-03-03', -300, df_sofas['chrsofas_currscore12mo_fu'])
     sofas_5 = create_use_value('chrsofas_currscore_fu', df_sofas, df_sofas, ['chrsofas_currscore_fu'], voi_8, all_visits_list, 'int')
     sofas_6 = create_use_value('chrsofas_currscore12mo_fu', df_sofas, df_sofas, ['chrsofas_currscore12mo_fu'], voi_8, all_visits_list, 'int')
     sofas_fu = pd.concat([sofas_5, sofas_6], axis = 0)
@@ -931,6 +933,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
 # --------------------------------------------------------------------#
 # PGI_S
 # --------------------------------------------------------------------#
+    df_all['chrpgi_2'] = np.where(df_all['chrpgi_2'] == '1903-03-03', -300, df_all['chrpgi_2'])
     pgi_s = create_use_value('chrpgi_2', df_all, df_all, ['chrpgi_2'], voi_1, all_visits_list, 'int')
     pgi_s['data_type'] = 'Integer'
 # --------------------------------------------------------------------#
@@ -2059,7 +2062,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['OR36278']
+        id_list = ['SI63982']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
