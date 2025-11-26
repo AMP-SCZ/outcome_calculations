@@ -2074,7 +2074,8 @@ elif Network == 'Prescient':
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
-num_workers = multiprocessing.cpu_count() // 2
+# Changed the number of workers for other queue system (normal). Change back when other queue is available.
+num_workers = 8  #multiprocessing.cpu_count() // 2
 print("Number of processes: {0}".format(num_workers))
 pool = multiprocessing.Pool(num_workers)
 outcomes = pool.map(compute_outcomes, id_list)
