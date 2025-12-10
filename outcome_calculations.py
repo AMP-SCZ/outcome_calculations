@@ -2062,7 +2062,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['SI63982']
+        id_list = ['MT46623', 'CM31654', 'CM32864', 'PI23171']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
@@ -2070,7 +2070,7 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['ME41251', 'ME36620', 'ME83306', 'ME41273', 'ME31119']
+        id_list = ['ME29952', 'ME33206', 'ME34127', 'ME66730', 'ME84827', 'SG41778']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
