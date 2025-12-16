@@ -991,17 +991,21 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     pas_lateadol  = create_total_division('chrpas_late_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_late1','chrpas_pmod_adol_late2','chrpas_pmod_adol_late3','chrpas_pmod_adol_late4',\
                                                                                         'chrpas_pmod_adol_late5'], 30, voi_3, all_visits_list, 'float')
     # for pas-adult the value for N/A can be 9. This does not fit our coding of missing/applicable. Therefore we change it here.
+    print("married_1")
+    print(married_1)
+    print("married_2")
+    print(married_2)
     if (married_1 == 0) and (married_2 == 0):
         pas_adult = create_fake_df_float(['chrpas_adulthood_subtotal'], all_visits_list, voi_3)
-    if (married_1 == -900 or married_1 == -9 or married_1 == -3) and (married_2 == -900 or married_2 == -9 or married_2 == -3):
+    if (married_1 == -900 or married_1 == -9 or married_1 == -3 or married_1 == -300) and (married_2 == -900 or married_2 == -9 or married_2 == -3):
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
     elif married_2 == -900 or married_2 == -9 or married_2 == -3:
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v1'], 18, voi_3, all_visits_list, 'float')
-    elif married_1 == -900 or married_1 == -9 or married_1 == -3:
+    elif married_1 == -900 or married_1 == -9 or married_1 == -3 or married_1 == -300:
         pas_adult = create_total_division('chrpas_adulthood_subtotal' , df_all, df_all, ['chrpas_pmod_adult1','chrpas_pmod_adult2','chrpas_pmod_adult3v3'], 18, voi_3, all_visits_list, 'float')
     else:
         print(f"Something odd is going on with the married variable {id}")
-        warnings[4]=f"Something odd is going on with the married variable {id} line 867"
+        warnings[4]=f"Something odd is going on with the married variable {id}"
     pas_child_merge=pas_child1.copy()
     pas_earlyadol_merge=pas_earlyadol.copy()
     pas_lateadol_merge=pas_lateadol.copy()
@@ -2064,7 +2068,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['OH19652', 'LA48488']
+        id_list = ['SI63982']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
