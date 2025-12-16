@@ -644,10 +644,12 @@ def create_scid5_mdd_diff(outcome, df_1, df_2, var_list, visit_of_interest, all_
     use_value_merged = pd.merge(pd.merge(use_value_df, use_value_df2, on = 'redcap_event_name', how = 'left'), use_value_df3, on = 'redcap_event_name', how = 'left')
     if outcome == 'chrscid_mdd_wo_psychosis':
         use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] != 1), 1, \
-                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+        			    np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] == 1), 0, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value'])))
     elif outcome == 'chrscid_mdd_w_psychosis':
         use_value_merged['value'] = np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] == 1), 1, \
-                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
+                                    np.where((use_value_merged['value'] == 3) & (use_value_merged['value3'] != 1), 0, \
+                                    np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value'])))
     elif outcome == 'chrscid_persistent_depr':
         use_value_merged['value'] = np.where((use_value_merged['value'] == 3) | (use_value_merged['value3'] == 3), 1, \
                                     np.where((use_value_merged['value2'] == 1) | (use_value_merged['value2'] == 2) | (use_value_merged['value2'] == 3), 0, use_value_merged['value']))
@@ -2062,7 +2064,7 @@ if Network == 'Pronet':
     if version == 'test' or version == 'create_control':
         id_list = ['YA16606', 'YA01508', 'LA00145', 'LA00834', 'OR00697', 'PI01355', 'HA04408']
     elif version == 'single_subject':
-        id_list = ['SI63982']
+        id_list = ['OH19652', 'LA48488']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
     
