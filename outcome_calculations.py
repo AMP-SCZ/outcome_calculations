@@ -1165,8 +1165,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', 0.5)
     else:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
-    print("chrpps_sum7")
-    print(chrpps_sum7)
     # pps 8 SES
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1909-09-09', -900, df_pps['chrpps_focc'])
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1903-03-03', -300, df_pps['chrpps_focc'])
@@ -1198,12 +1196,12 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
          (father_ddx == 2 or father_ddx == 1 or father_ddx == 0) and (father_mdx == 2 or father_mdx == 1 or father_mdx == 0) and\
          (father_pdx == 2 or father_pdx == 1 or father_pdx == 0) and (father_apdx == 2 or father_apdx == 1 or father_apdx == 0) and (father_napdx == 2 or father_napdx == 1 or father_napdx == 0):
         chrpps_sum9 = create_condition_value('chrpps_sum9', df_all, df_all, voi_2, all_visits_list, 'float', -2)
-    if mother_ddx == -300 or mother_mdx == -300 or mother_pdx == -300 or mother_napdx == -300 or mother_apdx == -300 or\
+    elif mother_ddx == -300 or mother_mdx == -300 or mother_pdx == -300 or mother_napdx == -300 or mother_apdx == -300 or\
        father_ddx == -300 or father_mdx == -300 or father_pdx == -300 or father_napdx == -300 or father_apdx == -300 or\
        mother_ddx == -3 or mother_mdx == -3 or mother_pdx == -3 or mother_napdx == -3 or mother_apdx == -3 or\
        father_ddx == -3 or father_mdx == -3 or father_pdx == -3 or father_napdx == -3 or father_apdx == -3:
         chrpps_sum9 = create_condition_value('chrpps_sum9', df_all, df_all, voi_2, all_visits_list, 'float', -300)
-    if mother_ddx == -900 or mother_mdx == -900 or mother_pdx == -900 or mother_napdx == -900 or mother_apdx == -900 or\
+    elif mother_ddx == -900 or mother_mdx == -900 or mother_pdx == -900 or mother_napdx == -900 or mother_apdx == -900 or\
        father_ddx == -900 or father_mdx == -900 or father_pdx == -900 or father_napdx == -900 or father_apdx == -900 or\
        mother_ddx == -9 or mother_mdx == -9 or mother_pdx == -9 or mother_napdx == -9 or mother_apdx == -9 or\
        father_ddx == -9 or father_mdx == -9 or father_pdx == -9 or father_napdx == -9 or father_apdx == -9 or\
@@ -2083,7 +2081,7 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['BM00644', 'BM10164', 'BM22365', 'BM13122']
+        id_list = ['SG34238']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
