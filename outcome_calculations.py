@@ -1240,27 +1240,31 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum10 = create_condition_value('chrpps_sum10', df_all, df_all, voi_2, all_visits_list, 'float', -900)
         #print('not sure what is going on with chrpps_sum10')
     # pps 11 tobacco
-    assist_1  = df_pps['chrassist_whoassist_often1'].fillna(-900).to_numpy(dtype=float)
-    assist_12  = df_pps['chrassist_whoassist_use1'].fillna(-900).to_numpy(dtype=float)
+    assist_1  = float(df_pps['chrassist_whoassist_often1'].fillna(-900).iloc[0])
+    assist_12  = float(df_pps['chrassist_whoassist_use1'].fillna(-900).iloc[0])
     if assist_1 == 6:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', 3)
-    elif (assist_1 == -900 or assist_1 -9) and assist_12 != 0:
+    elif (assist_1 in (-900, -9)) and assist_12 != 0:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', -900)
-    elif (assist_1 == -300 or assist_1 == -3) and assist_12 != 0:
+    elif (assist_1 in (-300, -3)) and assist_12 != 0:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
+    print("chrpps_sum11")
+    print(chrpps_sum11)
     # pps 12 cannabis
-    assist_2  = df_pps['chrassist_whoassist_often3'].fillna(-900).to_numpy(dtype=float)
-    assist_22  = df_pps['chrassist_whoassist_use3'].fillna(-900).to_numpy(dtype=float)
+    assist_2  =  float(df_pps['chrassist_whoassist_often3'].fillna(-900).iloc[0])
+    assist_22  = float(df_pps['chrassist_whoassist_use3'].fillna(-900).iloc[0])
     if assist_2 > 3:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', 7)
-    elif (assist_2 == -900 or assist_2 == -9) and assist_22 != 0:
+    elif (assist_2 in (-900, -9)) and assist_22 != 0:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', -900)
-    elif (assist_2 == -300 or assist_2 == -3) and assist_22 != 0:
+    elif (assist_2 in (-300, -3)) and assist_22 != 0:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', 0)
+    print("chrpps_sum12")
+    print(chrpps_sum12)
     # pps 13 Childhood trauma
     ctq_df = df_all.copy()
     ctq_df['chrpps_special']   = 6 - ctq_df['chrpps_special'].astype(float)
@@ -2081,7 +2085,7 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['SG34238']
+        id_list = ['BM13061']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
