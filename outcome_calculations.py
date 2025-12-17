@@ -991,10 +991,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     pas_lateadol  = create_total_division('chrpas_late_adolescence_subtotal' , df_all, df_all, ['chrpas_pmod_adol_late1','chrpas_pmod_adol_late2','chrpas_pmod_adol_late3','chrpas_pmod_adol_late4',\
                                                                                         'chrpas_pmod_adol_late5'], 30, voi_3, all_visits_list, 'float')
     # for pas-adult the value for N/A can be 9. This does not fit our coding of missing/applicable. Therefore we change it here.
-    print("married_1")
-    print(married_1)
-    print("married_2")
-    print(married_2)
     if (married_1 == 0) and (married_2 == 0):
         pas_adult = create_fake_df_float(['chrpas_adulthood_subtotal'], all_visits_list, voi_3)
     if (married_1 == -900 or married_1 == -9 or married_1 == -3 or married_1 == -300) and (married_2 == -900 or married_2 == -9 or married_2 == -3):
@@ -1142,15 +1138,24 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     else:
         chrpps_sum6 = create_condition_value('chrpps_sum6', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
     # pps 7 paternal age
-    #paternal_age_date = df_pps['chrpps_fdobpii'].astype(str).str.contains('1903-03-03')
     #print(list(df_all.filter(like='fdob').columns))
     # I have changed the paternal age calculation slightly because of newly introduced missing codes in date format
     #print(df_pps['chrpps_fdob'])
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900, df_pps['chrpps_fage'])
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1903-03-03', -300, df_pps['chrpps_fage'])
-    paternal_age = df_pps['chrpps_fage'].fillna(-900).to_numpy(dtype=float)
+    # in prescient often the variable chrpps_fage is not filled because of PII. Here, you have to create the variable based on the date.
+    df_pps['chrpps_father_age_date'] = np.where(df_pps['chrpps_fage'].astype(str).isin(['-3']), df_pps['chrpps_fdob'], '1903-03-03')
+    df_pps['visit_date_pps'] = np.where(df_pps['chrpps_fage'].astype(str).isin(['-3']), df_pps['chrpps_interview_date'], '1903-03-03')
+    # convert to datetime
+    df_pps['chrpps_father_age_date'] = pd.to_datetime(df_pps['chrpps_father_age_date'], errors='coerce')
+    df_pps['visit_date_pps']         = pd.to_datetime(df_pps['visit_date_pps'], errors='coerce')
+    # age in years (float)
+    df_pps['chrpps_fage_calc_date'] = (df_pps['visit_date_pps'] - df_pps['chrpps_father_age_date']).dt.days / 365.25
+    df_pps['chrpps_fage_use']=np.where(df_pps['chrpps_fage'].astype(str).isin(['-3']) & (df_pps['chrpps_fage_calc_date'] > 10) & (df_pps['chrpps_fage_calc_date'] < 100),\
+        df_pps['chrpps_fage_calc_date'], df_pps['chrpps_fage'])
+    paternal_age = df_pps['chrpps_fage_use'].fillna(-900).to_numpy(dtype=float)
     paternal_age_calc = paternal_age - age
-    if paternal_age == -900 or paternal_age == -9 or age == -900:
+    if paternal_age == -900 or paternal_age == -9 or age == -900 or paternal_age > 110:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -900)
     elif paternal_age == -300 or paternal_age == -3 or age == -300:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -300)
@@ -1160,6 +1165,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', 0.5)
     else:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
+    print("chrpps_sum7")
+    print(chrpps_sum7)
     # pps 8 SES
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1909-09-09', -900, df_pps['chrpps_focc'])
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1903-03-03', -300, df_pps['chrpps_focc'])
@@ -2076,7 +2083,7 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['BM97411']
+        id_list = ['BM00644', 'BM10164', 'BM22365', 'BM13122']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
