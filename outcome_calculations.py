@@ -656,7 +656,7 @@ def create_scid5_mdd_diff(outcome, df_1, df_2, var_list, visit_of_interest, all_
     use_value_final=use_value_merged[['variable', 'redcap_event_name', 'value']]
     return use_value_final
 
-def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_1):
+def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all_visits, fill_type, outcome_1, outcome_2):
     value_max_substance = create_max_scid('max_substance', df_1, df_2, var_list, visit_of_interest, all_visits, 'int')
     value_max_substance['value_max'] = value_max_substance['value']
     value_max_substance = value_max_substance[['redcap_event_name', 'value_max']]
@@ -666,11 +666,14 @@ def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all
     use_value_df2 = create_use_value(var_list[1], df_1, df_2, [var_list[1]], visit_of_interest, all_visits, fill_type)
     use_value_df2['value2'] = use_value_df2['value']
     use_value_df2 =           use_value_df2[['redcap_event_name', 'value2']]
-    use_value_df3 = create_use_value(outcome_1, df_1, df_2, [outcome_1], visit_of_interest, all_visits, fill_type)
+    use_value_df3 = create_use_value(outcome_2, df_1, df_2, [outcome_2], visit_of_interest, all_visits, fill_type)
     use_value_df3['value3'] = use_value_df3['value']
     use_value_df3 =           use_value_df3[['redcap_event_name', 'value3']]
-    sub_value = pd.merge(pd.merge(pd.merge(value_max_substance, use_value_df, on = 'redcap_event_name'), use_value_df2, on = 'redcap_event_name'), use_value_df3, on = 'redcap_event_name')
-    sub_value['value'] = np.where(sub_value['value_max']>1, sub_value['value_max'], np.where((sub_value['value3'] == 1) | (sub_value['value3'] == 0), 0, -900))
+    use_value_df4 = create_use_value(outcome_1, df_1, df_2, [outcome_1], visit_of_interest, all_visits, fill_type)
+    use_value_df4['value4'] = use_value_df4['value']
+    use_value_df4 =           use_value_df4[['redcap_event_name', 'value4']]
+    sub_value = pd.merge(pd.merge(pd.merge(pd.merge(value_max_substance, use_value_df, on = 'redcap_event_name'), use_value_df2, on = 'redcap_event_name'), use_value_df3, on = 'redcap_event_name'), use_value_df4, on = 'redcap_event_name')
+    sub_value['value'] = np.where(sub_value['value_max']>1, sub_value['value_max'], np.where((sub_value['value3'] == 1) | (sub_value['value3'] == 0) | (sub_value['value4'] == 1), 0, -900))
     sub_value['value'] = np.where((sub_value['value'] == 0) | (sub_value['value'] == 1), 0, np.where((sub_value['value']==2) | (sub_value['value'] == 3), 1, \
                          np.where((sub_value['value'] == 4) | (sub_value['value'] == 5), 2, np.where(sub_value['value']>5, 3, sub_value['value']))))
     sub_value_final = create_use_value(outcome, sub_value, df_2, ['value'], visit_of_interest, all_visits, fill_type)
@@ -1144,14 +1147,14 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1909-09-09', -900, df_pps['chrpps_fage'])
     df_pps['chrpps_fage'] = np.where(df_pps['chrpps_fage'] == '1903-03-03', -300, df_pps['chrpps_fage'])
     # in prescient often the variable chrpps_fage is not filled because of PII. Here, you have to create the variable based on the date.
-    df_pps['chrpps_father_age_date'] = np.where(df_pps['chrpps_fage'].astype(str).isin(['-3']), df_pps['chrpps_fdob'], '1903-03-03')
-    df_pps['visit_date_pps'] = np.where(df_pps['chrpps_fage'].astype(str).isin(['-3']), df_pps['chrpps_interview_date'], '1903-03-03')
+    df_pps['chrpps_father_age_date'] = np.where(df_pps['chrpps_fage'].isna() | df_pps['chrpps_fage'].astype(str).isin(['-3']), df_pps['chrpps_fdob'], '1903-03-03')
+    df_pps['visit_date_pps'] = np.where(df_pps['chrpps_fage'].isna() | df_pps['chrpps_fage'].astype(str).isin(['-3']), df_pps['chrpps_interview_date'], '1903-03-03')
     # convert to datetime
     df_pps['chrpps_father_age_date'] = pd.to_datetime(df_pps['chrpps_father_age_date'], errors='coerce')
     df_pps['visit_date_pps']         = pd.to_datetime(df_pps['visit_date_pps'], errors='coerce')
     # age in years (float)
     df_pps['chrpps_fage_calc_date'] = (df_pps['visit_date_pps'] - df_pps['chrpps_father_age_date']).dt.days / 365.25
-    df_pps['chrpps_fage_use']=np.where(df_pps['chrpps_fage'].astype(str).isin(['-3']) & (df_pps['chrpps_fage_calc_date'] > 10) & (df_pps['chrpps_fage_calc_date'] < 100),\
+    df_pps['chrpps_fage_use']=np.where(df_pps['chrpps_fage'].isna() | df_pps['chrpps_fage'].astype(str).isin(['-3']) & (df_pps['chrpps_fage_calc_date'] > 10) & (df_pps['chrpps_fage_calc_date'] < 100),\
         df_pps['chrpps_fage_calc_date'], df_pps['chrpps_fage'])
     paternal_age = df_pps['chrpps_fage_use'].fillna(-900).to_numpy(dtype=float)
     paternal_age_calc = paternal_age - age
@@ -1165,6 +1168,8 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', 0.5)
     else:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
+    print("pps-third: ['chrpps_sum7']")
+    print(chrpps_sum7)
     # pps 8 SES
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1909-09-09', -900, df_pps['chrpps_focc'])
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1903-03-03', -300, df_pps['chrpps_focc'])
@@ -1402,15 +1407,15 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
                                         np.where((scid5_all_mood_condition.filter(like='value').eq(0)).all(axis=1), 0, -900))
     scid5_all_mood = create_use_value('chrscid_any_mood', scid5_all_mood_condition, df_all, ['value'], voi_11, all_visits_list, 'int')
     # substance use disorder
-    alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int',        'chrscid_sedhypanx_yn') 
-    sed_hyp_anx_disorder     = create_scid5_substance('chrscid_sedhypanx_use_disorder',     df_all, df_all, ['chrscid_e136_137', 'chrscid_e299_301'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    cannabis_disorder        = create_scid5_substance('chrscid_cannabis_use_disorder',      df_all, df_all, ['chrscid_e138_139', 'chrscid_e303_305'], voi_11, all_visits_list, 'int', 'chrscid_cannabis_yn')
-    stimulants_disorder      = create_scid5_substance('chrscid_stimulants_use_disorder',    df_all, df_all, ['chrscid_e140_141', 'chrscid_e307_309'], voi_11, all_visits_list, 'int', 'chrscid_stimulant_yn')
-    opiod_disorder           = create_scid5_substance('chrscid_opiod_use_disorder',         df_all, df_all, ['chrscid_e142_143', 'chrscid_e311_313'], voi_11, all_visits_list, 'int', 'chrscid_opioids_yn')
-    inhalants_disorder       = create_scid5_substance('chrscid_inhalants_use_disorder',     df_all, df_all, ['chrscid_e144_145', 'chrscid_e315_317'], voi_11, all_visits_list, 'int', 'chrscid_inhalant_yn')
-    pcp_disorder             = create_scid5_substance('chrscid_pcp_use_disorder',           df_all, df_all, ['chrscid_e146_147', 'chrscid_e319_321'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
-    hallucinogens_disorder   = create_scid5_substance('chrscid_halluc_use_disorder',        df_all, df_all, ['chrscid_e148_149', 'chrscid_e323_325'], voi_11, all_visits_list, 'int', 'chrscid_hallucinogen_yn')
-    other_substance_disorder = create_scid5_substance('chrscid_other_use_disorder',         df_all, df_all, ['chrscid_e150_151', 'chrscid_e327_329'], voi_11, all_visits_list, 'int', 'chrscid_sedhypanx_yn')
+    alcohol_disorder         = create_scid5_substance('chrscid_alcohol_use_disorder',       df_all, df_all, ['chrscid_e13_14', 'chrscid_e33'], voi_11, all_visits_list, 'int',        'chrscid_no_drug_lifetime___1', 'chrscid_sedhypanx_yn') 
+    sed_hyp_anx_disorder     = create_scid5_substance('chrscid_sedhypanx_use_disorder',     df_all, df_all, ['chrscid_e136_137', 'chrscid_e299_301'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_sedhypanx_yn')
+    cannabis_disorder        = create_scid5_substance('chrscid_cannabis_use_disorder',      df_all, df_all, ['chrscid_e138_139', 'chrscid_e303_305'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_cannabis_yn')
+    stimulants_disorder      = create_scid5_substance('chrscid_stimulants_use_disorder',    df_all, df_all, ['chrscid_e140_141', 'chrscid_e307_309'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_stimulant_yn')
+    opiod_disorder           = create_scid5_substance('chrscid_opiod_use_disorder',         df_all, df_all, ['chrscid_e142_143', 'chrscid_e311_313'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_opioids_yn')
+    inhalants_disorder       = create_scid5_substance('chrscid_inhalants_use_disorder',     df_all, df_all, ['chrscid_e144_145', 'chrscid_e315_317'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_inhalant_yn')
+    pcp_disorder             = create_scid5_substance('chrscid_pcp_use_disorder',           df_all, df_all, ['chrscid_e146_147', 'chrscid_e319_321'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_sedhypanx_yn')
+    hallucinogens_disorder   = create_scid5_substance('chrscid_halluc_use_disorder',        df_all, df_all, ['chrscid_e148_149', 'chrscid_e323_325'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_hallucinogen_yn')
+    other_substance_disorder = create_scid5_substance('chrscid_other_use_disorder',         df_all, df_all, ['chrscid_e150_151', 'chrscid_e327_329'], voi_11, all_visits_list, 'int', 'chrscid_no_drug_lifetime___1', 'chrscid_sedhypanx_yn')
     scid5_all_substance_condition= pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(pd.merge(alcohol_disorder, sed_hyp_anx_disorder, on = 'redcap_event_name'),\
                                                                                                            cannabis_disorder, on = 'redcap_event_name'),\
                                                                                                            stimulants_disorder, on = 'redcap_event_name'), \
@@ -2081,7 +2086,7 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['BM13061']
+        id_list = ['ME06126']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
