@@ -1250,8 +1250,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
-    print("chrpps_sum11")
-    print(chrpps_sum11)
     # pps 12 cannabis
     assist_2  =  float(df_pps['chrassist_whoassist_often3'].fillna(-900).iloc[0])
     assist_22  = float(df_pps['chrassist_whoassist_use3'].fillna(-900).iloc[0])
@@ -1263,8 +1261,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', 0)
-    print("chrpps_sum12")
-    print(chrpps_sum12)
     # pps 13 Childhood trauma
     ctq_df = df_all.copy()
     ctq_df['chrpps_special']   = 6 - ctq_df['chrpps_special'].astype(float)
