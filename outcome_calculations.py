@@ -682,7 +682,7 @@ def create_scid5_substance(outcome, df_1, df_2, var_list, visit_of_interest, all
 
 def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     '''create all warning messages as empty strings'''
-    num_warnings = 11
+    num_warnings = 13
     warnings = ['']*num_warnings
     # here I just create an example for how the warning messages could be printed:
     current_date_warn = datetime.now()
@@ -1168,8 +1168,6 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', 0.5)
     else:
         chrpps_sum7 = create_condition_value('chrpps_sum7', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
-    print("pps-third: ['chrpps_sum7']")
-    print(chrpps_sum7)
     # pps 8 SES
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1909-09-09', -900, df_pps['chrpps_focc'])
     df_pps['chrpps_focc'] = np.where(df_pps['chrpps_focc'] == '1903-03-03', -300, df_pps['chrpps_focc'])
@@ -1245,8 +1243,14 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum10 = create_condition_value('chrpps_sum10', df_all, df_all, voi_2, all_visits_list, 'float', -900)
         #print('not sure what is going on with chrpps_sum10')
     # pps 11 tobacco
-    assist_1  = float(df_pps['chrassist_whoassist_often1'].fillna(-900).iloc[0])
-    assist_12  = float(df_pps['chrassist_whoassist_use1'].fillna(-900).iloc[0])
+    if df_pps.empty:
+        assist_1 = float(-900)
+        assist_12 = float(-900)
+        print(f"Something weird is going on with df_pps[assist]")
+        warnings[7] = f"Something weird is going on with df_pps[assist] in line 1250"
+    else:
+        assist_1  = float(df_pps['chrassist_whoassist_often1'].fillna(-900).iloc[0])
+        assist_12  = float(df_pps['chrassist_whoassist_use1'].fillna(-900).iloc[0])
     if assist_1 == 6:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', 3)
     elif (assist_1 in (-900, -9)) and assist_12 != 0:
@@ -1256,8 +1260,14 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     else:
         chrpps_sum11 = create_condition_value('chrpps_sum11', df_all, df_all, voi_2, all_visits_list, 'float', -0.5)
     # pps 12 cannabis
-    assist_2  =  float(df_pps['chrassist_whoassist_often3'].fillna(-900).iloc[0])
-    assist_22  = float(df_pps['chrassist_whoassist_use3'].fillna(-900).iloc[0])
+    if df_pps.empty:
+        assist_2 = float(-900)
+        assist_22 = float(-900)
+        print(f"Something weird is going on with df_pps[assist]")
+        warnings[8] = f"Something weird is going on with df_pps[assist] in line 1250"
+    else:
+        assist_2  =  float(df_pps['chrassist_whoassist_often3'].fillna(-900).iloc[0])
+        assist_22  = float(df_pps['chrassist_whoassist_use3'].fillna(-900).iloc[0])
     if assist_2 > 3:
         chrpps_sum12 = create_condition_value('chrpps_sum12', df_all, df_all, voi_2, all_visits_list, 'float', 7)
     elif (assist_2 in (-900, -9)) and assist_22 != 0:
@@ -1286,7 +1296,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         ctq = ctq[ctq['redcap_event_name'].str.contains('baseline_arm_2')]
         ctq_final_score  = ctq['value'].to_numpy(dtype=float)
     else:
-        warnings[7] = f"neither chr nor hc 1094"
+        warnings[9] = f"neither chr nor hc 1094"
     if ctq_final_score > 55:
         chrpps_sum13 = create_condition_value('chrpps_sum13', df_all, df_all, voi_2, all_visits_list, 'float', 4)
     elif ctq_final_score > -1 and ctq_final_score < 56:
@@ -1297,7 +1307,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         chrpps_sum13 = create_condition_value('chrpps_sum13', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
         prfloat("What is going on with the CTQ")
-        warnings[8] = f"What is going on with the CTQ"
+        warnings[10] = f"What is going on with the CTQ"
     # pps 14 Trait anhedonia
     trait_df = df_all.copy()
     trait_df['chrpps_restaur']   = 7 - trait_df['chrpps_restaur'].astype(float)
@@ -1311,7 +1321,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
         trait = trait[trait['redcap_event_name'].str.contains('baseline_arm_2')]
         trait_final_score  = trait['value'].to_numpy(dtype=float)
     else:
-        warnings[9] = f"neither chr nor hc 1094"
+        warnings[11] = f"neither chr nor hc 1094"
     if trait_final_score < 36 and trait_final_score > -1:
         chrpps_sum14 = create_condition_value('chrpps_sum14', df_all, df_all, voi_2, all_visits_list, 'float', 6.5)
     elif trait_final_score > 35:
@@ -1321,7 +1331,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     elif (trait_final_score == -300 or trait_final_score == -3):
         chrpps_sum14 = create_condition_value('chrpps_sum14', df_all, df_all, voi_2, all_visits_list, 'float', -300)
     else:
-        warnings[10] = f"trait_final_score is werid 1129"
+        warnings[12] = f"trait_final_score is werid 1129"
         # --------------------------------------------------------------------------
     # add the childhood trauma variables based on conversation with Luis Alameda
     ctq_traumageneral_df = create_total_division('chrpps_total', ctq_df, df_all, ['chrpps_lazy', 'chrpps_born', 'chrpps_hate', 'chrpps_hurt',\
@@ -1593,7 +1603,7 @@ def compute_outcomes(subject_id: str) -> Optional[pd.DataFrame]:
     elif df_visit_sips['redcap_event_name'].str.contains('arm_2').any():
         sips_scr_chr['value'] = np.where(sips_scr_chr['redcap_event_name'].str.contains('arm_1'), -300, sips_scr_chr['value'])
     else:
-        warnings[11] = f"not the righ arm: 1380"
+        warnings[13] = f"not the righ arm: 1380"
     # create the sips/bips/grd diagnosis from baseline for follow-up
     psychs_scr = pd.concat([psychs_pos_tot_scr, psychs_sips_p1_scr, psychs_sips_p2_scr, psychs_sips_p3_scr, psychs_sips_p4_scr, psychs_sips_p5_scr, sips_pos_tot_scr, psychs_caarms_p1_scr,\
                             psychs_caarms_p2_scr, psychs_caarms_p3_scr, psychs_caarms_p4_scr, caarms_pos_tot_scr, psychosis_onset_date_scr, psychosis_scr,\
@@ -2086,12 +2096,13 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['ME06126']
+        id_list = ['BM73097']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
 # Changed the number of workers for other queue system (normal). Change back when other queue is available.
-num_workers = multiprocessing.cpu_count() // 2
+#num_workers = multiprocessing.cpu_count() // 2
+num_workers = int(os.environ.get("SLURM_CPUS_PER_TASK", 1))
 print("Number of processes: {0}".format(num_workers))
 pool = multiprocessing.Pool(num_workers)
 outcomes = pool.map(compute_outcomes, id_list)
