@@ -2096,7 +2096,7 @@ elif Network == 'Prescient':
     if version == 'test' or version == 'create_control':
         id_list = ['ME00772', 'ME78581','BM90491', 'ME33634', 'ME20845', 'BM73097', 'ME21922']
     elif version == 'single_subject':
-        id_list = ['BM73097']
+        id_list = ['BM58352', 'ME31725', 'CP08326']
     elif version == 'run_outcome':
         id_list = ids.iloc[:, 0].tolist()
 
